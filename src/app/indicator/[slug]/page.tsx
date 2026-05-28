@@ -13,73 +13,141 @@ export function generateStaticParams() {
   return Object.keys(indicators).map((slug) => ({ slug }))
 }
 
+// ── 설명 텍스트 렌더러 ───────────────────────────────────
+// \n\n 단락 분리, 단락 내 • 로 시작하는 줄은 리스트로 처리
+function DescBlock({ text }: { text: string }) {
+  const paras = text.trim().split('\n\n')
+  return (
+    <div className="space-y-4">
+      {paras.map((para, i) => {
+        const lines       = para.split('\n')
+        const bulletLines = lines.filter(l => l.trimStart().startsWith('•'))
+        const textLines   = lines.filter(l => !l.trimStart().startsWith('•'))
+
+        if (bulletLines.length > 0) {
+          return (
+            <div key={i} className="space-y-2">
+              {textLines.map((l, j) =>
+                l.trim() ? (
+                  <p key={j} className="text-[13px] font-semibold text-navi-text leading-snug">
+                    {l}
+                  </p>
+                ) : null
+              )}
+              <ul className="space-y-1.5 pt-0.5">
+                {bulletLines.map((l, j) => (
+                  <li key={j} className="flex gap-2 text-[13px] leading-relaxed">
+                    <span className="text-navi-accent shrink-0 font-bold mt-px">•</span>
+                    <span className="text-navi-text">{l.replace(/^[\s•]+/, '')}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        return (
+          <p key={i} className="text-[13px] text-navi-text leading-[1.9] tracking-wide">
+            {para}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── howToRead 한 항목 렌더러 ─────────────────────────────
+// "조건 → 의미" 형태로 분리해 조건은 굵게, 의미는 muted 처리
+function ReadItem({ text, index }: { text: string; index: number }) {
+  const arrow = text.indexOf('→')
+  const cond  = arrow > -1 ? text.slice(0, arrow).trim() : text
+  const mean  = arrow > -1 ? text.slice(arrow + 1).trim() : ''
+
+  return (
+    <li className="flex gap-3">
+      <span className="shrink-0 w-[22px] h-[22px] rounded-full bg-navi-accent/15 text-navi-accent
+                       text-[11px] font-bold flex items-center justify-center mt-0.5">
+        {index + 1}
+      </span>
+      <p className="text-[13px] leading-relaxed">
+        <span className="font-semibold text-navi-text">{cond}</span>
+        {mean && (
+          <>
+            <span className="text-navi-accent font-bold mx-1.5">→</span>
+            <span className="text-navi-muted">{mean}</span>
+          </>
+        )}
+      </p>
+    </li>
+  )
+}
+
+// ── 섹션 레이블 ──────────────────────────────────────────
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-bold text-navi-muted uppercase tracking-[0.12em] mb-4">
+      {children}
+    </p>
+  )
+}
+
 export default function IndicatorDetailPage({ params }: Props) {
   const indicator = indicators[params.slug]
   if (!indicator) notFound()
 
   return (
     <main className="min-h-screen px-4 py-10 max-w-2xl mx-auto">
+
       {/* 뒤로가기 */}
       <Link href="/chart" className="text-navi-muted text-sm hover:text-navi-text">
         ← 차트로 돌아가기
       </Link>
 
-      {/* 헤더 */}
-      <div className="mt-6 mb-6">
+      {/* ── 헤더 ── */}
+      <div className="mt-7 mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-2xl font-bold text-navi-text">{indicator.name}</h1>
+          <h1 className="text-2xl font-bold text-navi-text leading-tight">
+            {indicator.name}
+          </h1>
           <DifficultyBadge level={indicator.difficulty} />
         </div>
-        <p className="text-navi-accent font-medium text-sm leading-relaxed">
+        <p className="text-navi-accent text-[15px] font-medium leading-snug mt-1">
           {indicator.oneLineSummary}
         </p>
       </div>
 
       <div className="space-y-4">
 
-        {/* ── 실제 차트 예시 ── */}
+        {/* ── 차트 예시 ── */}
         <RoundedCard>
-          <p className="text-xs text-navi-muted font-semibold uppercase tracking-wide mb-3">
-            실제 차트 예시 · NVDA 최근 데이터
-          </p>
+          <SectionLabel>실제 차트 예시 · NVDA 최근 데이터</SectionLabel>
           <MiniChartPreview slug={indicator.slug} />
         </RoundedCard>
 
-        {/* ── 한마디 요약 ── */}
+        {/* ── 설명 ── */}
         <RoundedCard>
-          <p className="text-xs text-navi-muted font-semibold uppercase tracking-wide mb-2">
-            이게 뭔가요?
-          </p>
-          <p className="text-navi-text text-sm leading-relaxed whitespace-pre-line">
-            {indicator.description}
-          </p>
+          <SectionLabel>이게 뭔가요?</SectionLabel>
+          <DescBlock text={indicator.description} />
         </RoundedCard>
 
-        {/* ── 어떻게 읽나요 ── */}
+        {/* ── 읽는 법 ── */}
         <RoundedCard>
-          <p className="text-xs text-navi-muted font-semibold uppercase tracking-wide mb-3">
-            어떻게 읽어요?
-          </p>
-          <ul className="space-y-3">
+          <SectionLabel>어떻게 읽어요?</SectionLabel>
+          <ol className="space-y-4">
             {indicator.howToRead.map((item, i) => (
-              <li key={i} className="flex gap-2 text-sm text-navi-text leading-relaxed">
-                <span className="text-navi-accent shrink-0 mt-0.5">•</span>
-                <span>{item}</span>
-              </li>
+              <ReadItem key={i} text={item} index={i} />
             ))}
-          </ul>
+          </ol>
         </RoundedCard>
 
         {/* ── 실전 팁 ── */}
         {indicator.tips && indicator.tips.length > 0 && (
           <RoundedCard>
-            <p className="text-xs text-navi-muted font-semibold uppercase tracking-wide mb-3">
-              💡 실전 팁
-            </p>
+            <SectionLabel>💡 실전 팁</SectionLabel>
             <ul className="space-y-3">
               {indicator.tips.map((tip, i) => (
-                <li key={i} className="flex gap-2 text-sm leading-relaxed">
-                  <span className="text-amber-400 shrink-0 mt-0.5">→</span>
+                <li key={i} className="flex gap-3 text-[13px] leading-relaxed">
+                  <span className="shrink-0 text-amber-400 font-bold mt-px">→</span>
                   <span className="text-navi-text">{tip}</span>
                 </li>
               ))}
@@ -89,11 +157,11 @@ export default function IndicatorDetailPage({ params }: Props) {
 
         {/* ── 주의할 점 ── */}
         {indicator.caution && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4">
-            <p className="text-xs font-semibold text-red-400 uppercase tracking-wide mb-2">
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-4">
+            <p className="text-[10px] font-bold text-red-400 uppercase tracking-[0.12em] mb-3">
               ⚠ 주의할 점
             </p>
-            <p className="text-sm text-navi-text leading-relaxed">
+            <p className="text-[13px] text-navi-text leading-[1.9] tracking-wide">
               {indicator.caution}
             </p>
           </div>
@@ -101,16 +169,17 @@ export default function IndicatorDetailPage({ params }: Props) {
 
       </div>
 
-      {/* CTA */}
-      <div className="mt-8">
+      {/* ── CTA ── */}
+      <div className="mt-10">
         <Link
           href="/chart"
           className="w-full block text-center py-3.5 bg-navi-accent text-white
-                     font-semibold rounded-2xl hover:bg-indigo-500 transition-colors"
+                     text-[14px] font-semibold rounded-2xl hover:bg-indigo-500 transition-colors"
         >
           차트에서 직접 확인해보기 →
         </Link>
       </div>
+
     </main>
   )
 }

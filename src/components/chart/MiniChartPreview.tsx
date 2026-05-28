@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { createChart, ColorType, CrosshairMode, type IChartApi } from 'lightweight-charts'
+import { createChart, ColorType, CrosshairMode, type IChartApi, type Time } from 'lightweight-charts'
 import { calcBollingerBands, calcMA, calcRSI, calcMACD } from '@/lib/indicators'
 import type { IndicatorSlug } from '@/types'
 import type { CandleData } from '@/types'
@@ -139,7 +139,15 @@ export function MiniChartPreview({ slug }: Props) {
       )
     }
 
-    mainChart.timeScale().fitContent()
+    // moving-average: 200일치를 계산에 쓰되 최근 60일만 화면에 표시
+    // → 캔들과 MA선이 크게 보여 가독성 향상
+    if (slug === 'moving-average') {
+      const visFrom = preview[Math.max(0, preview.length - 60)].time as Time
+      const visTo   = preview[preview.length - 1].time as Time
+      mainChart.timeScale().setVisibleRange({ from: visFrom, to: visTo })
+    } else {
+      mainChart.timeScale().fitContent()
+    }
 
     // ── 서브 차트 (RSI / MACD) ────────────────────────
     let subChart: IChartApi | null = null
