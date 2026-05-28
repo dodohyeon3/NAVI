@@ -53,7 +53,7 @@ export function MiniChartPreview({ slug }: Props) {
 
     // moving-average는 MA120이 필요하므로 더 넓은 범위 사용, 나머지는 90일
     const preview    = slug === 'moving-average' ? data.slice(-200) : data.slice(-90)
-    const mainHeight = needsSub ? 140 : 200
+    const mainHeight = needsSub ? 240 : 320
     const mainChart  = makeChart(mainRef.current, mainHeight)
 
     const candleSeries = mainChart.addCandlestickSeries({
@@ -145,7 +145,7 @@ export function MiniChartPreview({ slug }: Props) {
     let subChart: IChartApi | null = null
 
     if (slug === 'rsi' && subRef.current) {
-      subChart = makeChart(subRef.current, 90)
+      subChart = makeChart(subRef.current, 130)
       const rsiData = calcRSI(preview)
       subChart.addLineSeries({ color: '#a78bfa', lineWidth: 2, lastValueVisible: true, priceLineVisible: false })
         .setData(rsiData as any)
@@ -160,7 +160,7 @@ export function MiniChartPreview({ slug }: Props) {
     }
 
     if (slug === 'macd' && subRef.current) {
-      subChart = makeChart(subRef.current, 90)
+      subChart = makeChart(subRef.current, 130)
       const md = calcMACD(preview)
       subChart.addHistogramSeries({ color: '#26a69a', lastValueVisible: false, priceLineVisible: false })
         .setData(md.filter(d => d.histogram !== null).map(d => ({ time: d.time, value: d.histogram!, color: d.histogram! >= 0 ? '#26a69a' : '#ef5350' })) as any)

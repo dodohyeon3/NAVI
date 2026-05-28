@@ -6,6 +6,8 @@ export interface Indicator {
   oneLineSummary: string
   description: string
   howToRead: string[]
+  tips?: string[]        // 실전 활용 팁
+  caution?: string       // 주의할 점
   difficulty: 1 | 2 | 3  // 1=쉬움, 3=어려움
   exampleImageUrl?: string
 }
