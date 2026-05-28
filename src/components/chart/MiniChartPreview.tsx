@@ -51,8 +51,8 @@ export function MiniChartPreview({ slug }: Props) {
   useEffect(() => {
     if (!mainRef.current || data.length === 0) return
 
-    // 최근 90일 사용
-    const preview    = data.slice(-90)
+    // moving-average는 MA120이 필요하므로 더 넓은 범위 사용, 나머지는 90일
+    const preview    = slug === 'moving-average' ? data.slice(-200) : data.slice(-90)
     const mainHeight = needsSub ? 140 : 200
     const mainChart  = makeChart(mainRef.current, mainHeight)
 
@@ -79,11 +79,15 @@ export function MiniChartPreview({ slug }: Props) {
     }
 
     if (slug === 'moving-average') {
-      const ma20 = calcMA(preview, 20)
-      const ma60 = calcMA(preview, 60)
+      const ma5   = calcMA(preview, 5)
+      const ma20  = calcMA(preview, 20)
+      const ma60  = calcMA(preview, 60)
+      const ma120 = calcMA(preview, 120)
       ;[
-        { d: ma20, color: '#f59e0b' },
-        { d: ma60, color: '#a78bfa' },
+        { d: ma5,   color: '#facc15' },  // 노랑 — 단기
+        { d: ma20,  color: '#f97316' },  // 주황 — 단기~중기
+        { d: ma60,  color: '#a78bfa' },  // 보라 — 중기
+        { d: ma120, color: '#f43f5e' },  // 빨강 — 장기
       ].forEach(({ d, color }) =>
         mainChart.addLineSeries({
           color, lineWidth: 2,
@@ -91,14 +95,14 @@ export function MiniChartPreview({ slug }: Props) {
         }).setData(d as any)
       )
 
-      // 골든크로스 마커
+      // 골든크로스 마커 (MA5 × MA20 — 200일 내 가장 최근 1개)
       const markers: any[] = []
-      for (let i = 1; i < Math.min(ma20.length, ma60.length); i++) {
-        if (ma20[i - 1].value < ma60[i - 1].value && ma20[i].value >= ma60[i].value) {
-          markers.push({ time: ma20[i].time, position: 'belowBar', color: '#fbbf24', shape: 'arrowUp', text: '골든크로스' })
+      for (let i = 1; i < Math.min(ma5.length, ma20.length); i++) {
+        if (ma5[i - 1].value < ma20[i - 1].value && ma5[i].value >= ma20[i].value) {
+          markers.push({ time: ma5[i].time, position: 'belowBar', color: '#fbbf24', shape: 'arrowUp', text: '골든크로스' })
         }
       }
-      if (markers.length) candleSeries.setMarkers(markers.slice(0, 1) as any)
+      if (markers.length) candleSeries.setMarkers(markers.slice(-1) as any)
     }
 
     if (slug === 'trendline') {
@@ -183,7 +187,12 @@ export function MiniChartPreview({ slug }: Props) {
   // 범례
   const legends: { color: string; label: string }[] = []
   if (slug === 'bollinger')      legends.push({ color: '#60a5fa', label: '밴드' },     { color: '#94a3b8', label: '중심(MA20)' })
-  if (slug === 'moving-average') legends.push({ color: '#f59e0b', label: 'MA 20' },   { color: '#a78bfa', label: 'MA 60' })
+  if (slug === 'moving-average') legends.push(
+    { color: '#facc15', label: 'MA 5' },
+    { color: '#f97316', label: 'MA 20' },
+    { color: '#a78bfa', label: 'MA 60' },
+    { color: '#f43f5e', label: 'MA 120' },
+  )
   if (slug === 'rsi')            legends.push({ color: '#a78bfa', label: 'RSI(14)' }, { color: '#ef4444', label: '70' }, { color: '#22c55e', label: '30' })
   if (slug === 'macd')           legends.push({ color: '#60a5fa', label: 'MACD' },    { color: '#f97316', label: '시그널' })
   if (slug === 'trendline')      legends.push({ color: '#6c63ff', label: '상승 추세선' })
