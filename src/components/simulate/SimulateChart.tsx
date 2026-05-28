@@ -308,8 +308,9 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     chart.timeScale().subscribeVisibleTimeRangeChange((range) => {
       redrawCanvas()
       if (!range) return
-      try { rsiChart.current?.timeScale().setVisibleRange(range) }  catch {}
-      try { macdChart.current?.timeScale().setVisibleRange(range) } catch {}
+      // 이미 생성된 서브차트에만 setVisibleRange (없으면 무시 — 각 서브차트 effect의 RAF가 초기 sync 담당)
+      if (rsiChart.current)  { try { rsiChart.current.timeScale().setVisibleRange(range)  } catch {} }
+      if (macdChart.current) { try { macdChart.current.timeScale().setVisibleRange(range) } catch {} }
     })
     chart.subscribeCrosshairMove((p: MouseEventParams<Time>) => {
       mouseRef.current = p.point ? { x: p.point.x, y: p.point.y } : null
@@ -429,11 +430,19 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       rsiSeries.current.ob.setData([{ time: f, value: 70 }, { time: l, value: 70 }] as any)
       rsiSeries.current.os.setData([{ time: f, value: 30 }, { time: l, value: 30 }] as any)
     }
+    // ① 메인 차트 range를 동기적으로 캡처 (RAF 안에서 읽으면 타이밍에 따라 null 가능)
+    const capturedRsiRange = chartRef.current?.timeScale().getVisibleRange() ?? null
     rc.timeScale().fitContent()
-    // RAF 로 fitContent 렌더 패스 완료 후 TimeRange 기반으로 메인 차트와 동기화
     requestAnimationFrame(() => {
-      const mainRange = chartRef.current?.timeScale().getVisibleRange()
-      if (mainRange) { try { rc.timeScale().setVisibleRange(mainRange) } catch {} }
+      // ② 첫 마운트 시 rsiDiv.clientWidth 가 0일 수 있으므로 여기서 재보정
+      if (rsiDiv.current) {
+        const w = rsiDiv.current.clientWidth
+        if (w > 0) rc.applyOptions({ width: w })
+      }
+      // ③ 줌/스크롤 상태 반영 — range 없으면 fitContent 이미 적용된 상태 유지
+      if (capturedRsiRange) {
+        try { rc.timeScale().setVisibleRange(capturedRsiRange) } catch {}
+      }
     })
   }, [activeInds, revealed, pastData, futureData])
 
@@ -466,11 +475,19 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     macdSeries.current.hist.setData(md.filter(d => d.histogram !== null).map(d => ({ time: d.time, value: d.histogram!, color: d.histogram! >= 0 ? '#26a69a' : '#ef5350' })) as any)
     macdSeries.current.line.setData(md.map(d => ({ time: d.time, value: d.macd })) as any)
     macdSeries.current.signal.setData(md.filter(d => d.signal !== null).map(d => ({ time: d.time, value: d.signal! })) as any)
+    // ① 메인 차트 range를 동기적으로 캡처
+    const capturedMacdRange = chartRef.current?.timeScale().getVisibleRange() ?? null
     mc.timeScale().fitContent()
-    // RAF 로 fitContent 렌더 패스 완료 후 TimeRange 기반으로 메인 차트와 동기화
     requestAnimationFrame(() => {
-      const mainRange = chartRef.current?.timeScale().getVisibleRange()
-      if (mainRange) { try { mc.timeScale().setVisibleRange(mainRange) } catch {} }
+      // ② 첫 마운트 시 macdDiv.clientWidth 가 0일 수 있으므로 여기서 재보정
+      if (macdDiv.current) {
+        const w = macdDiv.current.clientWidth
+        if (w > 0) mc.applyOptions({ width: w })
+      }
+      // ③ 줌/스크롤 상태 반영
+      if (capturedMacdRange) {
+        try { mc.timeScale().setVisibleRange(capturedMacdRange) } catch {}
+      }
     })
   }, [activeInds, revealed, pastData, futureData])
 
