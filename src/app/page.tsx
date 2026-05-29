@@ -151,8 +151,8 @@ export default function LandingPage() {
             ].map((step, i, arr) => (
               <span key={step.label} className="flex items-center gap-2">
                 <span className={[
-                  'text-[11.5px] font-medium',
-                  step.accent ? 'text-navi-accent' : 'text-navi-secondary',
+                  'text-[11.5px]',
+                  step.accent ? 'text-navi-text font-semibold' : 'text-navi-secondary font-medium',
                 ].join(' ')}>
                   {step.label}
                 </span>
@@ -171,7 +171,7 @@ export default function LandingPage() {
 
           {/* 진행 바 */}
           <div className="mt-3 h-0.5 w-full bg-navi-border2 rounded-full overflow-hidden">
-            <div className="h-full bg-navi-accent rounded-full" style={{ width: '0%' }} />
+            <div className="h-full bg-navi-action rounded-full" style={{ width: '0%' }} />
           </div>
         </div>
       </div>

@@ -37,7 +37,7 @@ function DescBlock({ text }: { text: string }) {
               <ul className="space-y-1.5 pt-0.5">
                 {bulletLines.map((l, j) => (
                   <li key={j} className="flex gap-2 text-[13px] leading-relaxed">
-                    <span className="text-navi-accent shrink-0 font-bold mt-px">•</span>
+                    <span className="text-navi-muted shrink-0 font-bold mt-px">•</span>
                     <span className="text-navi-text">{l.replace(/^[\s•]+/, '')}</span>
                   </li>
                 ))}
@@ -65,7 +65,7 @@ function ReadItem({ text, index }: { text: string; index: number }) {
 
   return (
     <li className="flex gap-3">
-      <span className="shrink-0 w-[22px] h-[22px] rounded-full bg-navi-accent/15 text-navi-accent
+      <span className="shrink-0 w-[22px] h-[22px] rounded-full bg-navi-surface3 text-navi-secondary
                        text-[11px] font-bold flex items-center justify-center mt-0.5">
         {index + 1}
       </span>
@@ -73,7 +73,7 @@ function ReadItem({ text, index }: { text: string; index: number }) {
         <span className="font-semibold text-navi-text">{cond}</span>
         {mean && (
           <>
-            <span className="text-navi-accent font-bold mx-1.5">→</span>
+            <span className="text-navi-muted font-bold mx-1.5">→</span>
             <span className="text-navi-muted">{mean}</span>
           </>
         )}
@@ -111,7 +111,7 @@ export default function IndicatorDetailPage({ params }: Props) {
           </h1>
           <DifficultyBadge level={indicator.difficulty} />
         </div>
-        <p className="text-navi-accent text-[15px] font-medium leading-snug mt-1">
+        <p className="text-navi-secondary text-[15px] font-medium leading-snug mt-1">
           {indicator.oneLineSummary}
         </p>
       </div>
@@ -147,7 +147,7 @@ export default function IndicatorDetailPage({ params }: Props) {
             <ul className="space-y-3">
               {indicator.tips.map((tip, i) => (
                 <li key={i} className="flex gap-3 text-[13px] leading-relaxed">
-                  <span className="shrink-0 text-amber-400 font-bold mt-px">→</span>
+                  <span className="shrink-0 text-navi-muted font-bold mt-px">→</span>
                   <span className="text-navi-text">{tip}</span>
                 </li>
               ))}
@@ -156,12 +156,13 @@ export default function IndicatorDetailPage({ params }: Props) {
         )}
 
         {/* ── 주의할 점 ── */}
+        {/* 주의 카드 = danger surface + border, 텍스트는 흰색 */}
         {indicator.caution && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-4">
-            <p className="text-[10px] font-bold text-red-400 uppercase tracking-[0.12em] mb-3">
+          <div className="rounded-2xl border border-navi-danger/25 bg-navi-danger/[0.08] px-5 py-4">
+            <p className="text-[10px] font-bold text-navi-text uppercase tracking-[0.12em] mb-3">
               ⚠ 주의할 점
             </p>
-            <p className="text-[13px] text-navi-text leading-[1.9] tracking-wide">
+            <p className="text-[13px] text-navi-secondary leading-[1.9] tracking-wide">
               {indicator.caution}
             </p>
           </div>
@@ -173,8 +174,8 @@ export default function IndicatorDetailPage({ params }: Props) {
       <div className="mt-10">
         <Link
           href="/chart"
-          className="w-full block text-center py-3.5 bg-navi-accent text-white
-                     text-[14px] font-semibold rounded-2xl hover:bg-indigo-500 transition-colors"
+          className="w-full block text-center py-3.5 bg-navi-action text-white
+                     text-[14px] font-semibold rounded-2xl hover:bg-navi-action-hover transition-colors"
         >
           차트에서 직접 확인해보기 →
         </Link>

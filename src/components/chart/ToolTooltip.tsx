@@ -35,7 +35,7 @@ export function ToolTooltip({ indicator, visible }: Props) {
           <p className="text-[11px] text-navi-secondary mt-1 leading-relaxed">
             {indicator.oneLineSummary}
           </p>
-          <p className="mt-2 text-[10px] tracking-[0.05em] uppercase text-navi-accent font-semibold">
+          <p className="mt-2 text-[10px] tracking-[0.05em] uppercase text-navi-muted font-semibold">
             클릭하면 차트에 표시
           </p>
         </motion.div>

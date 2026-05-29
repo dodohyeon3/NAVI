@@ -110,8 +110,8 @@ function ChartPageInner() {
             <button
               onClick={start}
               className="h-7 px-3 text-[11px] font-semibold rounded-lg
-                         bg-navi-action/12 text-navi-action border border-navi-action/28
-                         hover:bg-navi-action/20 hover:border-navi-action/50
+                         bg-navi-action/10 text-navi-text border border-navi-action/25
+                         hover:bg-navi-action/18 hover:border-navi-action/45
                          transition-all duration-150"
             >
               튜토리얼

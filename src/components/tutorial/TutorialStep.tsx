@@ -406,11 +406,10 @@ export function TutorialStep() {
         </p>
       )}
       {currentStep.tips && currentStep.tips.length > 0 && (
-        /* Tips = Info color (안내/가이드) */
         <ul className="bg-navi-surface2 rounded-lg p-2.5 space-y-1">
           {currentStep.tips.map((tip, i) => (
             <li key={i} className="flex gap-1.5 text-[11px] text-navi-secondary">
-              <span className="text-navi-info shrink-0 mt-px">•</span>
+              <span className="text-navi-muted shrink-0 mt-px">•</span>
               <span>{tip}</span>
             </li>
           ))}
@@ -429,7 +428,7 @@ export function TutorialStep() {
               지금 해보세요
             </span>
           </div>
-          <p className="text-[11.5px] leading-snug" style={{ color: 'rgba(91,127,255,0.88)' }}>
+          <p className="text-[11.5px] text-navi-text leading-snug">
             {currentStep.mission}
           </p>
         </div>
@@ -465,17 +464,17 @@ export function TutorialStep() {
     <div className="px-4 py-3 space-y-2">
       <p className="text-[13px] font-bold text-navi-text leading-snug">{currentStep.title}</p>
 
-      {/* Judgment result — Info color (학습 피드백 = 안내) */}
+      {/* Judgment result — info surface, 흰 텍스트 */}
       {currentStep.actionRequired === 'judgment' &&
        currentStep.judgment && chosenJudgment && (() => {
          const chosen = currentStep.judgment!.choices.find(c => c.value === chosenJudgment)
          return chosen ? (
-           <div className="bg-navi-info/[0.07] border border-navi-info/20 rounded-lg p-2.5">
+           <div className="bg-navi-info/[0.07] border border-navi-info/25 rounded-lg p-2.5">
              <div className="flex items-center gap-2 mb-1">
                <span className="leading-none">{chosen.icon}</span>
-               <span className="text-[11px] font-semibold text-navi-info">{chosen.label}</span>
+               <span className="text-[11px] font-semibold text-navi-text">{chosen.label}</span>
              </div>
-             <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(79,209,255,0.80)' }}>
+             <p className="text-[11px] text-navi-secondary leading-relaxed">
                {chosen.feedback}
              </p>
            </div>
@@ -514,10 +513,10 @@ export function TutorialStep() {
         </div>
       )}
 
-      {/* Completion message — Success tint */}
+      {/* Completion message — success surface, 흰 텍스트 */}
       {currentStep.completionMessage && (
-        <div className="bg-navi-success/[0.07] border border-navi-success/18 rounded-lg p-2.5">
-          <p className="text-[11px] text-navi-success leading-relaxed">
+        <div className="bg-navi-success/[0.07] border border-navi-success/25 rounded-lg p-2.5">
+          <p className="text-[11px] text-navi-text leading-relaxed">
             ✓ {currentStep.completionMessage}
           </p>
         </div>
@@ -546,19 +545,21 @@ export function TutorialStep() {
                 <div key={q.id}
                   className={clsx(
                     'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px]',
-                    /* Success = 정답, Danger = 오답 */
-                    ok ? 'bg-navi-success/[0.10] text-navi-success' : 'bg-navi-danger/[0.10] text-navi-danger'
+                    /* Success/Danger surface + border, 텍스트는 흰색 */
+                    ok
+                      ? 'bg-navi-success/[0.08] border border-navi-success/25 text-navi-text'
+                      : 'bg-navi-danger/[0.08] border border-navi-danger/25 text-navi-text'
                   )}>
                   <span>{ok ? '✓' : '✗'}</span>
                   <span className="flex-1 font-medium">{q.label}</span>
-                  <span className="text-[10px] opacity-70">
+                  <span className="text-[10px] text-navi-secondary">
                     {q.choices.find(c => c.v === user)?.label}
                   </span>
                 </div>
               )
             })}
-            {/* 예측 = Info (정답 없는 자유 판단) */}
-            <div className="bg-navi-info/[0.07] text-navi-info text-[11px] text-center py-2 rounded-lg border border-navi-info/15">
+            {/* 예측 = info surface, 흰 텍스트 */}
+            <div className="bg-navi-info/[0.07] text-navi-text text-[11px] text-center py-2 rounded-lg border border-navi-info/25">
               내 예측:{' '}
               {questions[3]?.choices.find(c => c.v === testAnswers['prediction'])?.icon}{' '}
               {questions[3]?.choices.find(c => c.v === testAnswers['prediction'])?.label}
@@ -574,14 +575,14 @@ export function TutorialStep() {
       <div className="px-4 py-3 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[12.5px] font-bold text-navi-text">{q.label}</p>
-          {/* 진행 배지 = Warning (주목 끌기) */}
-          <span className="shrink-0 text-[9px] font-bold text-navi-warning
-                           bg-navi-warning/10 px-1.5 py-0.5 rounded-full border border-navi-warning/20">
+          {/* Q 카운터 배지 = surface3 (surface로 위계 표현) */}
+          <span className="shrink-0 text-[9px] font-bold text-navi-text
+                           bg-navi-surface3 px-1.5 py-0.5 rounded-full border border-navi-border2">
             {testQIdx + 1} / {questions.length}
           </span>
         </div>
-        {/* 힌트 = Info */}
-        <p className="text-[10px] text-navi-info flex items-center gap-1">
+        {/* 힌트 = 보조 텍스트 */}
+        <p className="text-[10px] text-navi-secondary flex items-center gap-1">
           <span style={{ opacity: 0.7 }}>💡</span> {q.hint}
         </p>
 

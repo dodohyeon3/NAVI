@@ -35,24 +35,24 @@ function WelcomeBanner() {
   const [show, setShow] = useState(fromTutorial)
   if (!show) return null
   return (
-    <div className="mb-4 bg-gradient-to-r from-indigo-500/15 to-purple-500/10
-                    border border-indigo-500/30 rounded-2xl p-4 relative">
+    /* 튜토리얼 완료 = success 카드 (surface + border, 흰 텍스트) */
+    <div className="mb-4 bg-navi-success/[0.08] border border-navi-success/25 rounded-2xl p-4 relative">
       <button
         onClick={() => setShow(false)}
-        className="absolute top-3 right-3 text-indigo-400/50 hover:text-indigo-400 text-lg leading-none"
+        className="absolute top-3 right-3 text-navi-muted hover:text-navi-text text-lg leading-none"
       >×</button>
-      <p className="text-sm font-bold text-indigo-300 mb-1">
+      <p className="text-sm font-bold text-navi-text mb-1">
         🎉 튜토리얼 완료! 이제 진짜 시험이에요
       </p>
-      <p className="text-xs text-indigo-300/70 leading-relaxed">
+      <p className="text-xs text-navi-secondary leading-relaxed">
         방금 배운 MA·RSI·MACD·볼린저 밴드를 모두 사용할 수 있어요.
         분석 도구를 켜고 지표들을 종합해서 예측해봐요. 틀려도 완전히 괜찮아요!
       </p>
       <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
-        <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300">MA 추세 확인</span>
-        <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">RSI 과열 체크</span>
-        <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">MACD 모멘텀</span>
-        <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300">BB 변동성</span>
+        <span className="px-2 py-0.5 rounded-full bg-navi-surface2 border border-navi-border2 text-navi-secondary">MA 추세 확인</span>
+        <span className="px-2 py-0.5 rounded-full bg-navi-surface2 border border-navi-border2 text-navi-secondary">RSI 과열 체크</span>
+        <span className="px-2 py-0.5 rounded-full bg-navi-surface2 border border-navi-border2 text-navi-secondary">MACD 모멘텀</span>
+        <span className="px-2 py-0.5 rounded-full bg-navi-surface2 border border-navi-border2 text-navi-secondary">BB 변동성</span>
       </div>
     </div>
   )
@@ -100,8 +100,8 @@ export default function SimulatePage() {
   if (error) return (
     <div className="min-h-screen flex items-center justify-center bg-navi-bg">
       <div className="flex flex-col items-center gap-3">
-        <p className="text-sm text-red-400">데이터를 불러오지 못했어요</p>
-        <Link href="/chart" className="text-xs text-navi-accent hover:underline">차트로 돌아가기</Link>
+        <p className="text-sm text-navi-secondary">데이터를 불러오지 못했어요</p>
+        <Link href="/chart" className="text-xs text-navi-muted hover:text-navi-text transition-colors">차트로 돌아가기</Link>
       </div>
     </div>
   )
@@ -118,7 +118,7 @@ export default function SimulatePage() {
           <h1 className="text-navi-text font-bold text-sm">예측 시뮬레이션</h1>
           <p className="text-navi-muted text-xs">NVDA · 과거 데이터 챌린지</p>
         </div>
-        <button onClick={retry} className="text-xs text-navi-accent hover:underline">
+        <button onClick={retry} className="text-xs text-navi-muted hover:text-navi-text transition-colors">
           다른 구간
         </button>
       </div>
@@ -137,7 +137,7 @@ export default function SimulatePage() {
           아래 차트는 NVDA의 실제 과거 {PAST_DAYS}일(약 {Math.round(PAST_DAYS / 21)}개월) 데이터예요.
           노란 점선 오른쪽의 {FUTURE_DAYS}일이 숨겨져 있어요.
           분석 도구·작도 도구를 활용해 예측한 뒤{' '}
-          <span className="text-indigo-400 font-medium">결과 보기</span>를 눌러보세요.
+          <span className="text-navi-text font-semibold">결과 보기</span>를 눌러보세요.
         </p>
         <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-navi-muted">
           <span>🔵 분석 도구로 지표 추가</span>

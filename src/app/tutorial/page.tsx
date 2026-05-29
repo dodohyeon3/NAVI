@@ -97,15 +97,16 @@ const ITEM = {
   show:   { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1] } },
 }
 
+/* Surface 계층으로 배지 구분 — 텍스트 색 최소화 */
 const BADGE_COLORS: Record<string, string> = {
-  '직접 클릭':   'bg-navi-accent/10 text-navi-accent',
-  '직접 그려요': 'bg-amber-500/10 text-amber-400',
-  '토글':        'bg-navi-accent/10 text-navi-accent',
+  '직접 클릭':   'bg-navi-surface3 text-navi-text',
+  '직접 그려요': 'bg-navi-surface3 text-navi-text',
+  '토글':        'bg-navi-surface3 text-navi-text',
   '판단':        'bg-navi-surface2 text-navi-secondary',
-  '테스트':      'bg-emerald-500/10 text-emerald-400',
-  '축하':        'bg-navi-surface2 text-navi-text',
+  '테스트':      'bg-navi-surface3 text-navi-text',
+  '축하':        'bg-navi-surface2 text-navi-secondary',
   '안내':        'bg-navi-surface2 text-navi-secondary',
-  '실전':        'bg-navi-surface2 text-navi-accent',
+  '실전':        'bg-navi-surface3 text-navi-text',
 }
 
 export default function TutorialPage() {
@@ -125,9 +126,9 @@ export default function TutorialPage() {
         className="mb-8"
       >
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full
-                        bg-navi-accent/10 border border-navi-accent/25 mb-4">
+                        bg-navi-surface2 border border-navi-border2 mb-4">
           <span className="w-1.5 h-1.5 rounded-full bg-navi-accent animate-pulse" />
-          <span className="text-[11px] font-semibold text-navi-accent">
+          <span className="text-[11px] font-semibold text-navi-text">
             읽기만 하는 설명 NO — 직접 해보는 튜토리얼
           </span>
         </div>
@@ -135,7 +136,7 @@ export default function TutorialPage() {
         <h1 className="text-2xl font-black text-navi-text leading-tight">
           "RSI를 배웠다"가<br />
           아니라<br />
-          <span className="text-navi-accent">"차트를 읽을 수 있다"</span><br />
+          <span className="text-navi-text">"차트를 읽을 수 있다"</span><br />
           는 느낌
         </h1>
         <p className="text-navi-muted text-sm mt-3 leading-relaxed">
@@ -165,7 +166,7 @@ export default function TutorialPage() {
             variants={ITEM}
             className={`flex items-center gap-4 rounded-2xl px-4 py-3 border transition-colors
               ${step.highlight
-                ? 'bg-navi-accent/[0.08] border-navi-accent/25'
+                ? 'bg-navi-surface2 border-navi-border2'
                 : 'bg-navi-surface border-navi-border'
               }`}
           >
@@ -196,7 +197,7 @@ export default function TutorialPage() {
         transition={{ delay: 0.9 }}
         className="mb-8 px-4 py-3.5 rounded-2xl bg-navi-surface border border-navi-accent/20"
       >
-        <p className="text-xs text-navi-accent/80 leading-relaxed">
+        <p className="text-xs text-navi-secondary leading-relaxed">
           💡 <strong>어떤 버튼을 눌러도 데이터는 사라지지 않아요.</strong>{' '}
           설명을 읽는 게 아니라 실제 차트 위에서 직접 클릭하고 판단하면서
           차트 읽기 능력이 자연스럽게 생겨요.

@@ -29,7 +29,8 @@ export function LearningPath() {
       <div className="flex items-center gap-1.5 mb-2">
         <span className="text-[11px] font-bold text-navi-muted">학습 경로</span>
         {allDone ? (
-          <span className="text-[10px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+          /* 완료 배지 = success surface (텍스트 아닌 배경으로 상태 표현) */
+          <span className="text-[10px] bg-navi-success/[0.08] text-navi-text px-2 py-0.5 rounded-full border border-navi-success/25">
             🎉 모두 완료!
           </span>
         ) : (
@@ -50,16 +51,18 @@ export function LearningPath() {
               className={[
                 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-medium whitespace-nowrap transition-all shrink-0',
                 done
-                  ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
+                  /* 완료 = success surface + border, 흰 텍스트 */
+                  ? 'bg-navi-success/[0.07] border-navi-success/22 text-navi-text'
                   : current
-                  ? 'bg-indigo-500/15 border-indigo-400/50 text-indigo-300 ring-1 ring-indigo-400/30'
+                  /* 현재 = action surface + border, 흰 텍스트 */
+                  ? 'bg-navi-action/[0.10] border-navi-action/28 text-navi-text'
                   : 'bg-navi-surface border-navi-border text-navi-muted opacity-50',
               ].join(' ')}
             >
               <span>{step.icon}</span>
               <span>{step.label}</span>
-              {done    && <span className="text-emerald-400">✓</span>}
-              {current && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />}
+              {done    && <span className="text-navi-text">✓</span>}
+              {current && <span className="w-1.5 h-1.5 rounded-full bg-navi-action animate-pulse" />}
             </div>
           )
 
@@ -75,11 +78,11 @@ export function LearningPath() {
         })}
       </div>
 
-      {/* 현재 단계 안내 */}
+      {/* 현재 단계 안내 — 텍스트 색 최소화 */}
       {!allDone && currentIdx !== -1 && (
         <p className="text-[10px] text-navi-muted mt-1.5">
           다음 →{' '}
-          <span className="text-indigo-400 font-medium">
+          <span className="text-navi-text font-medium">
             {STEPS[currentIdx].icon} {STEPS[currentIdx].desc}
           </span>
           {STEPS[currentIdx].type === 'indicator'

@@ -666,10 +666,10 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
           📅 분석 구간: <span className="text-navi-text font-medium">{periodLabel}</span>
         </span>
         {phase !== 'revealed'
-          ? <span className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-2.5 py-1 text-amber-300 animate-pulse">
+          ? <span className="bg-amber-500/[0.08] border border-amber-500/28 rounded-lg px-2.5 py-1 text-navi-text animate-pulse">
               🔒 앞으로 {futureData.length}일이 숨겨져 있어요
             </span>
-          : <span className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-2.5 py-1 text-amber-300">
+          : <span className="bg-amber-500/[0.08] border border-amber-500/28 rounded-lg px-2.5 py-1 text-navi-text">
               🔓 공개 구간: {futurePeriodLabel}
             </span>
         }
@@ -724,9 +724,9 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
         {showRSI && (
           <div className="mt-1">
             <div className="flex items-center gap-3 mb-1 px-1">
-              <span className="text-[11px] font-semibold" style={{ color: '#a78bfa' }}>RSI (14)</span>
-              <span className="text-[11px] text-navi-red">── 70</span>
-              <span className="text-[11px] text-green-400">── 30</span>
+              <span className="text-[11px] font-semibold text-navi-secondary">RSI (14)</span>
+              <span className="text-[11px] text-navi-muted">── 70</span>
+              <span className="text-[11px] text-navi-muted">── 30</span>
             </div>
             <div ref={rsiDiv} className="w-full rounded-xl overflow-hidden" />
           </div>
@@ -734,22 +734,22 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
         {showMACD && (
           <div className="mt-1">
             <div className="flex items-center gap-3 mb-1 px-1">
-              <span className="text-[11px] font-semibold" style={{ color: '#60a5fa' }}>MACD (12,26,9)</span>
-              <span className="text-[11px]" style={{ color: '#f97316' }}>── 시그널</span>
+              <span className="text-[11px] font-semibold text-navi-secondary">MACD (12,26,9)</span>
+              <span className="text-[11px] text-navi-muted">── 시그널</span>
             </div>
             <div ref={macdDiv} className="w-full rounded-xl overflow-hidden" />
           </div>
         )}
 
         {(drawTool === 'trendline' || drawTool === 'fibonacci') && (
-          <div className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/8 overflow-hidden">
+          <div className="mt-2 rounded-xl border border-amber-500/28 bg-amber-500/[0.06] overflow-hidden">
             {drawStep === 0 && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 border-b border-amber-500/20">
+              <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/[0.08] border-b border-amber-500/20">
                 <span className="text-sm">⬆️</span>
-                <p className="text-[11px] font-semibold text-amber-300">위 차트에서 직접 클릭하세요</p>
+                <p className="text-[11px] font-semibold text-navi-text">위 차트에서 직접 클릭하세요</p>
                 <button
                   onClick={() => { pendingRef.current = null; setDrawStep(0); setTool('none'); redrawCanvas() }}
-                  className="ml-auto text-[11px] text-amber-500/70 hover:text-amber-400 transition-colors"
+                  className="ml-auto text-[11px] text-navi-muted hover:text-navi-text transition-colors"
                 >취소</button>
               </div>
             )}
@@ -758,13 +758,13 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
                 {[0, 1].map((i) => (
                   <div key={i} className={clsx(
                     'rounded-full transition-all duration-300',
-                    i === drawStep       ? 'w-5 h-2.5 bg-amber-400' :
-                    i < drawStep        ? 'w-2.5 h-2.5 bg-amber-600' :
-                                          'w-2.5 h-2.5 bg-navi-border'
+                    i === drawStep  ? 'w-5 h-2.5 bg-amber-400/70' :
+                    i < drawStep   ? 'w-2.5 h-2.5 bg-amber-500/50' :
+                                     'w-2.5 h-2.5 bg-navi-border'
                   )} />
                 ))}
               </div>
-              <p className="text-[12px] text-amber-300 font-medium">
+              <p className="text-[12px] text-navi-text font-medium">
                 {drawStep === 0
                   ? (drawTool === 'trendline' ? '① 시작점을 클릭하세요' : '① 고점(또는 저점)을 클릭하세요')
                   : (drawTool === 'trendline' ? '② 끝점을 클릭하세요'   : '② 반대 끝점을 클릭하세요')
@@ -791,8 +791,8 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
                 className={clsx(
                   'px-2.5 py-1 rounded-lg text-xs font-semibold transition-all',
                   activeInds.has(key)
-                    ? 'bg-navi-accent text-navi-text'
-                    : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-accent/40 hover:text-navi-text'
+                    ? 'bg-navi-action text-white'
+                    : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/40 hover:text-navi-text'
                 )}>
                 {label}
               </button>
@@ -810,14 +810,16 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
               <button key={v} onClick={() => setTool(drawTool === v ? 'none' : v)}
                 className={clsx(
                   'flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all',
-                  drawTool === v ? 'bg-amber-500/15 border-amber-400 text-amber-300' : 'border-navi-border text-navi-muted hover:border-amber-500/50 hover:text-amber-400'
+                  drawTool === v
+                    ? 'bg-amber-500/12 border-amber-500/40 text-navi-text'
+                    : 'border-navi-border text-navi-muted hover:border-navi-border2 hover:text-navi-text'
                 )}>
                 <span>{icon}</span>{label}
-                {drawTool === v && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
+                {drawTool === v && <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 animate-pulse" />}
               </button>
             ))}
             <button onClick={() => setTool('erase')}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs border border-navi-border text-navi-muted hover:border-red-500/50 hover:text-navi-red transition-all">
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs border border-navi-border text-navi-muted hover:border-navi-border2 hover:text-navi-text transition-all">
               ✕ 지우기
             </button>
           </div>
@@ -830,7 +832,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       {phase === 'analyzing' && (
         <div className="space-y-2">
           {activeInds.size === 0 && (
-            <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-xs text-amber-400/80">
+            <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-navi-surface border border-navi-border2 text-xs text-navi-secondary">
               <span>💡</span>
               <span>분석 도구를 하나 이상 켜보세요 — MA, RSI, MACD 중 하나를 활성화하면 더 근거 있는 예측을 할 수 있어요.</span>
             </div>
@@ -838,9 +840,9 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
           <button
             onClick={() => setPhase('predicting')}
             className="w-full py-3.5 rounded-xl font-semibold text-[13px]
-                       bg-navi-accent
-                       text-navi-text hover:bg-navi-accent-hover
-                        transition-all active:scale-[0.98]"
+                       bg-navi-action text-white
+                       hover:bg-navi-action-hover
+                       transition-all active:scale-[0.98]"
           >
             ✅ 분석 완료 — 이제 예측해볼게요
           </button>
@@ -914,7 +916,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
 
               {/* 예측 적중 여부 */}
               <div className="ml-auto text-right">
-                <p className={clsx('text-sm font-bold', isCorrect(prediction, result.change) ? 'text-navi-green' : 'text-amber-400')}>
+                <p className="text-sm font-bold text-navi-text">
                   {isCorrect(prediction, result.change) ? '🎯 예측 성공!' : '📚 이번엔 달랐어요'}
                 </p>
                 <p className="text-[11px] text-navi-muted mt-0.5">
@@ -933,17 +935,18 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
             {debriefSignals.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-navi-muted">분석 도구를 사용하지 않으셨어요.</p>
-                <p className="text-xs text-indigo-400 mt-1">다음엔 MA, RSI, MACD를 켜고 분석해보세요!</p>
+                <p className="text-xs text-navi-secondary mt-1">다음엔 MA, RSI, MACD를 켜고 분석해보세요!</p>
               </div>
             ) : (
               <div className="space-y-2.5">
                 {debriefSignals.map((sig, i) => (
                   <div key={i} className="flex items-start gap-3">
+                    {/* 신호 배지 = surface + border (텍스트 색 아닌 배경으로 상태 표현) */}
                     <span className={clsx(
                       'shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md mt-0.5',
-                      sig.type === 'bullish' ? 'bg-emerald-500/15 text-navi-green' :
-                      sig.type === 'bearish' ? 'bg-red-500/15 text-navi-red' :
-                      'bg-navi-border text-navi-muted'
+                      sig.type === 'bullish' ? 'bg-navi-success/[0.10] border border-navi-success/25 text-navi-text' :
+                      sig.type === 'bearish' ? 'bg-navi-danger/[0.10] border border-navi-danger/25 text-navi-text' :
+                      'bg-navi-surface2 border border-navi-border2 text-navi-secondary'
                     )}>
                       {sig.icon} {sig.name}
                     </span>
@@ -968,7 +971,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
           <div className="flex gap-3">
             <button
               onClick={() => { revRef.current = false; onRetry() }}
-              className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-navi-accent text-navi-text hover:bg-navi-accent-hover transition-colors"
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-navi-action text-white hover:bg-navi-action-hover transition-colors"
             >
               🔄 다른 구간 도전
             </button>

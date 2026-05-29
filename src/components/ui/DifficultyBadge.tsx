@@ -5,10 +5,12 @@ interface Props {
 }
 
 const labels = { 1: '쉬움', 2: '보통', 3: '어려움' }
+
+/* 텍스트 색 대신 border 색으로 난이도 표현 (surface approach) */
 const colors = {
-  1: 'bg-green-900/40 text-green-400 border-green-800',
-  2: 'bg-yellow-900/40 text-yellow-400 border-yellow-800',
-  3: 'bg-red-900/40 text-red-400 border-red-800',
+  1: 'bg-navi-surface2 text-navi-secondary border-navi-success/40',
+  2: 'bg-navi-surface2 text-navi-secondary border-navi-border2',
+  3: 'bg-navi-surface2 text-navi-secondary border-navi-danger/40',
 }
 
 export function DifficultyBadge({ level }: Props) {

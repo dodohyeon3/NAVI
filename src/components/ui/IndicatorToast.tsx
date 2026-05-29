@@ -66,9 +66,9 @@ export function IndicatorToast({ slug, onDone }: Props) {
                 {info.title}
               </p>
               <p className="text-[11px] text-navi-secondary leading-relaxed">{info.body}</p>
-              {/* 힌트 = Info 색상 */}
-              <p className="text-[11px] text-navi-info mt-1 font-medium flex items-center gap-1.5">
-                <span style={{ color: 'rgba(79,209,255,0.6)' }}>💡</span>
+              {/* 힌트 = 보조 텍스트 */}
+              <p className="text-[11px] text-navi-secondary mt-1 font-medium flex items-center gap-1.5">
+                <span>💡</span>
                 {info.hint}
               </p>
             </div>
