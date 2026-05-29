@@ -66,7 +66,11 @@ export function IndicatorToast({ slug, onDone }: Props) {
                 {info.title}
               </p>
               <p className="text-[11px] text-navi-secondary leading-relaxed">{info.body}</p>
-              <p className="text-[11px] text-navi-accent mt-1 font-semibold">{info.hint}</p>
+              {/* 힌트 = Info 색상 */}
+              <p className="text-[11px] text-navi-info mt-1 font-medium flex items-center gap-1.5">
+                <span style={{ color: 'rgba(79,209,255,0.6)' }}>💡</span>
+                {info.hint}
+              </p>
             </div>
             <button
               onClick={() => { setVisible(false); setTimeout(onDone, 250) }}
@@ -74,7 +78,7 @@ export function IndicatorToast({ slug, onDone }: Props) {
             >✕</button>
           </div>
           <motion.div
-            className="absolute bottom-0 left-0 h-[2px] bg-navi-accent/40 rounded-b-xl"
+            className="absolute bottom-0 left-0 h-[2px] bg-navi-action/50 rounded-b-xl"
             initial={{ width: '100%' }}
             animate={{ width: '0%'   }}
             transition={{ duration: 5.0, ease: 'linear' }}

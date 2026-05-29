@@ -96,16 +96,18 @@ export default function LandingPage() {
       <div className="flex flex-col w-full max-w-[288px] relative z-10 gap-2.5">
 
         {/* 주 CTA: 튜토리얼 */}
+        {/* 주 CTA = Action color */}
         <Link
           href="/tutorial"
           className="
             w-full h-[52px] flex items-center justify-center
-            bg-navi-accent text-navi-text
+            bg-navi-action text-white
             text-[14px] font-bold tracking-wide
-            rounded-xl border border-navi-accent
-            hover:bg-navi-accent-hover navi-glow
+            rounded-xl border border-navi-action
+            hover:bg-navi-action-hover
             transition-all duration-150 active:scale-[0.97]
             whitespace-nowrap
+            shadow-[0_4px_20px_rgba(91,127,255,0.32)]
           "
         >
           튜토리얼 시작하기

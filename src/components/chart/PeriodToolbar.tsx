@@ -32,7 +32,7 @@ export function PeriodToolbar() {
             className={clsx(
               'h-7 px-3 rounded-md text-[11px] font-medium tracking-wide transition-all duration-150',
               period === p.value
-                ? 'bg-navi-accent text-navi-text'
+                ? 'bg-navi-action text-white font-semibold'
                 : 'text-navi-muted hover:text-navi-secondary'
             )}
           >
@@ -53,7 +53,7 @@ export function PeriodToolbar() {
             className={clsx(
               'h-7 px-3 rounded-md text-[11px] font-medium transition-all duration-150',
               timeUnit === u.value
-                ? 'bg-navi-accent text-navi-text'
+                ? 'bg-navi-action text-white font-semibold'
                 : 'text-navi-muted hover:text-navi-secondary'
             )}
           >

@@ -346,20 +346,21 @@ export function TutorialStep() {
 
   /* ════ Sub-components (render as JSX, not React components, to avoid hook rules) ════ */
 
-  /* Progress dots ─────────────────────────────────────── */
+  /* Progress dots — Action color: 진행은 '행동' ────────── */
   const dotRow = (
     <div className="flex items-center justify-between px-4 pt-3.5 pb-1">
       <div className="flex gap-[3px] items-center">
         {steps.map((_, i) => (
           <div key={i} className={clsx(
             'rounded-full transition-all duration-300',
-            i < currentIndex   ? 'w-[5px] h-[5px] bg-navi-accent/55' :
-            i === currentIndex ? 'w-2 h-2 bg-navi-accent'             :
+            i < currentIndex   ? 'w-[5px] h-[5px] bg-navi-action/60' :
+            i === currentIndex ? 'w-2 h-2 bg-navi-action'             :
             'w-[5px] h-[5px] bg-navi-border2'
           )} />
         ))}
       </div>
-      <span className="text-[10px] text-navi-muted tabular-nums ml-2 shrink-0">
+      <span className="text-[10px] tabular-nums ml-2 shrink-0"
+            style={{ color: 'rgba(248,249,247,0.44)' }}>
         {currentIndex + 1} / {steps.length}
       </span>
     </div>
@@ -368,9 +369,11 @@ export function TutorialStep() {
   /* Nav row ────────────────────────────────────────────── */
   const navRow = (
     <div className="flex items-center justify-between px-4 py-3 border-t border-navi-border/40">
+      {/* 건너뛰기 = disabled 텍스트 */}
       <button
         onClick={skip}
-        className="text-[10px] text-navi-muted hover:text-navi-secondary transition-colors"
+        className="text-[10px] hover:text-navi-secondary transition-colors"
+        style={{ color: 'rgba(248,249,247,0.35)' }}
       >
         건너뛰기
       </button>
@@ -392,20 +395,24 @@ export function TutorialStep() {
             className={clsx(
               'px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all',
               isAutoAdv
-                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 cursor-default'
+                /* 자동 이동 중 = Success 상태 */
+                ? 'bg-navi-success/12 text-navi-success border border-navi-success/28 cursor-default'
                 : canNext
-                ? 'bg-navi-accent text-white hover:bg-navi-accent-hover active:scale-95 cursor-pointer'
-                : 'bg-navi-surface3 text-navi-muted cursor-not-allowed'
+                /* 다음 = Action (사용자가 클릭하는 것) */
+                ? 'bg-navi-action text-white hover:bg-navi-action-hover active:scale-95 cursor-pointer shadow-[0_2px_12px_rgba(91,127,255,0.3)]'
+                : 'bg-navi-surface3 text-navi-disabled cursor-not-allowed'
             )}
           >
-            {isAutoAdv ? '이동 중...' : canNext ? '다음 →' : '먼저 해보세요'}
+            {isAutoAdv ? '✓ 이동 중...' : canNext ? '다음 →' : '먼저 해보세요'}
           </button>
         ) : (
+          /* 마지막 단계 = 가장 강조된 Action */
           <Link
             href="/simulate?from=tutorial"
             onClick={skip}
             className="px-3 py-1.5 rounded-lg text-[11px] font-semibold
-                       bg-navi-accent text-white hover:bg-navi-accent-hover transition active:scale-95"
+                       bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95
+                       shadow-[0_2px_12px_rgba(91,127,255,0.35)]"
           >
             🚀 시작하기
           </Link>
@@ -426,28 +433,30 @@ export function TutorialStep() {
         </p>
       )}
       {currentStep.tips && currentStep.tips.length > 0 && (
+        /* Tips = Info color (안내/가이드) */
         <ul className="bg-navi-surface2 rounded-lg p-2.5 space-y-1">
           {currentStep.tips.map((tip, i) => (
             <li key={i} className="flex gap-1.5 text-[11px] text-navi-secondary">
-              <span className="text-navi-accent shrink-0 mt-px">•</span>
+              <span className="text-navi-info shrink-0 mt-px">•</span>
               <span>{tip}</span>
             </li>
           ))}
         </ul>
       )}
       {currentStep.mission && (
-        <div className="bg-navi-accent/[0.07] border border-navi-accent/20 rounded-lg p-2.5">
+        /* Mission = Action color (사용자가 해야 하는 것) */
+        <div className="bg-navi-action/[0.09] border border-navi-action/25 rounded-lg p-2.5">
           <div className="flex items-center gap-1.5 mb-1">
             <motion.div
               animate={{ scale: [1, 1.4, 1] }}
-              transition={{ repeat: Infinity, duration: 1.4 }}
-              className="w-1.5 h-1.5 rounded-full bg-navi-accent"
+              transition={{ repeat: Infinity, duration: 1.3 }}
+              className="w-1.5 h-1.5 rounded-full bg-navi-action"
             />
-            <span className="text-[9px] font-bold text-navi-accent uppercase tracking-[0.06em]">
+            <span className="text-[9px] font-bold text-navi-action uppercase tracking-[0.06em]">
               지금 해보세요
             </span>
           </div>
-          <p className="text-[11.5px] text-navi-accent/85 leading-snug">
+          <p className="text-[11.5px] leading-snug" style={{ color: 'rgba(91,127,255,0.88)' }}>
             {currentStep.mission}
           </p>
         </div>
@@ -455,7 +464,7 @@ export function TutorialStep() {
     </div>
   )
 
-  /* JUDGMENT content ───────────────────────────────────── */
+  /* JUDGMENT content — 선택지 hover = Action ─────────── */
   const judgmentContent = currentStep.judgment ? (
     <div className="px-4 py-3 space-y-2">
       <p className="text-[13px] font-bold text-navi-text leading-snug">{currentStep.title}</p>
@@ -467,7 +476,7 @@ export function TutorialStep() {
             onClick={() => notifyJudgment(c.value)}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left
                        border border-navi-border2 transition-all
-                       hover:border-navi-accent/50 hover:bg-navi-accent/[0.06]
+                       hover:border-navi-action/40 hover:bg-navi-action/[0.06]
                        active:scale-[0.98]"
           >
             <span className="text-base shrink-0 leading-none">{c.icon}</span>
@@ -483,29 +492,29 @@ export function TutorialStep() {
     <div className="px-4 py-3 space-y-2">
       <p className="text-[13px] font-bold text-navi-text leading-snug">{currentStep.title}</p>
 
-      {/* Auto-advance indicator */}
+      {/* Auto-advance = Success 상태 */}
       <div className="flex items-center gap-1.5">
         <motion.div
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ repeat: Infinity, duration: 1.2 }}
-          className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+          className="w-1.5 h-1.5 rounded-full bg-navi-success"
         />
-        <span className="text-[10px] text-emerald-400">
+        <span className="text-[10px] text-navi-success">
           잠시 후 다음 단계로 자동으로 이동해요
         </span>
       </div>
 
-      {/* Judgment result */}
+      {/* Judgment result — Info color (학습 피드백 = 안내) */}
       {currentStep.actionRequired === 'judgment' &&
        currentStep.judgment && chosenJudgment && (() => {
          const chosen = currentStep.judgment!.choices.find(c => c.value === chosenJudgment)
          return chosen ? (
-           <div className="bg-navi-accent/[0.07] border border-navi-accent/20 rounded-lg p-2.5">
+           <div className="bg-navi-info/[0.07] border border-navi-info/20 rounded-lg p-2.5">
              <div className="flex items-center gap-2 mb-1">
                <span className="leading-none">{chosen.icon}</span>
-               <span className="text-[11px] font-semibold text-navi-accent">{chosen.label}</span>
+               <span className="text-[11px] font-semibold text-navi-info">{chosen.label}</span>
              </div>
-             <p className="text-[11px] text-navi-accent/80 leading-relaxed">
+             <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(79,209,255,0.80)' }}>
                {chosen.feedback}
              </p>
            </div>
@@ -544,11 +553,11 @@ export function TutorialStep() {
         </div>
       )}
 
-      {/* Completion message */}
+      {/* Completion message — Success tint */}
       {currentStep.completionMessage && (
-        <div className="bg-navi-surface2 rounded-lg p-2.5">
-          <p className="text-[11px] text-navi-secondary leading-relaxed">
-            ✅ {currentStep.completionMessage}
+        <div className="bg-navi-success/[0.07] border border-navi-success/18 rounded-lg p-2.5">
+          <p className="text-[11px] text-navi-success leading-relaxed">
+            ✓ {currentStep.completionMessage}
           </p>
         </div>
       )}
@@ -576,9 +585,10 @@ export function TutorialStep() {
                 <div key={q.id}
                   className={clsx(
                     'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px]',
-                    ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                    /* Success = 정답, Danger = 오답 */
+                    ok ? 'bg-navi-success/[0.10] text-navi-success' : 'bg-navi-danger/[0.10] text-navi-danger'
                   )}>
-                  <span>{ok ? '✅' : '❌'}</span>
+                  <span>{ok ? '✓' : '✗'}</span>
                   <span className="flex-1 font-medium">{q.label}</span>
                   <span className="text-[10px] opacity-70">
                     {q.choices.find(c => c.v === user)?.label}
@@ -586,7 +596,8 @@ export function TutorialStep() {
                 </div>
               )
             })}
-            <div className="bg-navi-accent/[0.07] text-navi-accent text-[11px] text-center py-2 rounded-lg">
+            {/* 예측 = Info (정답 없는 자유 판단) */}
+            <div className="bg-navi-info/[0.07] text-navi-info text-[11px] text-center py-2 rounded-lg border border-navi-info/15">
               내 예측:{' '}
               {questions[3]?.choices.find(c => c.v === testAnswers['prediction'])?.icon}{' '}
               {questions[3]?.choices.find(c => c.v === testAnswers['prediction'])?.label}
@@ -602,20 +613,24 @@ export function TutorialStep() {
       <div className="px-4 py-3 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[12.5px] font-bold text-navi-text">{q.label}</p>
-          <span className="shrink-0 text-[9px] font-bold text-amber-400
-                           bg-navi-surface2 px-1.5 py-0.5 rounded-full">
+          {/* 진행 배지 = Warning (주목 끌기) */}
+          <span className="shrink-0 text-[9px] font-bold text-navi-warning
+                           bg-navi-warning/10 px-1.5 py-0.5 rounded-full border border-navi-warning/20">
             {testQIdx + 1} / {questions.length}
           </span>
         </div>
-        <p className="text-[10px] text-navi-muted">💡 {q.hint}</p>
+        {/* 힌트 = Info */}
+        <p className="text-[10px] text-navi-info flex items-center gap-1">
+          <span style={{ opacity: 0.7 }}>💡</span> {q.hint}
+        </p>
 
-        {/* Progress bar */}
+        {/* Progress bar — Action */}
         <div className="flex gap-1">
           {questions.map((_, i) => (
             <div key={i} className={clsx(
               'h-1 flex-1 rounded-full transition-all duration-300',
-              i < testQIdx   ? 'bg-navi-accent'      :
-              i === testQIdx ? 'bg-navi-accent/40'   :
+              i < testQIdx   ? 'bg-navi-action'      :
+              i === testQIdx ? 'bg-navi-action/40'   :
               'bg-navi-border2'
             )} />
           ))}
@@ -638,11 +653,12 @@ export function TutorialStep() {
                   markStepDone()
                 }
               }}
+              /* 선택 = Action color */
               className={clsx(
                 'flex flex-col items-center py-2.5 rounded-lg border-2 transition-all active:scale-95',
                 testAnswers[q.id] === c.v
-                  ? 'border-navi-accent/70 bg-navi-accent/[0.08]'
-                  : 'border-navi-border2 hover:border-navi-accent/40 hover:bg-navi-accent/[0.04]'
+                  ? 'border-navi-action/70 bg-navi-action/[0.10]'
+                  : 'border-navi-border2 hover:border-navi-action/35 hover:bg-navi-action/[0.04]'
               )}
             >
               <span className="text-xl leading-none">{c.icon}</span>

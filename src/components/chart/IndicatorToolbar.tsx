@@ -45,8 +45,9 @@ export function IndicatorToolbar() {
                 'h-8 px-3.5 rounded-lg text-[12px] font-semibold tracking-wide',
                 'transition-all duration-200',
                 isActive
-                  ? 'bg-navi-accent text-navi-text border border-navi-accent shadow-[0_0_12px_rgba(45,65,152,0.4)]'
-                  : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-accent/40 hover:text-navi-text hover:bg-navi-surface3'
+                  /* Action color — 사용자가 켠 상태 = 행동 완료 */
+                  ? 'bg-navi-action text-white border border-navi-action shadow-[0_0_14px_rgba(91,127,255,0.38)]'
+                  : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/35 hover:text-navi-text hover:bg-navi-surface3'
               )}
             >
               {SHORT_LABELS[slug]}

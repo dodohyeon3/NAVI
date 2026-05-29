@@ -212,14 +212,14 @@ export default function TutorialPage() {
       >
         <Link
           href="/chart?onboard=1"
-          className="w-full flex items-center justify-center gap-2 h-12
-                     bg-navi-accent text-navi-text font-bold text-sm
-                     rounded-xl border border-navi-accent
-                     hover:bg-navi-accent-hover
-                     transition-all duration-150 active:scale-[0.98]"
+          className="w-full flex items-center justify-center h-12
+                     bg-navi-action text-white font-bold text-sm
+                     rounded-xl border border-navi-action
+                     hover:bg-navi-action-hover
+                     transition-all duration-150 active:scale-[0.98]
+                     shadow-[0_4px_20px_rgba(91,127,255,0.28)]"
         >
           튜토리얼 시작하기
-          <span className="text-navi-text/50 text-[11px] font-normal">차트 위에서 바로 시작</span>
         </Link>
 
         <Link

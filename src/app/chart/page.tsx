@@ -71,38 +71,48 @@ function ChartPageInner() {
       <TutorialManager />
       <IndicatorToast slug={toastSlug} onDone={() => setToastSlug(null)} />
 
-      {/* ── 헤더 (sticky, slim) ─────────────────────────────── */}
-      <header className="sticky top-0 z-30 h-12 bg-navi-bg/90 backdrop-blur-sm border-b border-navi-border">
+      {/* ── 헤더 ─────────────────────────────────────────────── */}
+      {/* 브랜드 > 콘텐츠 순서: NaviSymbol이 NVDA보다 먼저 인식되도록 */}
+      <header className="sticky top-0 z-30 bg-navi-bg/94 backdrop-blur-md border-b border-navi-border"
+              style={{ height: 52 }}>
         <div className="h-full max-w-5xl mx-auto px-4 flex items-center justify-between">
-          {/* 좌: 로고 심볼 + 종목 */}
+
+          {/* 브랜드 영역 — 심볼 크기 확대 (w-8 = 32px, 기존 20px 대비 1.6×) */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-navi-text hover:text-navi-accent transition-colors duration-150">
-              <NaviSymbol className="w-5 h-5" />
+            <Link
+              href="/"
+              className="group flex items-center"
+              aria-label="NAVI 홈으로"
+            >
+              <NaviSymbol className="w-8 h-8 text-navi-text group-hover:text-navi-action transition-colors duration-200" />
             </Link>
-            <div className="w-px h-4 bg-navi-border" />
-            <div className="flex items-baseline gap-2">
-              <span className="text-[14px] font-bold text-navi-text tracking-tight">NVDA</span>
-              <span className="text-[11px] text-navi-muted">NASDAQ</span>
+            <div className="w-px h-5 bg-navi-border2" />
+            {/* 종목 — 브랜드보다 낮은 위계로 표시 */}
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[13px] font-semibold text-navi-secondary tracking-tight">NVDA</span>
+              <span className="text-[10px]" style={{ color: 'rgba(248,249,247,0.35)' }}>NASDAQ</span>
             </div>
           </div>
 
-          {/* 우: 네비 */}
+          {/* 액션 영역 */}
           <div className="flex items-center gap-2">
             <Link
               id="simulate-link"
               href="/simulate"
-              className="h-7 px-3 text-[11px] font-semibold rounded-lg
-                         text-navi-secondary border border-navi-border
-                         hover:border-navi-accent/40 hover:text-navi-text
-                         transition-all duration-150 flex items-center"
+              className="h-7 px-3 text-[11px] font-medium rounded-lg flex items-center
+                         text-navi-muted border border-navi-border
+                         hover:border-navi-border2 hover:text-navi-secondary
+                         transition-all duration-150"
             >
               시뮬레이션
             </Link>
+            {/* 튜토리얼 = Action color (사용자가 클릭해야 하는 요소) */}
             <button
               onClick={start}
               className="h-7 px-3 text-[11px] font-semibold rounded-lg
-                         bg-navi-accent/15 text-navi-accent border border-navi-accent/30
-                         hover:bg-navi-accent/25 transition-all duration-150"
+                         bg-navi-action/12 text-navi-action border border-navi-action/28
+                         hover:bg-navi-action/20 hover:border-navi-action/50
+                         transition-all duration-150"
             >
               튜토리얼
             </button>
