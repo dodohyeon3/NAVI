@@ -12,12 +12,12 @@ interface TutorialState {
   currentStep:      TutorialStep | null
 
   // ── 인터랙티브 상태 ──────────────────────────────────
-  stepDone:         boolean                // 현재 단계 행동 완료 여부
-  candleData:       CandleData | null      // candle-click 시 클릭된 캔들 데이터
-  chosenJudgment:   string | null          // judgment 선택값
+  stepDone:         boolean
+  candleData:       CandleData | null
+  chosenJudgment:   string | null
 
   // ── 차트 포커스 ──────────────────────────────────────
-  focusBarsFromEnd: number | null          // 단계 진입 시 마지막 N봉 줌
+  focusBarsFromEnd: number | null
 
   // ── 액션 ──────────────────────────────────────────────
   start:  () => void
@@ -38,11 +38,19 @@ const INITIAL_ACTION_STATE = {
   focusBarsFromEnd: null,
 }
 
-/** 현재 활성 지표 중 slugs에 포함된 것들을 모두 끈다 */
+/** 현재 활성 지표 중 slugs에 포함된 것들을 끈다 */
 function clearIndicators(slugs: string[]) {
   const { activeIndicators, toggleIndicator } = useChartStore.getState()
   slugs.forEach(slug => {
     if (activeIndicators.has(slug as any)) toggleIndicator(slug as any)
+  })
+}
+
+/** slugs에 포함된 지표 중 꺼져있는 것들을 켠다 */
+function activateIndicators(slugs: string[]) {
+  const { activeIndicators, toggleIndicator } = useChartStore.getState()
+  slugs.forEach(slug => {
+    if (!activeIndicators.has(slug as any)) toggleIndicator(slug as any)
   })
 }
 
@@ -57,7 +65,7 @@ export const useTutorialStore = create<TutorialState>()(
       ...INITIAL_ACTION_STATE,
 
       start: () => {
-        // 튜토리얼 시작 시 활성 지표 전부 초기화 — 깨끗한 상태에서 시작
+        // 튜토리얼 시작 시 활성 지표 전부 초기화
         const { activeIndicators, toggleIndicator } = useChartStore.getState()
         activeIndicators.forEach(slug => toggleIndicator(slug))
 
@@ -83,6 +91,10 @@ export const useTutorialStore = create<TutorialState>()(
         // 다음 단계 진입 전: clearIndicatorsOnEnter 처리
         if (nextStep.clearIndicatorsOnEnter?.length) {
           clearIndicators(nextStep.clearIndicatorsOnEnter)
+        }
+        // 다음 단계 진입 전: activateIndicatorsOnEnter 처리
+        if (nextStep.activateIndicatorsOnEnter?.length) {
+          activateIndicators(nextStep.activateIndicatorsOnEnter)
         }
 
         set({
