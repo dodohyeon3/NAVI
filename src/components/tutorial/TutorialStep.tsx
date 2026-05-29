@@ -26,8 +26,13 @@ function getMode(step: TStep, done: boolean): PanelMode {
   return 'reading'
 }
 
-/* ─── 패널 고정 높이 (모든 모드 동일) ──────────────────────── */
-const PANEL_H = 240
+/* ─── 패널 높이 (뷰포트 비율 기반, 최소·최대 제한) ────────────
+   clamp(min, preferred, max)
+   - 26vh : 768px 창 → 200px / 900px → 234px / 1080px → 281px
+   - 숫자 버전은 smartScroll 계산에만 사용
+──────────────────────────────────────────────────────────── */
+const PANEL_H_CSS = 'clamp(200px, 26vh, 280px)'
+const getPanelH   = () => Math.min(Math.max(window.innerHeight * 0.26, 200), 280)
 
 /* ─── 하이라이트 링 타입 ────────────────────────────────────── */
 interface HighlightRect { top: number; left: number; width: number; height: number }
@@ -85,7 +90,6 @@ export function TutorialStep() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const mode = currentStep ? getMode(currentStep, stepDone) : 'reading'
-  const ph   = PANEL_H
 
   /* ── indicator-toggle 감지 ─────────────────────────────── */
   useEffect(() => {
@@ -114,9 +118,9 @@ export function TutorialStep() {
     setShowPanel(false); setHl(null)
 
     const curMode = getMode(currentStep, false)
-    const curPh   = PANEL_H
+    const curPh   = getPanelH()
 
-    smartScroll(currentStep, PANEL_H)
+    smartScroll(currentStep, getPanelH())
 
     timerRef.current = setTimeout(() => {
       recompute()
@@ -439,7 +443,7 @@ export function TutorialStep() {
               style={{
                 width:         '100%',
                 maxWidth:       860,
-                height:        `${ph}px`,
+                height:         PANEL_H_CSS,
                 display:       'flex',
                 flexDirection: 'column',
                 pointerEvents: 'auto',
