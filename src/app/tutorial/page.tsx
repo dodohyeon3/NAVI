@@ -3,14 +3,16 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-/* 6단계 여정 미리보기 */
+/* 12단계 여정 미리보기 */
 const JOURNEY = [
-  { icon: '📊', label: '캔들 클릭', desc: '하루치 데이터 직접 확인' },
-  { icon: '📈', label: 'MA 켜기',   desc: '이동평균선 눈으로 확인' },
-  { icon: '🤔', label: '추세 판단', desc: '내 눈으로 방향 느끼기' },
-  { icon: '🌡️', label: 'RSI 켜기',  desc: '과열 여부 그래프 확인' },
-  { icon: '🔍', label: 'RSI 읽기',  desc: '수치 의미 직접 해석' },
-  { icon: '🔮', label: '예측 도전', desc: '실제 데이터로 시뮬레이션' },
+  { icon: '📊', label: '캔들 클릭',    desc: '하루치 OHLC 데이터 직접 확인' },
+  { icon: '📈', label: '이동평균선',   desc: '추세 방향 눈으로 느끼기' },
+  { icon: '🎯', label: '볼린저밴드',   desc: '변동성 폭 직접 관찰' },
+  { icon: '🌡️', label: 'RSI',          desc: '과열·과냉 구간 판단' },
+  { icon: '⚡', label: 'MACD',          desc: '상승/하락 모멘텀 읽기' },
+  { icon: '✏️', label: '추세선 그리기', desc: '차트에 직접 선 그어보기' },
+  { icon: '🌀', label: '피보나치',      desc: '되돌림 구간 확인' },
+  { icon: '🔮', label: '시뮬레이션',    desc: '실제 데이터로 예측 도전' },
 ]
 
 const CONTAINER = {
@@ -55,9 +57,9 @@ export default function TutorialPage() {
 
         {/* 예상 시간 */}
         <div className="mt-4 flex items-center gap-3 text-xs text-navi-muted">
-          <span>⏱ 약 2~3분</span>
+          <span>⏱ 약 5~7분</span>
           <span>·</span>
-          <span>🎯 6단계 실전 체험</span>
+          <span>🎯 12단계 실전 체험</span>
           <span>·</span>
           <span>✅ 틀려도 괜찮아요</span>
         </div>

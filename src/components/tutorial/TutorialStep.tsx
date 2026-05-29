@@ -25,7 +25,7 @@ interface HighlightRect {
   top: number; left: number; width: number; height: number
 }
 
-function popupWidth() { return Math.min(320, window.innerWidth - MARGIN * 2) }
+function popupWidth() { return Math.min(440, window.innerWidth - MARGIN * 2) }
 
 function estimateH(step: TStep): number {
   let h = 28 + 44 + (step.tips?.length ?? 0) * 26 + NAV_H + 32

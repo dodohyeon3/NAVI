@@ -9,7 +9,6 @@ import { IndicatorToolbar } from '@/components/chart/IndicatorToolbar'
 import { PeriodToolbar } from '@/components/chart/PeriodToolbar'
 import { DrawingToolbar } from '@/components/chart/DrawingToolbar'
 import { TutorialManager } from '@/components/tutorial/TutorialManager'
-import { LearningPath } from '@/components/ui/LearningPath'
 import { IndicatorToast } from '@/components/ui/IndicatorToast'
 import { RoundedCard } from '@/components/ui/RoundedCard'
 import { useTutorialStore } from '@/stores/tutorialStore'
@@ -97,9 +96,6 @@ function ChartPageInner() {
             </button>
           </div>
         </div>
-
-        {/* ── 학습 경로 진행 바 ────────────────────────────────── */}
-        <LearningPath />
 
         {/* 기간 · 봉 단위 */}
         <div className="mb-3">
