@@ -54,6 +54,11 @@ function activateIndicators(slugs: string[]) {
   })
 }
 
+/** 모든 작도(추세선·피보나치)를 지운다 */
+function clearDrawings() {
+  useChartStore.getState().requestClearDrawings()
+}
+
 export const useTutorialStore = create<TutorialState>()(
   persist(
     (set, get) => ({
@@ -95,6 +100,11 @@ export const useTutorialStore = create<TutorialState>()(
         // 다음 단계 진입 전: activateIndicatorsOnEnter 처리
         if (nextStep.activateIndicatorsOnEnter?.length) {
           activateIndicators(nextStep.activateIndicatorsOnEnter)
+        }
+
+        // 다음 단계 진입 전: clearDrawingsOnEnter 처리
+        if (nextStep.clearDrawingsOnEnter) {
+          clearDrawings()
         }
 
         set({

@@ -43,11 +43,10 @@ export function IndicatorToolbar() {
               onClick={() => toggleIndicator(slug)}
               className={clsx(
                 'h-8 px-3.5 rounded-lg text-[12px] font-semibold tracking-wide',
-                'transition-all duration-150',
+                'transition-all duration-200',
                 isActive
-                  ? 'bg-navi-accent text-navi-text border border-navi-accent'
-                  : 'bg-navi-surface2 text-navi-secondary border border-navi-border',
-                !isActive && 'hover:border-navi-accent/40 hover:text-navi-text'
+                  ? 'bg-navi-accent text-navi-text border border-navi-accent shadow-[0_0_12px_rgba(45,65,152,0.4)]'
+                  : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-accent/40 hover:text-navi-text hover:bg-navi-surface3'
               )}
             >
               {SHORT_LABELS[slug]}

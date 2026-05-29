@@ -22,10 +22,11 @@ export const tutorialSteps: TutorialStep[] = [
   //  → 이후 MA/RSI가 그 방향을 확인해주는 도구로 인식됨)
   // ══════════════════════════════════════════════════════════
   {
-    id:             'trendline-intro',
-    targetSelector: '#drawing-tools-card',
-    position:       'left',
-    title:          '↗ 추세선 — 방향을 눈으로 그어봐요',
+    id:                   'trendline-intro',
+    targetSelector:       '#drawing-tools-card',
+    position:             'left',
+    clearDrawingsOnEnter: true,   // 이전 튜토리얼 흔적 없이 시작
+    title:                '↗ 추세선 — 방향을 눈으로 그어봐요',
     body:           '지표 없이도 차트를 읽는 첫걸음은 "방향"을 직접 그어보는 거예요.\n\n저점과 저점(또는 고점과 고점)을 이으면 추세를 눈으로 확인할 수 있어요.',
     tips: [
       '작도 도구에서 "↗ 추세선" 버튼을 클릭해요',
@@ -251,6 +252,7 @@ export const tutorialSteps: TutorialStep[] = [
     targetSelector:         '#drawing-tools-card',
     position:               'left',
     clearIndicatorsOnEnter: ['bollinger'],
+    clearDrawingsOnEnter:   true,  // 추세선 단계에서 그린 선 정리
     title:                  '𝚽 피보나치 — 되돌림 구간 찾기',
     body:                   '피보나치 되돌림은 상승(또는 하락) 구간에서 얼마나 되돌아갈지 예측하는 데 써요.\n\n고점→저점을 클릭하면 자동으로 레벨이 표시돼요.',
     tips: [
@@ -271,6 +273,7 @@ export const tutorialSteps: TutorialStep[] = [
     targetSelector:             '#chart-area',
     position:                   'bottom',
     activateIndicatorsOnEnter:  ['moving-average', 'rsi', 'macd'],
+    clearDrawingsOnEnter:       true,  // 피보나치 등 작도 정리 후 깨끗한 차트
     focusBarsFromEnd:           60,
     title:                      '📋 종합 차트 읽기 테스트',
     body:                       '지금까지 배운 내용을 실제 차트에 적용해봐요. MA·RSI·MACD가 모두 켜진 상태에서 4가지 질문에 답해보세요.',

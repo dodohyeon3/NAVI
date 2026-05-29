@@ -31,6 +31,14 @@ interface ChartState {
   drawingStep:    0 | 1       // 0: 시작 전, 1: 첫 번째 점 찍은 후
   setDrawingTool: (t: DrawingTool) => void
   setDrawingStep: (s: 0 | 1) => void
+
+  /**
+   * clearDrawingsSignal
+   * 이 값이 증가하면 ChartContainer 는 모든 작도(추세선·피보나치)를 지운다.
+   * tutorialStore에서 clearDrawingsOnEnter 단계 진입 시 호출한다.
+   */
+  clearDrawingsSignal:    number
+  requestClearDrawings:   () => void
 }
 
 export const useChartStore = create<ChartState>((set) => ({
@@ -60,4 +68,7 @@ export const useChartStore = create<ChartState>((set) => ({
   drawingStep:    0,
   setDrawingTool: (drawingTool) => set({ drawingTool, drawingStep: 0 }),
   setDrawingStep: (drawingStep) => set({ drawingStep }),
+
+  clearDrawingsSignal:  0,
+  requestClearDrawings: () => set((s) => ({ clearDrawingsSignal: s.clearDrawingsSignal + 1 })),
 }))

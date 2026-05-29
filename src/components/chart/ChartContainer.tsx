@@ -64,6 +64,7 @@ export function ChartContainer() {
     activeIndicators,
     drawingTool, drawingStep,
     setDrawingTool, setDrawingStep,
+    clearDrawingsSignal,
   } = useChartStore()
 
   const { focusBarsFromEnd } = useTutorialStore()
@@ -131,17 +132,17 @@ export function ChartContainer() {
 
     const chart = createChart(containerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: '#070D1F' },
-        textColor: '#8892AA',
+        background: { type: ColorType.Solid, color: '#101936' },
+        textColor: 'rgba(248,249,247,0.55)',
       },
       grid: {
-        vertLines: { color: '#0D1828' },
-        horzLines: { color: '#0D1828' },
+        vertLines: { color: '#1B2847' },
+        horzLines: { color: '#1B2847' },
       },
       crosshair: { mode: CrosshairMode.Normal },
-      rightPriceScale: { borderColor: '#0D1828' },
+      rightPriceScale: { borderColor: '#1B2847' },
       timeScale: {
-        borderColor: '#0D1828',
+        borderColor: '#1B2847',
         timeVisible: true,
         fixLeftEdge: true,   // 데이터 시작 이전으로 스크롤 방지
         fixRightEdge: true,  // 데이터 끝 이후로 스크롤 방지 → RSI/MACD 선 연장 현상 해소
@@ -190,6 +191,23 @@ export function ChartContainer() {
       bbRef.current = null;    maRef.current = null
     }
   }, [syncCanvas, updateFibLabels])
+
+  // ── clearDrawingsSignal 감지 → 모든 작도 제거 ───────
+  useEffect(() => {
+    if (!clearDrawingsSignal) return
+    const chart = chartRef.current
+    if (!chart) return
+
+    // 추세선·피보나치 선 전부 제거
+    drawnLinesRef.current.forEach(s => { try { chart.removeSeries(s) } catch {} })
+    drawnLinesRef.current = []
+    pendingPointRef.current = null
+    fibLevelsRef.current = []
+    setFibLabels([])
+    clearCanvas()
+    setDrawingStep(0)
+    setDrawingTool('none')
+  }, [clearDrawingsSignal, clearCanvas, setDrawingStep, setDrawingTool])
 
   // ── 데이터 · 지표 동기화 ─────────────────────────────
   useEffect(() => {

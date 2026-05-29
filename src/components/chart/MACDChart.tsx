@@ -15,20 +15,20 @@ export function MACDChart() {
 
     const chart = createChart(containerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: '#070D1F' },
-        textColor: '#8892AA',
+        background: { type: ColorType.Solid, color: '#101936' },
+        textColor: 'rgba(248,249,247,0.55)',
       },
       grid: {
-        vertLines: { color: '#0D1828' },
-        horzLines: { color: '#0D1828' },
+        vertLines: { color: '#1B2847' },
+        horzLines: { color: '#1B2847' },
       },
       crosshair: { mode: CrosshairMode.Normal },
       rightPriceScale: {
-        borderColor: '#0D1828',
+        borderColor: '#1B2847',
         scaleMargins: { top: 0.15, bottom: 0.15 },
       },
       timeScale: {
-        borderColor: '#0D1828',
+        borderColor: '#1B2847',
         visible: false,   // 메인 차트에 날짜가 있으므로 서브 차트는 숨김
       },
       handleScroll: false,

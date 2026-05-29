@@ -48,6 +48,9 @@ export interface TutorialStep {
   activateIndicatorsOnEnter?: IndicatorSlug[]
   /** 이 단계 진입 시 차트를 마지막 N봉이 보이도록 줌 */
   focusBarsFromEnd?: number
+
+  /** 이 단계 진입 시 기존 작도 (추세선·피보나치) 를 모두 지운다 */
+  clearDrawingsOnEnter?: boolean
 }
 
 export interface CandleData {

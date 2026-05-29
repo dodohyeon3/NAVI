@@ -6,19 +6,22 @@ const config: Config = {
     extend: {
       colors: {
         navi: {
-          bg:             '#030617',
-          surface:        '#070D1F',
-          surface2:       '#0A1026',
-          surface3:       '#11182E',
-          border:         '#0D1828',
-          border2:        '#1A2540',
-          accent:         '#2D4198',
+          bg:             '#030617',  // deep space — 70% 비중
+          surface:        '#101936',  // primary card surface
+          surface2:       '#162142',  // secondary / inner elements
+          surface3:       '#1B2B55',  // interactive / hover
+          border:         '#1B2847',  // card outline
+          border2:        '#263558',  // secondary border
+          accent:         '#2D4198',  // brand blue — 10% 비중
           'accent-hover': '#3D54BF',
+          'accent-dim':   'rgba(45,65,152,0.15)',
           text:           '#F8F9F7',
-          secondary:      '#8892AA',
-          muted:          '#525C73',
+          secondary:      'rgba(248,249,247,0.75)', // 75% opacity
+          muted:          'rgba(248,249,247,0.45)', // 45% opacity
           green:          '#26a69a',
           red:            '#ef5350',
+          bullish:        '#26a69a',
+          bearish:        '#ef5350',
         },
       },
       keyframes: {

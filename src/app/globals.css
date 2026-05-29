@@ -18,30 +18,67 @@ body {
 /* ── Scrollbar ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #030617; }
-::-webkit-scrollbar-thumb { background: #0D1828; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #1A2540; }
+::-webkit-scrollbar-thumb { background: #1B2847; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #263558; }
 
-/* ── Typography ───────────────────────────────────── */
-.tabular { font-variant-numeric: tabular-nums; }
+/* ── Typography hierarchy ─────────────────────────── */
+.text-primary   { color: #F8F9F7; }
+.text-secondary { color: rgba(248,249,247,0.75); }
+.text-tertiary  { color: rgba(248,249,247,0.45); }
+
+/* ── Utilities ────────────────────────────────────── */
+.tabular       { font-variant-numeric: tabular-nums; }
 .tracking-caps { letter-spacing: 0.06em; text-transform: uppercase; }
 
-/* ── NAVI Dividers ────────────────────────────────── */
+/* ── NAVI Card (명확한 계층 구조) ────────────────── */
+.navi-card {
+  background-color: #101936;
+  border: 1px solid #1B2847;
+  border-radius: 12px;
+  transition: border-color 150ms ease;
+}
+.navi-card:hover {
+  border-color: rgba(45,65,152,0.4);
+}
+.navi-card-active {
+  background-color: #162142;
+  border-color: #2D4198;
+}
+
+/* ── Dividers ─────────────────────────────────────── */
 .navi-divider-h {
   height: 1px;
-  background: #0D1828;
+  background: #1B2847;
 }
 .navi-divider-v {
   width: 1px;
-  background: #0D1828;
+  background: #1B2847;
 }
 
 /* ── 30° Background Grid (로고 DNA 각도) ─────────── */
 .navi-grid-bg {
   background-image: repeating-linear-gradient(
     30deg,
-    rgba(45, 65, 152, 0.04) 0px,
-    rgba(45, 65, 152, 0.04) 1px,
+    rgba(45, 65, 152, 0.035) 0px,
+    rgba(45, 65, 152, 0.035) 1px,
     transparent 1px,
-    transparent 56px
+    transparent 64px
   );
+}
+
+/* ── 튜토리얼 강조 박스 ──────────────────────────── */
+.navi-mission-box {
+  background: rgba(45,65,152,0.08);
+  border: 1px solid rgba(45,65,152,0.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* ── Accent glow (CTA 버튼) ──────────────────────── */
+.navi-glow {
+  box-shadow: 0 0 0 0 rgba(45,65,152,0);
+  transition: box-shadow 150ms ease;
+}
+.navi-glow:hover {
+  box-shadow: 0 4px 24px rgba(45,65,152,0.35);
 }
