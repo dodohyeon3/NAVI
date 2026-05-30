@@ -17,6 +17,8 @@ import { calcBollingerBands, calcMA, calcRSI, calcMACD } from '@/lib/indicators'
 import { useLearnStore } from '@/stores/learnStore'
 import type { CandleData } from '@/types'
 import { clsx } from 'clsx'
+import { useTheme } from '@/hooks/useTheme'
+import { getChartColors } from '@/lib/chartColors'
 
 /* ─── 로컬 타입 ─────────────────────────────────────────────── */
 type Phase    = 'analyzing' | 'predicting' | 'revealed'
@@ -166,6 +168,7 @@ function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
 ═══════════════════════════════════════════════════════════════ */
 export function SimulateChart({ pastData, futureData, onRetry }: Props) {
   const { markSim } = useLearnStore()
+  const { isDark } = useTheme()
 
   /* ── DOM refs ─────────────────────────────────────────────── */
   const mainRef   = useRef<HTMLDivElement>(null)
@@ -311,18 +314,19 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
   useEffect(() => {
     if (!mainRef.current) return
     syncCanvas()
+    const cc = getChartColors(isDark)
     const chart = createChart(mainRef.current, {
-      layout: { background: { type: ColorType.Solid, color: '#070D1F' }, textColor: '#8892AA' },
-      grid:   { vertLines: { color: '#0D1828' }, horzLines: { color: '#0D1828' } },
+      layout: { background: { type: ColorType.Solid, color: cc.bg }, textColor: cc.text },
+      grid:   { vertLines: { color: cc.grid }, horzLines: { color: cc.grid } },
       crosshair: { mode: CrosshairMode.Normal },
-      rightPriceScale: { borderColor: '#0D1828' },
-      timeScale: { borderColor: '#0D1828', timeVisible: true, fixLeftEdge: true, fixRightEdge: true },
+      rightPriceScale: { borderColor: cc.border },
+      timeScale: { borderColor: cc.border, timeVisible: true, fixLeftEdge: true, fixRightEdge: true },
       width: mainRef.current.clientWidth, height: MAIN_H,
     })
     const series = chart.addCandlestickSeries({
-      upColor: '#26a69a', downColor: '#ef5350',
-      borderUpColor: '#26a69a', borderDownColor: '#ef5350',
-      wickUpColor: '#26a69a', wickDownColor: '#ef5350',
+      upColor: cc.candleUp, downColor: cc.candleDown,
+      borderUpColor: cc.candleUp, borderDownColor: cc.candleDown,
+      wickUpColor: cc.candleUp, wickDownColor: cc.candleDown,
     })
     chartRef.current = chart; candleRef.current = series
     // TimeRange 기반 sync + 피보나치 HTML 레이블 y좌표 재계산
@@ -352,7 +356,38 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       rsiChart.current?.remove();  rsiChart.current  = null; rsiSeries.current  = null
       macdChart.current?.remove(); macdChart.current = null; macdSeries.current = null
     }
-  }, [syncCanvas, redrawCanvas, updateFibLabels])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [syncCanvas, redrawCanvas, updateFibLabels, isDark])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ══ 테마 변경 → 차트 색상 업데이트 (applyOptions) ══════════ */
+  useEffect(() => {
+    const chart  = chartRef.current
+    const candle = candleRef.current
+    if (!chart || !candle) return
+    const cc = getChartColors(isDark)
+    chart.applyOptions({
+      layout: { background: { type: ColorType.Solid, color: cc.bg }, textColor: cc.text },
+      grid:   { vertLines: { color: cc.grid }, horzLines: { color: cc.grid } },
+      rightPriceScale: { borderColor: cc.border },
+      timeScale:       { borderColor: cc.border },
+    })
+    candle.applyOptions({
+      upColor: cc.candleUp, downColor: cc.candleDown,
+      borderUpColor: cc.candleUp, borderDownColor: cc.candleDown,
+      wickUpColor: cc.candleUp, wickDownColor: cc.candleDown,
+    })
+    if (maRef.current) {
+      maRef.current.ma5.applyOptions({ color: cc.ma5 })
+      maRef.current.ma20.applyOptions({ color: cc.ma20 })
+      maRef.current.ma60.applyOptions({ color: cc.ma60 })
+      maRef.current.ma120.applyOptions({ color: cc.ma120 })
+    }
+    if (bbRef.current) {
+      bbRef.current.upper.applyOptions({ color: cc.bbBand })
+      bbRef.current.middle.applyOptions({ color: cc.bbMid })
+      bbRef.current.lower.applyOptions({ color: cc.bbBand })
+    }
+    // RSI / MACD 서브차트는 isDark deps에 포함 → 자동 재생성
+  }, [isDark])
 
   /* ══ 메인 캔들 + BB/MA ══════════════════════════════════════ */
   useEffect(() => {
@@ -379,8 +414,9 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     if (activeInds.has('bollinger')) {
       const { upper, middle, lower } = calcBollingerBands(data)
       if (!bbRef.current) {
+        const cc2 = getChartColors(isDark)
         const mk = (c: string, dash = false) => chart.addLineSeries({ color: c, lineWidth: 1, lineStyle: dash ? 2 : 0, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false })
-        bbRef.current = { upper: mk('#60a5fa'), middle: mk('#8892AA', true), lower: mk('#60a5fa') }
+        bbRef.current = { upper: mk(cc2.bbBand), middle: mk(cc2.bbMid, true), lower: mk(cc2.bbBand) }
       }
       bbRef.current.upper.setData(upper as any)
       bbRef.current.middle.setData(middle as any)
@@ -398,12 +434,13 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       const ma60  = calcMA(data,  60)
       const ma120 = calcMA(data, 120)
       if (!maRef.current) {
+        const cc2 = getChartColors(isDark)
         const mkMA = (color: string) => chart.addLineSeries({ color, lineWidth: 1, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false })
         maRef.current = {
-          ma5:   mkMA('#facc15'),  // 노랑 — 단기
-          ma20:  mkMA('#f97316'),  // 주황 — 단기~중기
-          ma60:  mkMA('#a78bfa'),  // 보라 — 중기
-          ma120: mkMA('#f43f5e'),  // 빨강 — 장기
+          ma5:   mkMA(cc2.ma5),
+          ma20:  mkMA(cc2.ma20),
+          ma60:  mkMA(cc2.ma60),
+          ma120: mkMA(cc2.ma120),
         }
       }
       maRef.current.ma5.setData(ma5     as any)
@@ -438,11 +475,12 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     if (!rsiDiv.current) return
 
     if (!rsiChart.current) {
+      const cc = getChartColors(isDark)
       rsiChart.current = createChart(rsiDiv.current, {
-        layout: { background: { type: ColorType.Solid, color: '#070D1F' }, textColor: '#8892AA' },
-        grid:   { vertLines: { color: '#0D1828' }, horzLines: { color: '#0D1828' } },
+        layout: { background: { type: ColorType.Solid, color: cc.bg }, textColor: cc.text },
+        grid:   { vertLines: { color: cc.grid }, horzLines: { color: cc.grid } },
         crosshair: { mode: CrosshairMode.Normal },
-        rightPriceScale: { borderColor: '#0D1828', scaleMargins: { top: 0.1, bottom: 0.1 } },
+        rightPriceScale: { borderColor: cc.border, scaleMargins: { top: 0.1, bottom: 0.1 } },
         timeScale: { visible: false },
         handleScroll: false, handleScale: false,
         width: rsiDiv.current.clientWidth, height: SUB_H,
@@ -452,10 +490,11 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     const rc = rsiChart.current
     const rsiData = calcRSI(data)
     if (!rsiSeries.current) {
+      const cc = getChartColors(isDark)
       rsiSeries.current = {
-        line: rc.addLineSeries({ color: '#a78bfa', lineWidth: 2, lastValueVisible: true,  priceLineVisible: false }),
-        ob:   rc.addLineSeries({ color: '#ef4444', lineWidth: 1, lineStyle: 2,           lastValueVisible: false, priceLineVisible: false }),
-        os:   rc.addLineSeries({ color: '#22c55e', lineWidth: 1, lineStyle: 2,           lastValueVisible: false, priceLineVisible: false }),
+        line: rc.addLineSeries({ color: cc.rsiLine, lineWidth: 2, lastValueVisible: true,  priceLineVisible: false }),
+        ob:   rc.addLineSeries({ color: cc.rsi70,   lineWidth: 1, lineStyle: 2,            lastValueVisible: false, priceLineVisible: false }),
+        os:   rc.addLineSeries({ color: cc.rsi30,   lineWidth: 1, lineStyle: 2,            lastValueVisible: false, priceLineVisible: false }),
       }
     }
     rsiSeries.current.line.setData(rsiData as any)
@@ -478,7 +517,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
         try { rc.timeScale().setVisibleRange(capturedRsiRange) } catch {}
       }
     })
-  }, [activeInds, revealed, pastData, futureData])
+  }, [activeInds, revealed, pastData, futureData, isDark])
 
   /* ══ MACD 서브차트 ═══════════════════════════════════════════ */
   useEffect(() => {
@@ -495,11 +534,12 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     if (!macdDiv.current) return
 
     if (!macdChart.current) {
+      const cc = getChartColors(isDark)
       macdChart.current = createChart(macdDiv.current, {
-        layout: { background: { type: ColorType.Solid, color: '#070D1F' }, textColor: '#8892AA' },
-        grid:   { vertLines: { color: '#0D1828' }, horzLines: { color: '#0D1828' } },
+        layout: { background: { type: ColorType.Solid, color: cc.bg }, textColor: cc.text },
+        grid:   { vertLines: { color: cc.grid }, horzLines: { color: cc.grid } },
         crosshair: { mode: CrosshairMode.Normal },
-        rightPriceScale: { borderColor: '#0D1828', scaleMargins: { top: 0.15, bottom: 0.15 } },
+        rightPriceScale: { borderColor: cc.border, scaleMargins: { top: 0.15, bottom: 0.15 } },
         timeScale: { visible: false },
         handleScroll: false, handleScale: false,
         width: macdDiv.current.clientWidth, height: SUB_H,
@@ -509,13 +549,15 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     const mc = macdChart.current
     const md = calcMACD(data)
     if (!macdSeries.current) {
+      const cc = getChartColors(isDark)
       macdSeries.current = {
-        hist:   mc.addHistogramSeries({ color: '#26a69a', lastValueVisible: false, priceLineVisible: false }),
-        line:   mc.addLineSeries({ color: '#60a5fa', lineWidth: 2, lastValueVisible: true,  priceLineVisible: false }),
-        signal: mc.addLineSeries({ color: '#f97316', lineWidth: 1, lastValueVisible: true,  priceLineVisible: false }),
+        hist:   mc.addHistogramSeries({ color: cc.histPos, lastValueVisible: false, priceLineVisible: false }),
+        line:   mc.addLineSeries({ color: cc.macdLine,   lineWidth: 2, lastValueVisible: true,  priceLineVisible: false }),
+        signal: mc.addLineSeries({ color: cc.signalLine, lineWidth: 1, lastValueVisible: true,  priceLineVisible: false }),
       }
     }
-    macdSeries.current.hist.setData(md.filter(d => d.histogram !== null).map(d => ({ time: d.time, value: d.histogram!, color: d.histogram! >= 0 ? '#26a69a' : '#ef5350' })) as any)
+    const cc = getChartColors(isDark)
+    macdSeries.current.hist.setData(md.filter(d => d.histogram !== null).map(d => ({ time: d.time, value: d.histogram!, color: d.histogram! >= 0 ? cc.histPos : cc.histNeg })) as any)
     macdSeries.current.line.setData(md.map(d => ({ time: d.time, value: d.macd })) as any)
     macdSeries.current.signal.setData(md.filter(d => d.signal !== null).map(d => ({ time: d.time, value: d.signal! })) as any)
     // ① 메인 차트 range를 동기적으로 캡처
@@ -532,7 +574,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
         try { mc.timeScale().setVisibleRange(capturedMacdRange) } catch {}
       }
     })
-  }, [activeInds, revealed, pastData, futureData])
+  }, [activeInds, revealed, pastData, futureData, isDark])
 
   /* ══ 고무줄 프리뷰 ═══════════════════════════════════════════ */
   useEffect(() => {
@@ -673,21 +715,25 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
           <div ref={mainRef} className="w-full rounded-xl overflow-hidden" />
           <canvas ref={canvasRef} className="absolute top-0 left-0 pointer-events-none" style={{ height: MAIN_H, borderRadius: '0.75rem' }} />
           {/* MA 범례 오버레이 */}
-          {activeInds.has('moving-average') && (
-            <div className="absolute top-2 left-2 flex flex-col gap-0.5 pointer-events-none z-10">
-              {([
-                { color: '#facc15', label: 'MA5'   },
-                { color: '#f97316', label: 'MA20'  },
-                { color: '#a78bfa', label: 'MA60'  },
-                { color: '#f43f5e', label: 'MA120' },
-              ] as const).map(({ color, label }) => (
-                <div key={label} className="flex items-center gap-1">
-                  <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: color }} />
-                  <span className="text-[10px] font-semibold" style={{ color, textShadow: '0 0 4px rgba(0,0,0,0.8)' }}>{label}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {activeInds.has('moving-average') && (() => {
+            const cc2 = getChartColors(isDark)
+            const legend = [
+              { color: cc2.ma5,   label: 'MA5'   },
+              { color: cc2.ma20,  label: 'MA20'  },
+              { color: cc2.ma60,  label: 'MA60'  },
+              { color: cc2.ma120, label: 'MA120' },
+            ]
+            return (
+              <div className="absolute top-2 left-2 flex flex-col gap-0.5 pointer-events-none z-10">
+                {legend.map(({ color, label }) => (
+                  <div key={label} className="flex items-center gap-1">
+                    <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="text-[10px] font-semibold" style={{ color }}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
           {/* 피보나치 레이블 HTML 오버레이 */}
           {fibLabels.map((lv, i) => (

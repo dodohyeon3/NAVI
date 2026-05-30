@@ -15,12 +15,7 @@ const themeInitScript = `
   try {
     var stored = localStorage.getItem('navi-theme');
     var mode = stored ? JSON.parse(stored).state?.mode : 'dark';
-    if (!mode) mode = 'dark';
-    var isDark =
-      mode === 'dark' ? true :
-      mode === 'light' ? false :
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (!isDark) document.documentElement.classList.add('light');
+    if (mode === 'light') document.documentElement.classList.add('light');
   } catch(e) {}
 })();
 `

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { createChart, ColorType, CrosshairMode, type IChartApi, type Time } from 'lightweight-charts'
 import { calcBollingerBands, calcMA, calcRSI, calcMACD } from '@/lib/indicators'
 import type { IndicatorSlug, CandleData } from '@/types'
+import { useTheme } from '@/hooks/useTheme'
+import { getChartColors } from '@/lib/chartColors'
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  교육용 최적 구간 자동 탐색 — 실제 NVDA 데이터에서 패턴이 가장 명확한 구간 선택
@@ -174,13 +176,14 @@ const FIB_LEVELS = [
   { ratio: 1,     label: '100%',  color: '#94a3b8' },
 ]
 
-function makeChart(el: HTMLDivElement, height: number): IChartApi {
+function makeChart(el: HTMLDivElement, height: number, isDark: boolean): IChartApi {
+  const cc = getChartColors(isDark)
   return createChart(el, {
-    layout: { background: { type: ColorType.Solid, color: '#0d1117' }, textColor: '#6b7280' },
-    grid:   { vertLines: { color: '#161b22' }, horzLines: { color: '#161b22' } },
+    layout: { background: { type: ColorType.Solid, color: cc.bg }, textColor: cc.text },
+    grid:   { vertLines: { color: cc.grid }, horzLines: { color: cc.grid } },
     crosshair:       { mode: CrosshairMode.Magnet },
-    rightPriceScale: { borderColor: '#2a2a45', scaleMargins: { top: 0.08, bottom: 0.08 } },
-    timeScale:       { borderColor: '#2a2a45', timeVisible: false, rightOffset: 3 },
+    rightPriceScale: { borderColor: cc.border, scaleMargins: { top: 0.08, bottom: 0.08 } },
+    timeScale:       { borderColor: cc.border, timeVisible: false, rightOffset: 3 },
     handleScroll: false,
     handleScale:  false,
     width:  el.clientWidth,
@@ -196,6 +199,7 @@ export function MiniChartPreview({ slug }: Props) {
   const [data,      setData]      = useState<CandleData[]>([])
   const [loading,   setLoading]   = useState(true)
   const [error,     setError]     = useState(false)
+  const { isDark } = useTheme()
   // 피보나치 HTML 레이블 (canvas 대신 React state로 관리)
   const [fibLabels, setFibLabels] = useState<{ value: number; label: string; color: string; y: number }[]>([])
   const needsSub = slug === 'rsi' || slug === 'macd'
@@ -231,12 +235,13 @@ export function MiniChartPreview({ slug }: Props) {
       preview = data.slice(-90)
     }
 
+    const cc = getChartColors(isDark)
     const mainHeight = needsSub ? 240 : 320
-    const mainChart  = makeChart(mainRef.current, mainHeight)
+    const mainChart  = makeChart(mainRef.current, mainHeight, isDark)
     const candleSeries = mainChart.addCandlestickSeries({
-      upColor: '#26a69a', downColor: '#ef5350',
-      borderUpColor: '#26a69a', borderDownColor: '#ef5350',
-      wickUpColor:   '#26a69a', wickDownColor:   '#ef5350',
+      upColor: cc.candleUp, downColor: cc.candleDown,
+      borderUpColor: cc.candleUp, borderDownColor: cc.candleDown,
+      wickUpColor:   cc.candleUp, wickDownColor:   cc.candleDown,
     })
     candleSeries.setData(preview as any)
 
@@ -244,9 +249,9 @@ export function MiniChartPreview({ slug }: Props) {
     if (slug === 'bollinger') {
       const { upper, middle, lower } = calcBollingerBands(preview)
       ;[
-        { d: upper,  color: '#60a5fa', dash: false },
-        { d: middle, color: '#94a3b8', dash: true  },
-        { d: lower,  color: '#60a5fa', dash: false },
+        { d: upper,  color: cc.bbBand, dash: false },
+        { d: middle, color: cc.bbMid,  dash: true  },
+        { d: lower,  color: cc.bbBand, dash: false },
       ].forEach(({ d, color, dash }) =>
         mainChart.addLineSeries({
           color, lineWidth: 1, lineStyle: dash ? 2 : 0,
@@ -258,10 +263,10 @@ export function MiniChartPreview({ slug }: Props) {
     // ── 이동평균선 ────────────────────────────────────────────
     if (slug === 'moving-average') {
       ;[
-        { d: calcMA(preview, 5),   color: '#facc15' },
-        { d: calcMA(preview, 20),  color: '#f97316' },
-        { d: calcMA(preview, 60),  color: '#a78bfa' },
-        { d: calcMA(preview, 120), color: '#f43f5e' },
+        { d: calcMA(preview, 5),   color: cc.ma5   },
+        { d: calcMA(preview, 20),  color: cc.ma20  },
+        { d: calcMA(preview, 60),  color: cc.ma60  },
+        { d: calcMA(preview, 120), color: cc.ma120 },
       ].forEach(({ d, color }) =>
         mainChart.addLineSeries({
           color, lineWidth: 2,
@@ -394,15 +399,15 @@ export function MiniChartPreview({ slug }: Props) {
     // ── RSI 서브 차트 ─────────────────────────────────────────
     let subChart: IChartApi | null = null
     if (slug === 'rsi' && subRef.current) {
-      subChart = makeChart(subRef.current, 130)
+      subChart = makeChart(subRef.current, 130, isDark)
       const rsiData = calcRSI(preview)
-      subChart.addLineSeries({ color: '#a78bfa', lineWidth: 2, lastValueVisible: true, priceLineVisible: false })
+      subChart.addLineSeries({ color: cc.rsiLine, lineWidth: 2, lastValueVisible: true, priceLineVisible: false })
         .setData(rsiData as any)
       if (rsiData.length > 0) {
         const [t0, t1] = [rsiData[0].time, rsiData[rsiData.length - 1].time]
-        subChart.addLineSeries({ color: '#ef4444', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false })
+        subChart.addLineSeries({ color: cc.rsi70, lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false })
           .setData([{ time: t0, value: 70 }, { time: t1, value: 70 }] as any)
-        subChart.addLineSeries({ color: '#22c55e', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false })
+        subChart.addLineSeries({ color: cc.rsi30, lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false })
           .setData([{ time: t0, value: 30 }, { time: t1, value: 30 }] as any)
       }
       subChart.timeScale().fitContent()
@@ -410,14 +415,14 @@ export function MiniChartPreview({ slug }: Props) {
 
     // ── MACD 서브 차트 ────────────────────────────────────────
     if (slug === 'macd' && subRef.current) {
-      subChart = makeChart(subRef.current, 130)
+      subChart = makeChart(subRef.current, 130, isDark)
       const md = calcMACD(preview)
-      subChart.addHistogramSeries({ color: '#26a69a', lastValueVisible: false, priceLineVisible: false })
+      subChart.addHistogramSeries({ color: cc.histPos, lastValueVisible: false, priceLineVisible: false })
         .setData(md.filter(d => d.histogram !== null)
-          .map(d => ({ time: d.time, value: d.histogram!, color: d.histogram! >= 0 ? '#26a69a' : '#ef5350' })) as any)
-      subChart.addLineSeries({ color: '#60a5fa', lineWidth: 2, lastValueVisible: true, priceLineVisible: false })
+          .map(d => ({ time: d.time, value: d.histogram!, color: d.histogram! >= 0 ? cc.histPos : cc.histNeg })) as any)
+      subChart.addLineSeries({ color: cc.macdLine,   lineWidth: 2, lastValueVisible: true, priceLineVisible: false })
         .setData(md.map(d => ({ time: d.time, value: d.macd })) as any)
-      subChart.addLineSeries({ color: '#f97316', lineWidth: 1, lastValueVisible: true, priceLineVisible: false })
+      subChart.addLineSeries({ color: cc.signalLine, lineWidth: 1, lastValueVisible: true, priceLineVisible: false })
         .setData(md.filter(d => d.signal !== null).map(d => ({ time: d.time, value: d.signal! })) as any)
       subChart.timeScale().fitContent()
     }
@@ -433,21 +438,22 @@ export function MiniChartPreview({ slug }: Props) {
       subChart?.remove()
       setFibLabels([])  // slug 변경 시 이전 레이블 초기화
     }
-  }, [data, slug, needsSub])
+  }, [data, slug, needsSub, isDark])
 
   // ── 범례 ─────────────────────────────────────────────────────────────────
+  const ccL = getChartColors(isDark)
   const legends: { color: string; label: string }[] = []
   if (slug === 'bollinger')
-    legends.push({ color: '#60a5fa', label: '밴드' }, { color: '#94a3b8', label: '중심(MA20)' })
+    legends.push({ color: ccL.bbBand, label: '밴드' }, { color: ccL.bbMid, label: '중심(MA20)' })
   if (slug === 'moving-average')
     legends.push(
-      { color: '#facc15', label: 'MA 5' }, { color: '#f97316', label: 'MA 20' },
+      { color: ccL.ma5, label: 'MA 5' }, { color: ccL.ma20, label: 'MA 20' },
       { color: '#a78bfa', label: 'MA 60' }, { color: '#f43f5e', label: 'MA 120' },
     )
   if (slug === 'rsi')
-    legends.push({ color: '#a78bfa', label: 'RSI(14)' }, { color: '#ef4444', label: '70' }, { color: '#22c55e', label: '30' })
+    legends.push({ color: ccL.rsiLine, label: 'RSI(14)' }, { color: ccL.rsi70, label: '70' }, { color: ccL.rsi30, label: '30' })
   if (slug === 'macd')
-    legends.push({ color: '#60a5fa', label: 'MACD' }, { color: '#f97316', label: '시그널' })
+    legends.push({ color: ccL.macdLine, label: 'MACD' }, { color: ccL.signalLine, label: '시그널' })
   if (slug === 'trendline')
     legends.push({ color: '#818cf8', label: '상승 추세선' })
   if (slug === 'fibonacci')
