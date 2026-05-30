@@ -195,7 +195,7 @@ function buildTestQs(c: CandleData[]): TestQ[] {
 ══════════════════════════════════════════════════════════════ */
 export function TutorialStep() {
   const {
-    currentStep, currentIndex, steps,
+    currentStep, currentIndex, steps, isLesson,
     stepDone, candleData: clickedCandle, chosenJudgment,
     next, prev, skip, complete, notifyJudgment, markStepDone,
   } = useTutorialStore()
@@ -372,8 +372,18 @@ export function TutorialStep() {
           >
             {canNext ? '다음 →' : '먼저 해보세요'}
           </button>
+        ) : isLesson ? (
+          /* 레슨 마지막 단계 = 완료 화면 없이 종료 */
+          <button
+            onClick={skip}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold
+                       bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95
+                       shadow-[0_2px_12px_rgba(91,127,255,0.35)]"
+          >
+            학습 완료
+          </button>
         ) : (
-          /* 마지막 단계 = 완료 화면으로 전환 */
+          /* 기초 과정 마지막 단계 = 완료 화면으로 전환 */
           <button
             onClick={complete}
             className="px-3 py-1.5 rounded-lg text-[11px] font-semibold

@@ -668,7 +668,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       </div>
 
       {/* ── 메인 차트 + 캔버스 ────────────────────────────────── */}
-      <div className="bg-navi-surface border border-navi-border rounded-xl p-3">
+      <div id="challenge-chart" className="bg-navi-surface border border-navi-border rounded-xl p-3">
         <div className="relative" style={{ cursor }}>
           <div ref={mainRef} className="w-full rounded-xl overflow-hidden" />
           <canvas ref={canvasRef} className="absolute top-0 left-0 pointer-events-none" style={{ height: MAIN_H, borderRadius: '0.75rem' }} />
@@ -774,7 +774,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
 
       {/* ── 도구 패널 ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-navi-surface border border-navi-border rounded-xl p-3 overflow-visible">
+        <div id="challenge-analysis-panel" className="bg-navi-surface border border-navi-border rounded-xl p-3 overflow-visible">
           <p className="text-[11px] font-bold text-navi-secondary mb-2">분석 도구</p>
           <div className="flex flex-wrap gap-1.5">
             {INDICATOR_BTNS.map(({ key, label }) => (
@@ -791,7 +791,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
           </div>
         </div>
 
-        <div className="bg-navi-surface border border-navi-border rounded-xl p-3">
+        <div id="challenge-drawing-panel" className="bg-navi-surface border border-navi-border rounded-xl p-3">
           <p className="text-[11px] font-bold text-navi-secondary mb-2">작도 도구</p>
           <div className="flex flex-wrap gap-1.5">
             {([
@@ -828,6 +828,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
             </div>
           )}
           <button
+            id="challenge-predict-btn"
             onClick={() => setPhase('predicting')}
             className="w-full py-3.5 rounded-xl font-semibold text-[13px]
                        bg-navi-action text-white

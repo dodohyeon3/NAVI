@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { SimulateChart }  from '@/components/simulate/SimulateChart'
-import { ChallengeIntro } from '@/components/simulate/ChallengeIntro'
+import { ChallengeGuide } from '@/components/simulate/ChallengeGuide'
 import type { CandleData } from '@/types'
 
 /* ─── 구간 설정 ──────────────────────────────────────────────── */
@@ -31,11 +31,11 @@ function pickWindow(data: CandleData[], seed?: number) {
 
 /* ── useSearchParams 는 Suspense 안에서만 사용 가능 ── */
 
-/** ?guide=1 여부를 읽어 ChallengeIntro에 forceGuide 전달 */
-function ChallengeIntroWrapper() {
+/** ?guide=1 여부를 읽어 ChallengeGuide에 forceGuide 전달 */
+function ChallengeGuideWrapper() {
   const searchParams = useSearchParams()
   const forceGuide   = searchParams.get('guide') === '1'
-  return <ChallengeIntro forceGuide={forceGuide} />
+  return <ChallengeGuide forceGuide={forceGuide} />
 }
 
 function WelcomeBanner() {
@@ -118,9 +118,9 @@ export default function SimulatePage() {
   return (
     <div className="min-h-screen bg-navi-bg px-4 py-6 max-w-4xl mx-auto">
 
-      {/* ── 첫 진입 인트로 (localStorage 체크) ──────────────── */}
+      {/* ── 실전 챌린지 가이드 (localStorage + ?guide=1) ──────── */}
       <Suspense fallback={null}>
-        <ChallengeIntroWrapper />
+        <ChallengeGuideWrapper />
       </Suspense>
 
       {/* ── 헤더 ────────────────────────────────────────────── */}

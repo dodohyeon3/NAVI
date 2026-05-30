@@ -5,13 +5,13 @@ import Link from 'next/link'
 import { useTutorialStore } from '@/stores/tutorialStore'
 
 const ADDITIONAL_LEARNING = [
-  { slug: 'fibonacci', label: '피보나치 되돌림' },
-  { slug: 'rsi',       label: 'RSI 심화'       },
-  { slug: 'macd',      label: 'MACD 심화'       },
+  { key: 'fibonacci-advanced', label: '피보나치 되돌림' },
+  { key: 'rsi-advanced',       label: 'RSI 심화'       },
+  { key: 'macd-advanced',      label: 'MACD 심화'       },
 ]
 
 export function TutorialComplete() {
-  const { showCompletionScreen, dismissCompletion } = useTutorialStore()
+  const { showCompletionScreen, dismissCompletion, startLesson } = useTutorialStore()
 
   return (
     <AnimatePresence>
@@ -94,12 +94,11 @@ export function TutorialComplete() {
                   추가 학습
                 </p>
                 <div className="space-y-1.5">
-                  {ADDITIONAL_LEARNING.map(({ slug, label }) => (
-                    <Link
-                      key={slug}
-                      href={`/indicator/${slug}`}
-                      onClick={dismissCompletion}
-                      className="flex items-center justify-between
+                  {ADDITIONAL_LEARNING.map(({ key, label }) => (
+                    <button
+                      key={key}
+                      onClick={() => { dismissCompletion(); startLesson(key) }}
+                      className="flex items-center justify-between w-full
                                  px-3 py-2.5 rounded-xl
                                  bg-navi-surface2 border border-navi-border
                                  text-[12px] font-medium text-navi-secondary
@@ -108,7 +107,7 @@ export function TutorialComplete() {
                     >
                       <span>{label}</span>
                       <span className="text-navi-muted text-[11px]">→</span>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </div>

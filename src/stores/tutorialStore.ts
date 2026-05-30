@@ -1,8 +1,17 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { tutorialSteps } from '@/data/tutorialSteps'
-import { useChartStore } from '@/stores/chartStore'
+import { tutorialSteps }      from '@/data/tutorialSteps'
+import { fibonacciSteps }     from '@/data/lessonSteps/fibonacci'
+import { rsiAdvancedSteps }   from '@/data/lessonSteps/rsiAdvanced'
+import { macdAdvancedSteps }  from '@/data/lessonSteps/macdAdvanced'
+import { useChartStore }      from '@/stores/chartStore'
 import type { TutorialStep, CandleData } from '@/types'
+
+const LESSON_MAP: Record<string, TutorialStep[]> = {
+  'fibonacci-advanced': fibonacciSteps,
+  'rsi-advanced':       rsiAdvancedSteps,
+  'macd-advanced':      macdAdvancedSteps,
+}
 
 interface TutorialState {
   isActive:         boolean
@@ -22,14 +31,20 @@ interface TutorialState {
   // ── 완료 화면 ────────────────────────────────────────
   showCompletionScreen: boolean
 
+  // ── 레슨 모드 ────────────────────────────────────────
+  /** true이면 레슨 실행 중 (기초 과정 아님) — 마지막 단계에서 완료 화면 없이 종료 */
+  isLesson: boolean
+
   // ── 액션 ──────────────────────────────────────────────
-  start:             () => void
-  next:              () => void
-  prev:              () => void
-  skip:              () => void
-  reset:             () => void
-  complete:          () => void
+  start:       () => void
+  next:        () => void
+  prev:        () => void
+  skip:        () => void
+  reset:       () => void
+  complete:    () => void
   dismissCompletion: () => void
+  /** 레슨 시작 — key에 해당하는 단계셋을 로드 */
+  startLesson: (key: string) => void
 
   markStepDone:      () => void
   notifyCandleClick: (data: CandleData) => void
@@ -71,6 +86,7 @@ export const useTutorialStore = create<TutorialState>()(
       currentIndex:         0,
       hasCompletedOnce:     false,
       showCompletionScreen: false,
+      isLesson:             false,
       steps:                tutorialSteps,
       currentStep:          null,
       ...INITIAL_ACTION_STATE,
@@ -84,7 +100,9 @@ export const useTutorialStore = create<TutorialState>()(
           isActive:             true,
           currentIndex:         0,
           currentStep:          tutorialSteps[0],
+          steps:                tutorialSteps,
           showCompletionScreen: false,
+          isLesson:             false,
           ...INITIAL_ACTION_STATE,
         })
       },
@@ -163,22 +181,41 @@ export const useTutorialStore = create<TutorialState>()(
       },
 
       skip: () =>
-        set({ isActive: false, hasCompletedOnce: true, currentStep: null, showCompletionScreen: false, ...INITIAL_ACTION_STATE }),
+        set({ isActive: false, hasCompletedOnce: true, currentStep: null, showCompletionScreen: false, isLesson: false, ...INITIAL_ACTION_STATE }),
 
       reset: () =>
-        set({ isActive: false, currentIndex: 0, currentStep: null, showCompletionScreen: false, ...INITIAL_ACTION_STATE }),
+        set({ isActive: false, currentIndex: 0, currentStep: null, showCompletionScreen: false, isLesson: false, ...INITIAL_ACTION_STATE }),
 
-      /** 마지막 단계 완료 — 완료 화면으로 전환 */
+      /** 기초 과정 마지막 단계 완료 — 완료 화면 표시 */
       complete: () =>
         set({
           isActive:             false,
           hasCompletedOnce:     true,
           currentStep:          null,
           showCompletionScreen: true,
+          isLesson:             false,
+          steps:                tutorialSteps,
           ...INITIAL_ACTION_STATE,
         }),
 
       dismissCompletion: () => set({ showCompletionScreen: false }),
+
+      /** 심화 레슨 시작 (key: 'fibonacci-advanced' | 'rsi-advanced' | 'macd-advanced') */
+      startLesson: (key: string) => {
+        const lessonSteps = LESSON_MAP[key]
+        if (!lessonSteps?.length) return
+        const { activeIndicators, toggleIndicator } = useChartStore.getState()
+        activeIndicators.forEach(slug => toggleIndicator(slug))
+        set({
+          isActive:             true,
+          currentIndex:         0,
+          currentStep:          lessonSteps[0],
+          steps:                lessonSteps,
+          isLesson:             true,
+          showCompletionScreen: false,
+          ...INITIAL_ACTION_STATE,
+        })
+      },
 
       markStepDone: () => set({ stepDone: true }),
 

@@ -19,7 +19,7 @@ import { useStockData } from '@/hooks/useStockData'
 import Link from 'next/link'
 
 function ChartPageInner() {
-  const { hasCompletedOnce, start } = useTutorialStore()
+  const { hasCompletedOnce, start, startLesson } = useTutorialStore()
   const { activeIndicators, drawingTool } = useChartStore()
   const { markIndicator, markDrawing, triedIndicators } = useLearnStore()
   const searchParams = useSearchParams()
@@ -40,11 +40,16 @@ function ChartPageInner() {
   ─────────────────────────────────────────────────────────── */
   useEffect(() => {
     const forceOnboard = searchParams.get('onboard') === '1'
+    const lessonKey    = searchParams.get('lesson')
+    if (lessonKey) {
+      const timer = setTimeout(() => startLesson(lessonKey), 500)
+      return () => clearTimeout(timer)
+    }
     if (forceOnboard || !hasCompletedOnce) {
       const timer = setTimeout(start, 500)
       return () => clearTimeout(timer)
     }
-  }, [hasCompletedOnce, start, searchParams])
+  }, [hasCompletedOnce, start, startLesson, searchParams])
 
   /* ── 지표 활성화 감지 → 토스트 + 학습 진행 기록 ──────────── */
   useEffect(() => {

@@ -2,17 +2,19 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTutorialStore } from '@/stores/tutorialStore'
 
 const ADDITIONAL = [
-  { slug: 'fibonacci', label: '피보나치 되돌림' },
-  { slug: 'rsi',       label: 'RSI 심화'       },
-  { slug: 'macd',      label: 'MACD 심화'       },
+  { key: 'fibonacci-advanced', label: '피보나치 되돌림' },
+  { key: 'rsi-advanced',       label: 'RSI 심화'       },
+  { key: 'macd-advanced',      label: 'MACD 심화'       },
 ]
 
 export function TutorialMenuButton() {
-  const { start } = useTutorialStore()
+  const { start, startLesson } = useTutorialStore()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -80,12 +82,19 @@ export function TutorialMenuButton() {
                 추가 학습
               </p>
               <div className="space-y-0.5">
-                {ADDITIONAL.map(({ slug, label }) => (
-                  <Link
-                    key={slug}
-                    href={`/indicator/${slug}`}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-between
+                {ADDITIONAL.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      // 차트 페이지에 있으면 즉시 레슨 시작, 아니면 chart?lesson= 으로 이동
+                      if (typeof window !== 'undefined' && window.location.pathname === '/chart') {
+                        startLesson(key)
+                      } else {
+                        router.push(`/chart?lesson=${key}`)
+                      }
+                      setOpen(false)
+                    }}
+                    className="flex items-center justify-between w-full
                                px-2.5 py-2 rounded-xl
                                text-[12px] text-navi-secondary
                                hover:bg-navi-surface2 hover:text-navi-text
@@ -93,7 +102,7 @@ export function TutorialMenuButton() {
                   >
                     <span>{label}</span>
                     <span className="text-[10px] text-navi-muted">→</span>
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>
