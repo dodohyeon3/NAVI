@@ -107,8 +107,8 @@ export const tutorialSteps: TutorialStep[] = [
   // ══════════════════════════════════════════════════════════
   {
     id:               'rsi-judgment',
-    targetSelector:   '#chart-area',
-    position:         'bottom',
+    targetSelector:   '#rsi-chart',
+    position:         'top',
     focusBarsFromEnd: 30,
     title:            'RSI 선의 현재 위치를 찾아봐요',
     body:             '차트가 최근 30일 구간으로 이동됐어요. 아래 RSI 그래프에서 보라색 선이 오른쪽 끝에서 어느 구간에 있는지 확인해보세요.',
@@ -159,8 +159,8 @@ export const tutorialSteps: TutorialStep[] = [
   // ══════════════════════════════════════════════════════════
   {
     id:               'macd-judgment',
-    targetSelector:   '#chart-area',
-    position:         'bottom',
+    targetSelector:   '#macd-chart',
+    position:         'top',
     focusBarsFromEnd: 60,
     title:            'MACD 선 위치를 파악해봐요',
     body:             '차트가 최근 60일 구간으로 이동됐어요. MACD 그래프에서 파란선과 주황선의 위치를 오른쪽 끝 기준으로 확인해보세요.',
@@ -273,7 +273,7 @@ export const tutorialSteps: TutorialStep[] = [
     activateIndicatorsOnEnter:  ['moving-average', 'rsi', 'macd'],
     clearDrawingsOnEnter:       true,
     focusBarsFromEnd:           60,
-    title:                      '종합 차트 읽기 테스트',
+    title:                      '종합 차트 분석 테스트',
     body:                       '지금까지 배운 내용을 실제 차트에 적용해봐요. MA·RSI·MACD가 모두 켜진 상태에서 4가지 질문에 답해보세요.',
     actionRequired:             'comprehensive-test',
   },
@@ -285,7 +285,7 @@ export const tutorialSteps: TutorialStep[] = [
     id:             'tutorial-complete',
     targetSelector: '#chart-area',
     position:       'bottom',
-    title:          '차트를 읽을 수 있게 됐어요',
+    title:          '차트를 분석할 수 있게 됐어요',
     body:           '캔들부터 시작해서 MA, RSI, MACD, 볼린저 밴드, 추세선, 피보나치까지 — 실제 차트를 직접 만지며 모든 도구를 경험했어요.\n\n지식이 아니라 경험이에요. 이제 차트가 다르게 보일 거예요.',
     tips: [
       '지표는 방향의 힌트이지 정답이 아니에요',

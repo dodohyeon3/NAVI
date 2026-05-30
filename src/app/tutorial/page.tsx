@@ -9,28 +9,24 @@ const PHASES = [
     phase: '01',
     label: '차트 기초',
     steps: '캔들 클릭  ·  추세선 직접 그리기',
-    detail: '하루치 OHLC 데이터를 손으로 확인하고, 방향 감각을 눈으로 익혀요.',
     highlight: false,
   },
   {
     phase: '02',
     label: '분석 도구 탐구',
     steps: '이동평균선  ·  RSI  ·  MACD  ·  볼린저 밴드',
-    detail: '지표를 켜고 끄며 실제 차트에서 각각 어떻게 읽는지 배워요.',
     highlight: false,
   },
   {
     phase: '03',
     label: '종합 테스트',
     steps: '4문항 자동 채점',
-    detail: '배운 지표 4가지를 동시에 켜고 현재 차트를 종합 분석해봐요.',
     highlight: true,
   },
   {
     phase: '04',
     label: '예측 시뮬레이션',
     steps: '실제 NVDA 과거 데이터  ·  미래 30일 예측',
-    detail: '예측하고, 결과를 확인하고, 왜 틀렸는지 분석하며 성장해요.',
     highlight: true,
   },
 ]
@@ -52,12 +48,12 @@ export default function TutorialPage() {
         className="mb-10"
       >
         <h1 className="text-[28px] font-black text-navi-text leading-[1.2] mb-4">
-          "차트를 읽을 수 있다"<br />
-          는 느낌
+          "차트를 분석할 수 있다"<br />
+          는 확신
         </h1>
         <p className="text-navi-secondary text-[15px] leading-relaxed mb-5">
           설명을 읽는 게 아니라 직접 클릭하고, 판단하면서<br />
-          차트 읽기 능력이 자연스럽게 쌓여요.
+          차트 분석 능력이 자연스럽게 쌓여요.
         </p>
         <div className="flex items-center gap-3 text-[13px] text-navi-muted">
           <span>약 7~10분</span>
@@ -99,32 +95,18 @@ export default function TutorialPage() {
                 <p className="text-[14px] font-bold text-navi-text leading-snug mb-1">
                   {p.label}
                 </p>
-                <p className="text-[12px] text-navi-secondary mb-1.5">{p.steps}</p>
-                <p className="text-[12px] text-navi-muted leading-relaxed">{p.detail}</p>
+                <p className="text-[12px] text-navi-secondary">{p.steps}</p>
               </div>
             </div>
           ))}
         </div>
       </motion.div>
 
-      {/* 안내 메시지 */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.45 }}
-        className="mb-8 px-4 py-3.5 rounded-2xl bg-navi-surface border border-navi-border"
-      >
-        <p className="text-[13px] text-navi-secondary leading-relaxed">
-          <strong className="text-navi-text font-semibold">어떤 버튼을 눌러도 데이터는 사라지지 않아요.</strong>{' '}
-          실제 차트 위에서 직접 클릭하고 판단하면서 차트 읽기 능력이 생겨요.
-        </p>
-      </motion.div>
-
       {/* CTA */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.45 }}
+        transition={{ delay: 0.3, duration: 0.45 }}
         className="space-y-3 mt-auto"
       >
         <Link

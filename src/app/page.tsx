@@ -53,12 +53,6 @@ export default function LandingPage() {
           className="w-60 h-auto select-none"
           draggable={false}
         />
-
-        {/* 태그라인 */}
-        <p className="text-[10.5px] font-semibold tracking-[0.1em] uppercase mt-1"
-           style={{ color: 'rgba(248,249,247,0.45)' }}>
-          차트 읽기 능력 학습 플랫폼
-        </p>
       </div>
 
       {/* ── 헤드라인 ─────────────────────────────────────── */}
@@ -66,12 +60,12 @@ export default function LandingPage() {
         <h1 className="text-[26px] sm:text-[30px] font-black tracking-[-0.025em]
                        leading-[1.22] max-w-sm mx-auto mb-3">
           <span style={{ color: 'rgba(248,249,247,0.75)' }}>"RSI를 배웠다"</span>가 아닌<br />
-          <span className="text-navi-text">"차트를 읽을 수 있다"</span>
+          <span className="text-navi-text">"차트를 분석할 수 있다"</span>
         </h1>
         <p className="text-[13px] leading-relaxed max-w-xs mx-auto"
            style={{ color: 'rgba(248,249,247,0.6)' }}>
           직접 클릭하고, 판단하고, 틀리면서<br />
-          차트 읽기 능력이 자연스럽게 생겨요.
+          차트 분석 능력이 자연스럽게 생겨요.
         </p>
       </div>
 
@@ -129,58 +123,6 @@ export default function LandingPage() {
         </Link>
       </div>
 
-      {/* ── 학습 단계 미리보기 ──────────────────────────── */}
-      <div className="mt-12 relative z-10 w-full max-w-sm">
-        {/* 섹션 레이블 */}
-        <p className="text-center text-[9.5px] font-semibold tracking-[0.1em] uppercase mb-3"
-           style={{ color: 'rgba(248,249,247,0.35)' }}>
-          학습 여정
-        </p>
-
-        {/* 카드 — surface 계층으로 배경과 분리 */}
-        <div className="bg-navi-surface border border-navi-border rounded-xl p-4">
-          <div className="flex items-center flex-wrap justify-center gap-x-2 gap-y-1.5">
-            {[
-              { label: '캔들',     accent: false },
-              { label: 'MA',       accent: false },
-              { label: 'RSI',      accent: false },
-              { label: 'MACD',     accent: false },
-              { label: 'BB',       accent: false },
-              { label: '종합 테스트', accent: true },
-              { label: '시뮬레이션', accent: true },
-            ].map((step, i, arr) => (
-              <span key={step.label} className="flex items-center gap-2">
-                <span className={[
-                  'text-[11.5px]',
-                  step.accent ? 'text-navi-text font-semibold' : 'text-navi-secondary font-medium',
-                ].join(' ')}>
-                  {step.label}
-                </span>
-                {i < arr.length - 1 && (
-                  <span
-                    className="w-1 h-1 inline-block"
-                    style={{
-                      backgroundColor: 'rgba(248,249,247,0.2)',
-                      clipPath: 'polygon(50% 0%,100% 50%,50% 100%,0% 50%)',
-                    }}
-                  />
-                )}
-              </span>
-            ))}
-          </div>
-
-          {/* 진행 바 */}
-          <div className="mt-3 h-0.5 w-full bg-navi-border2 rounded-full overflow-hidden">
-            <div className="h-full bg-navi-action rounded-full" style={{ width: '0%' }} />
-          </div>
-        </div>
-      </div>
-
-      {/* ── 신뢰 문구 ──────────────────────────────────── */}
-      <p className="mt-8 text-[10px] text-center relative z-10"
-         style={{ color: 'rgba(248,249,247,0.3)' }}>
-        어떤 버튼을 눌러도 데이터는 사라지지 않아요
-      </p>
     </main>
   )
 }

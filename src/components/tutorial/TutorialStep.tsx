@@ -89,13 +89,7 @@ function calcCardPos(
 
 /* ── smartScroll ──────────────────────────────────────────────── */
 function smartScroll(step: TStep) {
-  const subId =
-    step.id === 'rsi-judgment'  ? 'rsi-chart'  :
-    step.id === 'macd-judgment' ? 'macd-chart' : null
-
-  const el = subId
-    ? document.getElementById(subId)
-    : document.querySelector(step.targetSelector)
+  const el = document.querySelector(step.targetSelector)
   if (!el) return
 
   const r  = el.getBoundingClientRect()
@@ -507,8 +501,8 @@ export function TutorialStep() {
                 type === 'down' ? 'bg-navi-danger/[0.08]  border border-navi-danger/20'  :
                 'bg-navi-surface3'
               )}>
-                <span className="text-[9px] text-navi-muted">{label}</span>
-                <span className="text-[11px] font-bold mt-0.5 text-navi-text">{value}</span>
+                <span className="text-[10px] text-navi-secondary">{label}</span>
+                <span className="text-[12px] font-bold mt-0.5 text-navi-text">{value}</span>
               </div>
             ))}
           </div>
