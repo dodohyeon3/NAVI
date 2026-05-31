@@ -5,15 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useTutorialStore } from '@/stores/tutorialStore'
 import { useChartStore }    from '@/stores/chartStore'
+import { useMobile }        from '@/hooks/useMobile'
 import { calcMA, calcRSI, calcMACD } from '@/lib/indicators'
-import type { TutorialStep as TStep, CandleData } from '@/types'
+import type { TutorialStep as TStep, CandleData, IndicatorSlug } from '@/types'
 import { clsx } from 'clsx'
 
 /* ── Constants ────────────────────────────────────────────────── */
-const PAD          = 6      // spotlight padding around target (px)
-const SCROLL_MS    = 220    // delay after scroll before showing card
-const CARD_W       = 340    // card width (px) — computed dynamically on mount
-const CARD_MARGIN  = 14     // gap between spotlight ring and card
+const PAD          = 6
+const SCROLL_MS    = 220
+const CARD_W       = 340
+const CARD_MARGIN  = 14
 
 /* ── Types ────────────────────────────────────────────────────── */
 type CardMode = 'idle' | 'judgment' | 'feedback' | 'test'
@@ -23,8 +24,15 @@ interface HL {
   width: number; height: number
   bottom: number; right: number
 }
-
 interface CardPos { top: number; left: number }
+
+/* ── 인디케이터 이름 맵 (모바일 튜토리얼 버튼용) ─────────────── */
+const INDICATOR_NAMES: Partial<Record<IndicatorSlug, string>> = {
+  'moving-average': 'MA (이동평균선)',
+  rsi:              'RSI',
+  macd:             'MACD',
+  bollinger:        'BB (볼린저밴드)',
+}
 
 /* ── Spotlight rect ───────────────────────────────────────────── */
 function mkHL(el: Element): HL {
@@ -36,75 +44,66 @@ function mkHL(el: Element): HL {
   }
 }
 
-/* ── Dynamic card width (respects mobile viewport) ──────────── */
 function getCardW(): number {
   if (typeof window === 'undefined') return CARD_W
   return Math.min(CARD_W, window.innerWidth - 16)
 }
 
-/* ── Card positioning algorithm ──────────────────────────────── */
-function calcCardPos(
-  hl: HL,
-  preferred: string,
-  cardW: number,
-  cardH: number,
-): CardPos {
-  const vw = window.innerWidth
-  const vh = window.innerHeight
+function calcCardPos(hl: HL, preferred: string, cardW: number, cardH: number): CardPos {
+  const vw = window.innerWidth, vh = window.innerHeight
   const M  = CARD_MARGIN
   const cx = hl.left + hl.width  / 2
   const cy = hl.top  + hl.height / 2
-
   const clampL = (x: number) => Math.max(8, Math.min(x, vw - cardW - 8))
   const clampT = (y: number) => Math.max(56, Math.min(y, vh - cardH - 8))
 
   const variants: Record<string, CardPos> = {
-    top:    { top: hl.top - cardH - M,   left: clampL(cx - cardW / 2) },
+    top:    { top: hl.top - cardH - M,    left: clampL(cx - cardW / 2) },
     bottom: { top: hl.bottom + M,         left: clampL(cx - cardW / 2) },
     right:  { top: clampT(cy - cardH / 2), left: hl.right  + M },
     left:   { top: clampT(cy - cardH / 2), left: hl.left - cardW - M },
   }
-
-  // Try preferred first, then others
-  const order = [preferred, 'top', 'right', 'left', 'bottom'].filter(
-    (v, i, a) => a.indexOf(v) === i
-  )
-
+  const order = [preferred, 'top', 'right', 'left', 'bottom'].filter((v, i, a) => a.indexOf(v) === i)
   for (const pos of order) {
-    const c = variants[pos]
-    if (!c) continue
-    if (
-      c.top  >= 56  && c.top  + cardH <= vh - 8 &&
-      c.left >= 8   && c.left + cardW <= vw - 8
-    ) return c
+    const c = variants[pos]; if (!c) continue
+    if (c.top >= 56 && c.top + cardH <= vh - 8 && c.left >= 8 && c.left + cardW <= vw - 8) return c
   }
-
-  // Fallback: clamp preferred
   const fb = variants[preferred] ?? variants.bottom
-  return {
-    top:  Math.max(56,  Math.min(fb.top,  vh - cardH - 8)),
-    left: Math.max(8,   Math.min(fb.left, vw - cardW - 8)),
-  }
+  return { top: Math.max(56, Math.min(fb.top, vh - cardH - 8)), left: Math.max(8, Math.min(fb.left, vw - cardW - 8)) }
 }
 
-/* ── smartScroll ──────────────────────────────────────────────── */
-function smartScroll(step: TStep) {
+/* ── smartScroll — 모바일/PC 분기 ────────────────────────────── */
+function smartScroll(step: TStep, isMobile: boolean) {
   const el = document.querySelector(step.targetSelector)
   if (!el) return
-
   const r  = el.getBoundingClientRect()
+  // 숨겨진(hidden) 요소는 스크롤 불필요
+  if (r.width === 0 && r.height === 0) return
+
   const vh = window.innerHeight
-  if (r.bottom > vh - 60)
-    window.scrollBy({ top: r.bottom - (vh - 80), behavior: 'smooth' })
-  else if (r.top < 60)
-    window.scrollBy({ top: r.top - 80, behavior: 'smooth' })
+
+  if (isMobile) {
+    // Safe zone: 헤더(52px) ~ 화면 55% (하단 시트 45% 확보)
+    const safeBottom = vh * 0.56
+    const idealTop   = 68
+    if (r.top < idealTop) {
+      window.scrollBy({ top: r.top - idealTop, behavior: 'smooth' })
+    } else if (r.bottom > safeBottom) {
+      window.scrollBy({ top: r.bottom - safeBottom + 16, behavior: 'smooth' })
+    }
+  } else {
+    if (r.bottom > vh - 60)
+      window.scrollBy({ top: r.bottom - (vh - 80), behavior: 'smooth' })
+    else if (r.top < 60)
+      window.scrollBy({ top: r.top - 80, behavior: 'smooth' })
+  }
 }
 
 /* ══ Comprehensive test helpers ════════════════════════════════ */
 function scoreTrend(c: CandleData[]): 'up' | 'sideways' | 'down' {
   if (c.length < 30) return 'sideways'
   const ma20 = calcMA(c, 20), ma60 = calcMA(c, 60)
-  const n20 = ma20.length,  n60 = ma60.length
+  const n20 = ma20.length, n60 = ma60.length
   if (n20 < 10) return 'sideways'
   const d20 = ma20[n20 - 1].value - ma20[Math.max(0, n20 - 10)].value
   const d60 = n60 >= 10 ? ma60[n60 - 1].value - ma60[Math.max(0, n60 - 10)].value : 0
@@ -199,7 +198,11 @@ export function TutorialStep() {
     stepDone, candleData: clickedCandle, chosenJudgment,
     next, prev, skip, complete, completeLesson, notifyJudgment, markStepDone,
   } = useTutorialStore()
-  const { activeIndicators, candleData: chartCandles } = useChartStore()
+  const { activeIndicators, candleData: chartCandles, toggleIndicator } = useChartStore()
+
+  const isMobile = useMobile()
+  const isMobileRef = useRef(isMobile)
+  useEffect(() => { isMobileRef.current = isMobile }, [isMobile])
 
   /* ── State ────────────────────────────────────────────── */
   const [hl,       setHl]       = useState<HL | null>(null)
@@ -214,7 +217,6 @@ export function TutorialStep() {
   const [testAnswers, setTestAnswers] = useState<Record<string, string>>({})
   const [testDone,    setTestDone]    = useState(false)
 
-  // ── 정답/오답 판정 (레슨 전용) ──────────────────────────
   const [wrongCount,       setWrongCount]       = useState(0)
   const [showWrongFB,      setShowWrongFB]       = useState(false)
   const [wrongChoiceValue, setWrongChoiceValue]  = useState<string | null>(null)
@@ -227,27 +229,39 @@ export function TutorialStep() {
     currentStep.actionRequired === 'judgment'             ? 'judgment' :
     'idle'
 
-  /* ── Recompute spotlight + card position ─────────────── */
+  /* ── Spotlight 공통 계산 ─────────────────────────────── */
+  const computeHL = useCallback(() => {
+    if (!currentStep) return null
+    const el = document.querySelector(currentStep.targetSelector)
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    // 숨겨진(display:none) 요소 = 크기 0 → 스포트라이트 없음
+    if (r.width === 0 && r.height === 0) return null
+    const vh = window.innerHeight
+    if (r.bottom < 0 || r.top > vh) return null
+    return mkHL(el)
+  }, [currentStep])
+
+  /* ── Recompute (PC 전용 위치 계산 포함) ──────────────── */
   const recompute = useCallback(() => {
-    if (!currentStep || !showCard || !cardRef.current) return
+    if (!currentStep || !showCard) return
+
+    const hlRect = computeHL()
+    setHl(hlRect)
+
+    // 모바일: 위치 계산 불필요 (고정 하단 시트)
+    if (isMobileRef.current) return
+
+    if (!cardRef.current) return
     const cardW = getCardW()
     const cardH = cardRef.current.offsetHeight
-    if (cardH === 0) return  // not measured yet
+    if (cardH === 0) return
 
     const vw = window.innerWidth
     const vh = window.innerHeight
 
-    // ── floatSide: 카드를 뷰포트 모서리에 고정 ────────────────
-    // targetSelector 스포트라이트는 그대로 적용
+    // floatSide: 뷰포트 우하단 고정 (PC 전용)
     if (currentStep.floatSide) {
-      const el = document.querySelector(currentStep.targetSelector)
-      if (el) {
-        const r = el.getBoundingClientRect()
-        if (r.bottom >= 0 && r.top <= vh) setHl(mkHL(el))
-        else setHl(null)
-      } else {
-        setHl(null)
-      }
       const M = 16
       setCardPos(
         vw >= 768
@@ -257,36 +271,17 @@ export function TutorialStep() {
       return
     }
 
-    const el = document.querySelector(currentStep.targetSelector)
-    if (!el) {
-      setHl(null)
-      setCardPos({
-        top:  72,
-        left: Math.max(8, (vw - cardW) / 2),
-      })
+    if (!hlRect) {
+      setCardPos({ top: 72, left: Math.max(8, (vw - cardW) / 2) })
       return
     }
-
-    const r = el.getBoundingClientRect()
-    if (r.bottom < 0 || r.top > vh) {
-      setHl(null)
-      setCardPos({
-        top:  72,
-        left: Math.max(8, (vw - cardW) / 2),
-      })
-      return
-    }
-
-    const hlRect = mkHL(el)
-    setHl(hlRect)
     setCardPos(calcCardPos(hlRect, currentStep.position, cardW, cardH))
-  }, [currentStep, showCard])
+  }, [currentStep, showCard, computeHL])
 
-  /* ── Step change ──────────────────────────────────────── */
+  /* ── Step 변경 ────────────────────────────────────────── */
   useEffect(() => {
     if (!currentStep) { setHl(null); setShowCard(false); setCardPos(null); return }
 
-    // Clear pending timers
     if (stepTmr.current) clearTimeout(stepTmr.current)
     cancelAnimationFrame(rafRef.current)
 
@@ -294,23 +289,22 @@ export function TutorialStep() {
     setTestQIdx(0); setTestAnswers({}); setTestDone(false)
     setWrongCount(0); setShowWrongFB(false); setWrongChoiceValue(null)
 
-    smartScroll(currentStep)
+    smartScroll(currentStep, isMobileRef.current)
 
     stepTmr.current = setTimeout(() => setShowCard(true), SCROLL_MS)
     return () => { if (stepTmr.current) clearTimeout(stepTmr.current) }
-  }, [currentStep])  // eslint-disable-line
+  }, [currentStep]) // eslint-disable-line
 
-  /* ── After showCard, measure + position ──────────────── */
+  /* ── 카드 표시 후 측정 + 위치 (PC) ──────────────────── */
   useEffect(() => {
     if (!showCard) return
-    // Two-pass: render first (off-screen), then measure and reposition
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = requestAnimationFrame(() => recompute())
     })
     return () => cancelAnimationFrame(rafRef.current)
   }, [showCard, recompute])
 
-  /* ── ResizeObserver: recompute when card height changes ─ */
+  /* ── ResizeObserver (PC 카드 높이 변화 감지) ──────────── */
   useEffect(() => {
     if (!cardRef.current || !showCard) return
     const obs = new ResizeObserver(() => recompute())
@@ -343,12 +337,12 @@ export function TutorialStep() {
     (currentStep.actionRequired === 'comprehensive-test' && testDone) ||
     stepDone
 
-  /* ════ Sub-components (render as JSX, not React components, to avoid hook rules) ════ */
+  /* ════════════ Sub-components ════════════════════════════ */
 
-  /* Progress dots — Action color: 진행은 '행동' ────────── */
+  /* Progress dots ─────────────────────────────────────── */
   const dotRow = (
-    <div className="flex items-center justify-between px-4 pt-3.5 pb-1">
-      <div className="flex gap-[3px] items-center">
+    <div className="flex items-center justify-between px-4 pt-3 pb-1">
+      <div className="flex gap-[3px] items-center flex-wrap">
         {steps.map((_, i) => (
           <div key={i} className={clsx(
             'rounded-full transition-all duration-300',
@@ -364,10 +358,9 @@ export function TutorialStep() {
     </div>
   )
 
-  /* Nav row ────────────────────────────────────────────── */
+  /* Nav row (PC) ──────────────────────────────────────── */
   const navRow = (
     <div className="flex items-center justify-between px-4 py-3 border-t border-navi-border/40">
-      {/* 건너뛰기 = disabled 텍스트 */}
       <button
         onClick={skip}
         className="text-[10px] text-quiet-35 hover:text-navi-secondary transition-colors"
@@ -381,9 +374,7 @@ export function TutorialStep() {
             className="w-6 h-6 flex items-center justify-center rounded-md
                        text-[11px] text-navi-muted border border-navi-border2
                        hover:text-navi-text hover:border-navi-border transition"
-          >
-            ←
-          </button>
+          >←</button>
         )}
         {!isLast ? (
           <button
@@ -392,7 +383,6 @@ export function TutorialStep() {
             className={clsx(
               'px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all',
               canNext
-                /* 다음 = Action (사용자가 클릭하는 것) */
                 ? 'bg-navi-action text-white hover:bg-navi-action-hover active:scale-95 cursor-pointer shadow-[0_2px_12px_rgba(91,127,255,0.3)]'
                 : 'bg-navi-surface3 text-navi-disabled cursor-not-allowed'
             )}
@@ -400,23 +390,59 @@ export function TutorialStep() {
             {canNext ? '다음 →' : '먼저 해보세요'}
           </button>
         ) : isLesson ? (
-          /* 레슨 마지막 단계 = 지표·작도 초기화 후 종료 */
-          <button
-            onClick={completeLesson}
-            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold
-                       bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95
-                       shadow-[0_2px_12px_rgba(91,127,255,0.35)]"
-          >
+          <button onClick={completeLesson}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95 shadow-[0_2px_12px_rgba(91,127,255,0.35)]">
             학습 완료
           </button>
         ) : (
-          /* 기초 과정 마지막 단계 = 완료 화면으로 전환 */
+          <button onClick={complete}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95 shadow-[0_2px_12px_rgba(91,127,255,0.35)]">
+            기초 과정 완료
+          </button>
+        )}
+      </div>
+    </div>
+  )
+
+  /* Nav row (Mobile — 터치 타깃 확대) ──────────────────── */
+  const mobileNavRow = (
+    <div className="flex items-center justify-between px-4 py-3.5 border-t border-navi-border/40">
+      <button
+        onClick={skip}
+        className="text-[12px] text-quiet-35 hover:text-navi-secondary transition-colors py-1"
+      >
+        건너뛰기
+      </button>
+      <div className="flex gap-2 items-center">
+        {currentIndex > 0 && (
           <button
-            onClick={complete}
-            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold
-                       bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95
-                       shadow-[0_2px_12px_rgba(91,127,255,0.35)]"
+            onClick={prev}
+            className="w-9 h-9 flex items-center justify-center rounded-xl
+                       text-[13px] text-navi-muted border border-navi-border2
+                       hover:text-navi-text hover:border-navi-border transition"
+          >←</button>
+        )}
+        {!isLast ? (
+          <button
+            onClick={canNext ? next : undefined}
+            disabled={!canNext}
+            className={clsx(
+              'px-5 h-9 rounded-xl text-[12px] font-semibold transition-all',
+              canNext
+                ? 'bg-navi-action text-white hover:bg-navi-action-hover active:scale-95 cursor-pointer shadow-[0_2px_12px_rgba(91,127,255,0.3)]'
+                : 'bg-navi-surface3 text-navi-disabled cursor-not-allowed'
+            )}
           >
+            {canNext ? '다음 →' : '먼저 해보세요'}
+          </button>
+        ) : isLesson ? (
+          <button onClick={completeLesson}
+            className="px-5 h-9 rounded-xl text-[12px] font-semibold bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95 shadow-[0_2px_12px_rgba(91,127,255,0.35)]">
+            학습 완료
+          </button>
+        ) : (
+          <button onClick={complete}
+            className="px-5 h-9 rounded-xl text-[12px] font-semibold bg-navi-action text-white hover:bg-navi-action-hover transition active:scale-95 shadow-[0_2px_12px_rgba(91,127,255,0.35)]">
             기초 과정 완료
           </button>
         )}
@@ -446,7 +472,6 @@ export function TutorialStep() {
         </ul>
       )}
       {currentStep.mission && (
-        /* Mission = Action color (사용자가 해야 하는 것) */
         <div className="bg-navi-action/[0.09] border border-navi-action/25 rounded-lg p-3">
           <div className="flex items-center gap-1.5 mb-1.5">
             <motion.div
@@ -458,15 +483,25 @@ export function TutorialStep() {
               지금 해보세요
             </span>
           </div>
-          <p className="text-[12px] text-navi-text leading-snug">
-            {currentStep.mission}
-          </p>
+          <p className="text-[12px] text-navi-text leading-snug">{currentStep.mission}</p>
         </div>
+      )}
+
+      {/* 모바일 전용: indicator-toggle 단계에서 인라인 켜기 버튼 */}
+      {isMobile && currentStep.actionRequired === 'indicator-toggle' && currentStep.indicatorKey && !stepDone && (
+        <button
+          onClick={() => toggleIndicator(currentStep.indicatorKey as IndicatorSlug)}
+          className="w-full py-3 rounded-xl bg-navi-action text-white
+                     text-[13px] font-bold transition-all active:scale-[0.97]
+                     shadow-[0_4px_16px_rgba(91,127,255,0.3)]"
+        >
+          {INDICATOR_NAMES[currentStep.indicatorKey as IndicatorSlug] ?? currentStep.indicatorKey} 켜기
+        </button>
       )}
     </div>
   )
 
-  /* 판단 클릭 핸들러 — correctValue 있으면 정답/오답 분기 ── */
+  /* 판단 클릭 핸들러 ───────────────────────────────────── */
   function handleJudgmentClick(value: string) {
     if (!currentStep?.judgment) return
     const { correctValue } = currentStep.judgment
@@ -480,12 +515,11 @@ export function TutorialStep() {
         setShowWrongFB(true)
       }
     } else {
-      // correctValue 미정의 → 어느 선택이든 진행
       notifyJudgment(value)
     }
   }
 
-  /* JUDGMENT content — 선택지 / 오답 피드백 분기 ────────── */
+  /* JUDGMENT content ───────────────────────────────────── */
   const judgmentContent = currentStep.judgment ? (
     <div className="px-4 py-3 space-y-2">
       <p className="text-[14px] font-bold text-navi-text leading-snug">{currentStep.title}</p>
@@ -493,16 +527,11 @@ export function TutorialStep() {
 
       <AnimatePresence mode="wait">
         {showWrongFB ? (
-          /* ── 오답 피드백 화면 ──────────────────────────── */
-          <motion.div
-            key="wrong-feedback"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.div key="wrong-feedback"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.14 }}
             className="space-y-2"
           >
-            {/* 오답 배너 */}
             <div className="bg-navi-danger/[0.08] border border-navi-danger/25 rounded-lg p-3">
               <p className="text-[12px] font-semibold text-navi-text mb-1.5">❌ 다시 살펴보세요</p>
               {wrongChoiceValue && (() => {
@@ -514,53 +543,38 @@ export function TutorialStep() {
                 ) : null
               })()}
             </div>
-
-            {/* 힌트 */}
             {currentStep.judgment.hints && currentStep.judgment.hints.length > 0 && (
               <div className="bg-navi-surface3 rounded-lg px-3 py-2.5">
-                <p className="text-[9.5px] font-bold text-navi-muted uppercase tracking-[0.08em] mb-1.5">
-                  힌트
-                </p>
+                <p className="text-[9.5px] font-bold text-navi-muted uppercase tracking-[0.08em] mb-1.5">힌트</p>
                 {currentStep.judgment.hints.map((h, i) => (
-                  <p key={i} className="text-[11.5px] text-navi-secondary leading-snug">
-                    • {h}
-                  </p>
+                  <p key={i} className="text-[11.5px] text-navi-secondary leading-snug">• {h}</p>
                 ))}
               </div>
             )}
-
-            {/* 다시 시도 */}
             <button
               onClick={() => { setShowWrongFB(false); setWrongChoiceValue(null) }}
-              className="w-full py-2 rounded-lg text-[12px] font-semibold
-                         border border-navi-border2 text-navi-text
-                         hover:border-navi-action/40 hover:bg-navi-action/[0.06]
-                         transition-all active:scale-[0.98]"
+              className={clsx(
+                'w-full py-2.5 rounded-lg text-[12px] font-semibold',
+                'border border-navi-border2 text-navi-text',
+                'hover:border-navi-action/40 hover:bg-navi-action/[0.06]',
+                'transition-all active:scale-[0.98]',
+                isMobile && 'py-3.5 text-[13px] rounded-xl'
+              )}
             >
               다시 시도 →
             </button>
-
-            {/* 2회 이상 오답 시 정답 보기 */}
             {wrongCount >= 2 && (
               <button
-                onClick={() => {
-                  notifyJudgment(currentStep.judgment!.correctValue!)
-                  setShowWrongFB(false)
-                }}
-                className="w-full py-1.5 text-[11px] text-navi-muted
-                           hover:text-navi-secondary transition-colors text-center"
+                onClick={() => { notifyJudgment(currentStep.judgment!.correctValue!); setShowWrongFB(false) }}
+                className="w-full py-1.5 text-[11px] text-navi-muted hover:text-navi-secondary transition-colors text-center"
               >
                 정답 보기
               </button>
             )}
           </motion.div>
         ) : (
-          /* ── 선택지 화면 ──────────────────────────────── */
-          <motion.div
-            key="choices"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.div key="choices"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.14 }}
             className="space-y-1.5"
           >
@@ -568,15 +582,20 @@ export function TutorialStep() {
               <button
                 key={c.value}
                 onClick={() => handleJudgmentClick(c.value)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left
-                           border border-navi-border2 transition-all
-                           hover:border-navi-action/40 hover:bg-navi-action/[0.06]
-                           active:scale-[0.98]"
+                className={clsx(
+                  'w-full flex items-center gap-3 px-3 rounded-lg text-left',
+                  'border border-navi-border2 transition-all',
+                  'hover:border-navi-action/40 hover:bg-navi-action/[0.06]',
+                  'active:scale-[0.98]',
+                  isMobile ? 'py-3.5 rounded-xl' : 'py-2.5'
+                )}
               >
                 <span className="text-[15px] font-bold shrink-0 leading-none text-navi-text w-5 text-center">
                   {c.icon}
                 </span>
-                <span className="text-[12px] font-medium text-navi-text">{c.label}</span>
+                <span className={clsx('font-medium text-navi-text', isMobile ? 'text-[13px]' : 'text-[12px]')}>
+                  {c.label}
+                </span>
               </button>
             ))}
           </motion.div>
@@ -590,7 +609,6 @@ export function TutorialStep() {
     <div className="px-4 py-3.5 space-y-2.5">
       <p className="text-[14px] font-bold text-navi-text leading-snug">{currentStep.title}</p>
 
-      {/* Judgment result — 정답 = success / 기타 = info */}
       {currentStep.actionRequired === 'judgment' &&
        currentStep.judgment && chosenJudgment && (() => {
          const chosen     = currentStep.judgment!.choices.find(c => c.value === chosenJudgment)
@@ -599,25 +617,19 @@ export function TutorialStep() {
          return chosen ? (
            <div className={clsx(
              'rounded-lg p-3',
-             isCorrect
-               ? 'bg-navi-success/[0.07] border border-navi-success/25'
-               : 'bg-navi-info/[0.07] border border-navi-info/25',
+             isCorrect ? 'bg-navi-success/[0.07] border border-navi-success/25'
+                       : 'bg-navi-info/[0.07] border border-navi-info/25',
            )}>
              <div className="flex items-center gap-2 mb-1.5">
-               {isCorrect && (
-                 <span className="text-[11px] font-bold text-navi-success">✓</span>
-               )}
+               {isCorrect && <span className="text-[11px] font-bold text-navi-success">✓</span>}
                <span className="text-[14px] font-bold leading-none text-navi-text">{chosen.icon}</span>
                <span className="text-[12px] font-semibold text-navi-text">{chosen.label}</span>
              </div>
-             <p className="text-[12px] text-navi-secondary leading-relaxed">
-               {chosen.feedback}
-             </p>
+             <p className="text-[12px] text-navi-secondary leading-relaxed">{chosen.feedback}</p>
            </div>
          ) : null
        })()}
 
-      {/* Candle OHLC — surface/border 기반 상태 표현 */}
       {clickedCandle && currentStep.actionRequired === 'candle-click' && (
         <div className="bg-navi-surface2 rounded-lg p-2.5">
           <p className="text-[10px] text-navi-muted mb-2 font-semibold uppercase tracking-wide">
@@ -651,7 +663,6 @@ export function TutorialStep() {
         </div>
       )}
 
-      {/* Completion message — success surface, 흰 텍스트 */}
       {currentStep.completionMessage && (
         <div className="bg-navi-success/[0.07] border border-navi-success/25 rounded-lg p-3">
           <p className="text-[12px] text-navi-text leading-relaxed">
@@ -671,22 +682,17 @@ export function TutorialStep() {
       const total = questions.filter(q => q.correct !== null).length
       return (
         <div className="px-4 py-3 space-y-2">
-          <p className="text-[14px] font-bold text-navi-text">
-            {score} / {total} 정답
-          </p>
+          <p className="text-[14px] font-bold text-navi-text">{score} / {total} 정답</p>
           <div className="space-y-1">
             {questions.slice(0, 3).map(q => {
               const user = testAnswers[q.id]
               const ok   = user === q.correct
               return (
-                <div key={q.id}
-                  className={clsx(
-                    'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px]',
-                    /* Success/Danger surface + border, 텍스트는 흰색 */
-                    ok
-                      ? 'bg-navi-success/[0.08] border border-navi-success/25 text-navi-text'
-                      : 'bg-navi-danger/[0.08] border border-navi-danger/25 text-navi-text'
-                  )}>
+                <div key={q.id} className={clsx(
+                  'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px]',
+                  ok ? 'bg-navi-success/[0.08] border border-navi-success/25 text-navi-text'
+                     : 'bg-navi-danger/[0.08] border border-navi-danger/25 text-navi-text'
+                )}>
                   <span>{ok ? '✓' : '✗'}</span>
                   <span className="flex-1 font-medium">{q.label}</span>
                   <span className="text-[10px] text-navi-secondary">
@@ -695,7 +701,6 @@ export function TutorialStep() {
                 </div>
               )
             })}
-            {/* 예측 = info surface, 흰 텍스트 */}
             <div className="bg-navi-info/[0.07] text-navi-text text-[12px] text-center py-2 rounded-lg border border-navi-info/25">
               내 예측: {questions[3]?.choices.find(c => c.v === testAnswers['prediction'])?.label}
               {' '}→ 시뮬레이션에서 확인해봐요
@@ -710,16 +715,12 @@ export function TutorialStep() {
       <div className="px-4 py-3 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[12.5px] font-bold text-navi-text">{q.label}</p>
-          {/* Q 카운터 배지 = surface3 (surface로 위계 표현) */}
           <span className="shrink-0 text-[9px] font-bold text-navi-text
                            bg-navi-surface3 px-1.5 py-0.5 rounded-full border border-navi-border2">
             {testQIdx + 1} / {questions.length}
           </span>
         </div>
-        {/* 힌트 = 보조 텍스트 */}
         <p className="text-[11px] text-navi-muted">힌트 · {q.hint}</p>
-
-        {/* Progress bar — Action */}
         <div className="flex gap-1">
           {questions.map((_, i) => (
             <div key={i} className={clsx(
@@ -730,11 +731,7 @@ export function TutorialStep() {
             )} />
           ))}
         </div>
-
-        <div className={clsx(
-          'grid gap-1.5',
-          q.choices.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
-        )}>
+        <div className={clsx('grid gap-1.5', q.choices.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
           {q.choices.map(c => (
             <button
               key={c.v}
@@ -744,21 +741,19 @@ export function TutorialStep() {
                 if (testQIdx < questions.length - 1) {
                   setTimeout(() => setTestQIdx(i => i + 1), 260)
                 } else {
-                  setTestDone(true)
-                  markStepDone()
+                  setTestDone(true); markStepDone()
                 }
               }}
-              /* 선택 = Action color */
               className={clsx(
-                'flex flex-col items-center py-3 rounded-lg border-2 transition-all active:scale-95',
+                'flex flex-col items-center rounded-lg border-2 transition-all active:scale-95',
+                isMobile ? 'py-4' : 'py-3',
                 testAnswers[q.id] === c.v
                   ? 'border-navi-action/70 bg-navi-action/[0.10]'
                   : 'border-navi-border2 hover:border-navi-action/35 hover:bg-navi-action/[0.04]'
               )}
             >
               <span className="text-[18px] font-bold leading-none text-navi-text">{c.icon}</span>
-              <span className="text-[11px] font-semibold text-navi-text mt-1.5
-                               text-center leading-tight px-0.5">
+              <span className="text-[11px] font-semibold text-navi-text mt-1.5 text-center leading-tight px-0.5">
                 {c.label}
               </span>
             </button>
@@ -768,11 +763,29 @@ export function TutorialStep() {
     )
   })()
 
+  /* ── 공통 콘텐츠 렌더러 ──────────────────────────────── */
+  const contentBlock = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={`${mode}-${testQIdx}-${String(testDone)}-${String(showWrongFB)}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.12 }}
+      >
+        {mode === 'idle'     && idleContent}
+        {mode === 'judgment' && (judgmentContent ?? idleContent)}
+        {mode === 'feedback' && feedbackContent}
+        {mode === 'test'     && testContent}
+      </motion.div>
+    </AnimatePresence>
+  )
+
   /* ══════════════════════════ RENDER ══════════════════════════ */
   return (
     <AnimatePresence>
       <>
-        {/* ── Dim overlay with spotlight cutout ── */}
+        {/* ── Dim overlay (with spotlight cutout) ── */}
         {hl && (
           <motion.div
             key={`overlay-${currentStep.id}`}
@@ -781,11 +794,8 @@ export function TutorialStep() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             style={{
-              position:      'fixed',
-              inset:          0,
-              zIndex:         44,
-              pointerEvents: 'none',
-              background:    'rgba(0,0,0,0.54)',
+              position: 'fixed', inset: 0, zIndex: 44, pointerEvents: 'none',
+              background: 'rgba(0,0,0,0.54)',
               clipPath: `polygon(evenodd,
                 0px 0px, 100% 0px, 100% 100%, 0px 100%, 0px 0px,
                 ${hl.left}px ${hl.top}px,
@@ -807,73 +817,82 @@ export function TutorialStep() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, delay: 0.06 }}
             style={{
-              position:      'fixed',
-              top:            hl.top,
-              left:           hl.left,
-              width:          hl.width,
-              height:         hl.height,
-              zIndex:         45,
-              pointerEvents: 'none',
-              borderRadius:   10,
-              boxShadow: [
-                '0 0 0 1.5px #2D4198',
-                '0 0 0 5px rgba(45,65,152,0.25)',
-                '0 0 28px rgba(45,65,152,0.45)',
-              ].join(', '),
+              position: 'fixed',
+              top: hl.top, left: hl.left, width: hl.width, height: hl.height,
+              zIndex: 45, pointerEvents: 'none', borderRadius: 10,
+              boxShadow: '0 0 0 1.5px #2D4198, 0 0 0 5px rgba(45,65,152,0.25), 0 0 28px rgba(45,65,152,0.45)',
             }}
           />
         )}
 
-        {/* ── Floating tutorial card ── */}
         {showCard && (
-          /* Outer div: positioning wrapper (off-screen until measured) */
-          <div
-            ref={cardRef}
-            style={{
-              position: 'fixed',
-              width:    getCardW(),
-              top:      cardPos?.top  ?? -9999,
-              left:     cardPos?.left ?? -9999,
-              zIndex:   50,
-              maxWidth: 'calc(100vw - 16px)',
-            }}
-          >
+          isMobile ? (
+            /* ════ 모바일: 고정 Bottom Sheet ════ */
             <motion.div
-              key={`card-${currentStep.id}`}
-              initial={{ opacity: 0, scale: 0.93, y: 10 }}
-              animate={{
-                opacity: cardPos ? 1 : 0,
-                scale:   cardPos ? 1 : 0.93,
-                y:       cardPos ? 0 : 10,
+              key={`mobile-card-${currentStep.id}`}
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+              style={{
+                position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+                maxHeight: '48vh',
+                display: 'flex', flexDirection: 'column',
               }}
-              exit={{ opacity: 0, scale: 0.93, y: 10 }}
-              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-navi-surface border border-navi-border rounded-xl
-                         shadow-[0_12px_48px_rgba(0,0,0,0.55)] overflow-hidden"
+              className="bg-navi-surface border-t border-navi-border rounded-t-2xl overflow-hidden"
             >
+              {/* 드래그 핸들 */}
+              <div className="flex-shrink-0 flex justify-center pt-2 pb-0.5">
+                <div className="w-8 h-[3px] rounded-full bg-navi-border2" />
+              </div>
+
               {/* Progress dots */}
-              {dotRow}
+              <div className="flex-shrink-0">
+                {dotRow}
+              </div>
 
-              {/* Content (animated on mode change) */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`${mode}-${testQIdx}-${String(testDone)}-${String(showWrongFB)}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.12 }}
-                >
-                  {mode === 'idle'     && idleContent}
-                  {mode === 'judgment' && (judgmentContent ?? idleContent)}
-                  {mode === 'feedback' && feedbackContent}
-                  {mode === 'test'     && testContent}
-                </motion.div>
-              </AnimatePresence>
+              {/* 스크롤 가능한 콘텐츠 */}
+              <div className="flex-1 overflow-y-auto overscroll-contain">
+                {contentBlock}
+              </div>
 
-              {/* Nav */}
-              {navRow}
+              {/* 모바일 네비 (터치 타깃 확대) */}
+              <div className="flex-shrink-0">
+                {mobileNavRow}
+              </div>
             </motion.div>
-          </div>
+          ) : (
+            /* ════ PC: 플로팅 카드 ════ */
+            <div
+              ref={cardRef}
+              style={{
+                position: 'fixed',
+                width: getCardW(),
+                top:  cardPos?.top  ?? -9999,
+                left: cardPos?.left ?? -9999,
+                zIndex: 50,
+                maxWidth: 'calc(100vw - 16px)',
+              }}
+            >
+              <motion.div
+                key={`card-${currentStep.id}`}
+                initial={{ opacity: 0, scale: 0.93, y: 10 }}
+                animate={{
+                  opacity: cardPos ? 1 : 0,
+                  scale:   cardPos ? 1 : 0.93,
+                  y:       cardPos ? 0 : 10,
+                }}
+                exit={{ opacity: 0, scale: 0.93, y: 10 }}
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                className="bg-navi-surface border border-navi-border rounded-xl
+                           shadow-[0_12px_48px_rgba(0,0,0,0.55)] overflow-hidden"
+              >
+                {dotRow}
+                {contentBlock}
+                {navRow}
+              </motion.div>
+            </div>
+          )
         )}
       </>
     </AnimatePresence>

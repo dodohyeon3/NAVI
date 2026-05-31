@@ -30,7 +30,8 @@ export function PeriodToolbar() {
             key={p.value}
             onClick={() => setPeriod(p.value)}
             className={clsx(
-              'h-7 px-3 rounded-md text-[11px] font-medium tracking-wide transition-all duration-150',
+              /* 모바일: h-8 (32px) / PC: h-7 (28px) — 터치 타깃 확대 */
+              'h-8 sm:h-7 px-2.5 sm:px-3 rounded-md text-[11px] font-medium tracking-wide transition-all duration-150',
               period === p.value
                 ? 'bg-navi-action text-white font-semibold'
                 : 'text-navi-muted hover:text-navi-secondary'
@@ -51,7 +52,7 @@ export function PeriodToolbar() {
             key={u.value}
             onClick={() => setTimeUnit(u.value)}
             className={clsx(
-              'h-7 px-3 rounded-md text-[11px] font-medium transition-all duration-150',
+              'h-8 sm:h-7 px-3 rounded-md text-[11px] font-medium transition-all duration-150',
               timeUnit === u.value
                 ? 'bg-navi-action text-white font-semibold'
                 : 'text-navi-muted hover:text-navi-secondary'

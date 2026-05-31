@@ -13,6 +13,7 @@ import { TutorialMenuButton } from '@/components/tutorial/TutorialMenuButton'
 import { IndicatorToast }     from '@/components/ui/IndicatorToast'
 import { NaviSymbol }         from '@/components/ui/NaviSymbol'
 import { ThemeToggle }        from '@/components/ui/ThemeToggle'
+import { MobileBottomBar }    from '@/components/mobile/MobileBottomBar'
 import { useTutorialStore }   from '@/stores/tutorialStore'
 import { useChartStore } from '@/stores/chartStore'
 import { useLearnStore } from '@/stores/learnStore'
@@ -103,40 +104,46 @@ function ChartPageInner() {
 
           {/* 액션 영역 */}
           <div className="flex items-center gap-2">
+            {/* 실전 챌린지 — 모바일에서는 숨김 (하단 학습 시트에 있음) */}
             <Link
               id="simulate-link"
               href="/simulate"
-              className="h-7 px-3 text-[11px] font-semibold rounded-lg flex items-center
+              className="hidden sm:flex h-7 px-3 text-[11px] font-semibold rounded-lg items-center
                          text-navi-text border border-navi-border2
                          hover:border-navi-action/40 hover:bg-navi-action/[0.06]
                          transition-all duration-150"
             >
               실전 챌린지
             </Link>
-            {/* 학습 메뉴 버튼 */}
-            <TutorialMenuButton />
+            {/* 학습 메뉴 버튼 — 모바일에서는 숨김 (하단 학습 시트 사용) */}
+            <div className="hidden sm:block">
+              <TutorialMenuButton />
+            </div>
             {/* 테마 전환 */}
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <div className="min-h-screen px-4 pt-5 pb-8 max-w-5xl mx-auto">
+      {/* ── 메인 컨텐츠 ─────────────────────────────────────────
+           모바일: px-3, pb-24 (하단 툴바 높이 확보)
+           PC:     px-4, pb-8 ───────────────────────────────── */}
+      <div className="min-h-screen px-3 sm:px-4 pt-4 sm:pt-5 pb-24 sm:pb-8 max-w-5xl mx-auto">
 
         {/* 기간 · 봉 단위 */}
-        <div className="mb-3">
+        <div className="mb-2.5 sm:mb-3">
           <PeriodToolbar />
         </div>
 
         {/* 메인 차트 + 서브 차트 */}
-        <div className="bg-navi-surface border border-navi-border rounded-xl p-3">
+        <div className="bg-navi-surface border border-navi-border rounded-xl p-2 sm:p-3">
           <ChartContainer />
           {showRSI  && <RSIChart />}
           {showMACD && <MACDChart />}
         </div>
 
-        {/* 도구 섹션 — 2열 그리드 */}
-        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* 도구 섹션 — PC 전용 (모바일: 하단 툴바 사용) */}
+        <div className="hidden sm:grid mt-3 grid-cols-1 sm:grid-cols-2 gap-3">
           {/* 분석 도구 */}
           <div
             id="analysis-tools-card"
@@ -162,8 +169,8 @@ function ChartPageInner() {
           </div>
         </div>
 
-        {/* 지표 설명 링크 */}
-        <div id="indicator-links" className="mt-5">
+        {/* 지표 설명 링크 — PC 전용 */}
+        <div id="indicator-links" className="hidden sm:block mt-5">
           <p className="text-[11px] font-semibold tracking-[0.07em] uppercase text-navi-secondary mb-3">
             지표 더 알아보기
           </p>
@@ -190,6 +197,11 @@ function ChartPageInner() {
           </div>
         </div>
 
+      </div>
+
+      {/* ── 모바일 하단 툴바 (sm 미만에서만 표시) ─────────────── */}
+      <div className="sm:hidden">
+        <MobileBottomBar />
       </div>
     </>
   )

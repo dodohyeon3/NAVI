@@ -192,3 +192,18 @@ html.light .chart-container-border {
 
 html.light .navi-logo-dark  { display: none;  }
 html.light .navi-logo-light { display: block; }
+
+/* ── 모바일 Safe Area ─────────────────────────────────────── */
+/* 하단 툴바 위 콘텐츠가 노치/홈 인디케이터와 겹치지 않도록 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 56px);
+  }
+}
+
+/* ── 모바일 touch-action 개선 ──────────────────────────────
+   Bottom Sheet 내부 스크롤 시 페이지 스크롤 차단         */
+.overscroll-contain {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
