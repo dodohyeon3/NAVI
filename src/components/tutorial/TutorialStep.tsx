@@ -78,9 +78,16 @@ function smartScroll(step: TStep, isMobile: boolean) {
   const vh = window.innerHeight
 
   if (isMobile) {
-    // Safe Zone: 헤더(56px) ~ 화면 78% (하단 시트 22vh 확보)
-    const safeBottom = vh * 0.78
-    const idealTop   = 64
+    // 시트 높이에 따라 safeBottom을 동적 계산
+    // 판단/테스트 단계 = 55vh 시트 → safeBottom = 40%
+    // 일반 단계        = 30vh 시트 → safeBottom = 65%
+    const isLargeSheet =
+      step.actionRequired === 'judgment' ||
+      step.actionRequired === 'comprehensive-test'
+    const sheetFraction = isLargeSheet ? 0.55 : 0.30
+    const safeBottom    = vh * (1 - sheetFraction - 0.05)   // 5% 버퍼
+    const idealTop      = 64
+
     if (r.top < idealTop) {
       window.scrollBy({ top: r.top - idealTop, behavior: 'smooth' })
     } else if (r.bottom > safeBottom) {
@@ -217,7 +224,7 @@ export function TutorialStep() {
 
   /* ── 모바일 시트 높이: 판단/테스트는 더 크게 ────────── */
   const mobileSheetMaxH =
-    mode === 'judgment' || mode === 'test' ? '58vh' : '26vh'
+    mode === 'judgment' || mode === 'test' ? '55vh' : '30vh'
 
   /* ── 모바일 텍스트 분기 헬퍼 ────────────────────────── */
   const activeMission = (isMobile && currentStep?.mobileMission)
@@ -531,17 +538,7 @@ export function TutorialStep() {
         </div>
       )}
 
-      {/* 모바일 전용: indicator-toggle 인라인 켜기 버튼 */}
-      {isMobile && currentStep.actionRequired === 'indicator-toggle' && currentStep.indicatorKey && !stepDone && (
-        <button
-          onClick={() => toggleIndicator(currentStep.indicatorKey as IndicatorSlug)}
-          className="w-full py-2.5 rounded-xl bg-navi-action text-white
-                     text-[12px] font-bold transition-all active:scale-[0.97]
-                     shadow-[0_3px_12px_rgba(91,127,255,0.3)]"
-        >
-          {INDICATOR_NAMES[currentStep.indicatorKey as IndicatorSlug] ?? currentStep.indicatorKey} 켜기
-        </button>
-      )}
+      {/* indicator-toggle 단계: 아래 버튼이 하이라이트되어 있음 (spotlight) */}
     </div>
   )
 

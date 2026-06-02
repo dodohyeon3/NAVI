@@ -44,15 +44,15 @@ export function DrawingToolbar() {
               <button
                 onClick={() => setDrawingTool(active ? 'none' : tool.value)}
                 className={clsx(
-                  'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold',
+                  'flex items-center gap-2 px-3.5 h-10 sm:h-auto sm:py-2 rounded-xl text-xs sm:text-xs font-semibold',
                   'border transition-all duration-200',
                   active
-                    /* Active: amber surface + border (drawing mode 상태 표현), 텍스트는 white */
                     ? 'bg-amber-500/12 border-amber-500/40 text-navi-text shadow-md shadow-amber-500/10 scale-[1.02]'
                     : 'bg-navi-surface border-navi-border text-navi-muted hover:border-navi-border2 hover:text-navi-text'
                 )}
               >
-                <span className={clsx('text-sm leading-none', active && 'animate-pulse')}>
+                {/* 아이콘: PC에서만 표시 */}
+                <span className={clsx('text-sm leading-none hidden sm:inline', active && 'animate-pulse')}>
                   {tool.icon}
                 </span>
                 {tool.label}
@@ -77,12 +77,12 @@ export function DrawingToolbar() {
         {/* 지우기 */}
         <button
           onClick={() => setDrawingTool('erase')}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs
+          className="flex items-center gap-1.5 px-3 h-10 sm:h-auto sm:py-2 rounded-xl text-xs
                      border border-navi-border text-navi-muted
                      hover:border-navi-border2 hover:text-navi-text transition-all"
         >
-          <span>✕</span>
-          모두 지우기
+          <span className="hidden sm:inline">✕</span>
+          지우기
         </button>
       </div>
 

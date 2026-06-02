@@ -26,7 +26,8 @@ export function IndicatorToolbar() {
   const [hovered, setHovered] = useState<IndicatorSlug | null>(null)
 
   return (
-    <div id="indicator-toolbar" className="flex flex-wrap gap-1.5 items-center">
+    /* 모바일: 2×2 그리드 / PC: 기존 flex-wrap */
+    <div id="indicator-toolbar" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-1.5 sm:items-center">
       {ANALYSIS_TOOLS.map((slug) => {
         const indicator = indicators[slug]
         const isActive  = activeIndicators.has(slug)
@@ -42,10 +43,10 @@ export function IndicatorToolbar() {
             <button
               onClick={() => toggleIndicator(slug)}
               className={clsx(
-                'h-8 px-3.5 rounded-lg text-[12px] font-semibold tracking-wide',
+                /* 모바일: 전체 너비 + 큰 터치 타깃 / PC: 기존 */
+                'w-full sm:w-auto h-10 sm:h-8 px-3.5 rounded-lg text-[13px] sm:text-[12px] font-semibold tracking-wide',
                 'transition-all duration-200',
                 isActive
-                  /* Action color — 사용자가 켠 상태 = 행동 완료 */
                   ? 'bg-navi-action text-white border border-navi-action shadow-[0_0_14px_rgba(91,127,255,0.38)]'
                   : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/35 hover:text-navi-text hover:bg-navi-surface3'
               )}
