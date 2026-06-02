@@ -38,7 +38,7 @@ export function MACDChart() {
       handleScroll: false,
       handleScale: false,
       width: containerRef.current.clientWidth,
-      height: 100,
+      height: window.innerWidth < 640 ? 80 : 100,
     })
 
     const macdData = calcMACD(candleData)

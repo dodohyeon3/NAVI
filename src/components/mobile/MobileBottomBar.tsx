@@ -35,7 +35,7 @@ const LESSON_ITEMS = [
 export function MobileBottomBar() {
   const [sheet, setSheet] = useState<Sheet>(null)
 
-  const { activeIndicators, toggleIndicator, drawingTool, setDrawingTool } = useChartStore()
+  const { activeIndicators, toggleIndicator, drawingTool, drawingStep, setDrawingTool } = useChartStore()
   const { isActive: tutorialActive, start, startLesson } = useTutorialStore()
   const router = useRouter()
 
@@ -49,26 +49,43 @@ export function MobileBottomBar() {
 
   return (
     <>
-      {/* ── 작도 모드 활성 배너 ────────────────────────────── */}
+      {/* ── 작도 모드 활성 배너 (1번째/2번째 터치 시각적 차별화) ── */}
       {isDrawing && (
-        <div className="fixed bottom-14 left-0 right-0 z-30 px-3"
-             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          <div className="bg-amber-500/[0.12] border border-amber-500/30 rounded-xl
-                          px-4 py-2 flex items-center gap-3">
-            <span className="text-amber-400 text-sm animate-pulse leading-none">●</span>
-            <span className="text-[12px] font-semibold text-navi-text flex-1 leading-snug">
-              {drawingTool === 'trendline'
-                ? '추세선 — 차트에서 두 점을 클릭하세요'
-                : '피보나치 — 차트에서 두 점을 클릭하세요'}
-            </span>
-            <button
-              onClick={() => setDrawingTool('none')}
-              className="text-[11px] text-navi-muted hover:text-navi-text
-                         transition-colors px-2 py-0.5 rounded-md border border-navi-border shrink-0"
-            >
-              취소
-            </button>
-          </div>
+        <div className="fixed bottom-14 left-0 right-0 z-30 px-3">
+          {drawingStep === 0 ? (
+            /* 1번째 터치 전 */
+            <div className="bg-amber-500/[0.10] border border-amber-500/25 rounded-xl
+                            px-4 py-2.5 flex items-center gap-3">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-bold text-amber-400/70 bg-amber-400/15
+                                 rounded-full w-5 h-5 flex items-center justify-center">①</span>
+              </div>
+              <span className="text-[12px] font-medium text-navi-text flex-1 leading-snug">
+                {drawingTool === 'trendline' ? '시작점을 탭하세요' : '고점(또는 저점)을 탭하세요'}
+              </span>
+              <button onClick={() => setDrawingTool('none')}
+                className="text-[11px] text-navi-muted px-2 py-0.5 rounded-md border border-navi-border shrink-0">
+                취소
+              </button>
+            </div>
+          ) : (
+            /* 2번째 터치 대기 — 더 밝고 강조된 스타일 */
+            <div className="bg-amber-500/[0.18] border-2 border-amber-500/50 rounded-xl
+                            px-4 py-2.5 flex items-center gap-3
+                            shadow-[0_4px_16px_rgba(245,158,11,0.2)]">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-bold text-amber-300 bg-amber-400/25
+                                 rounded-full w-5 h-5 flex items-center justify-center animate-pulse">②</span>
+              </div>
+              <span className="text-[12px] font-bold text-amber-200 flex-1 leading-snug">
+                {drawingTool === 'trendline' ? '✓ 시작점 완료! 끝점을 탭하세요' : '✓ 첫 번째 완료! 반대 끝점을 탭하세요'}
+              </span>
+              <button onClick={() => setDrawingTool('none')}
+                className="text-[11px] text-amber-400/70 px-2 py-0.5 rounded-md border border-amber-500/30 shrink-0">
+                취소
+              </button>
+            </div>
+          )}
         </div>
       )}
 

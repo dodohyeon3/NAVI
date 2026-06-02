@@ -11,7 +11,7 @@ import { clsx } from 'clsx'
 
 /* ── Constants ─────────────────────────────────────────────── */
 const PAD         = 6
-const SCROLL_MS   = 220
+const SCROLL_MS   = 320   // smooth scroll 완료 대기 (was 220)
 const CARD_W      = 340
 const CARD_MARGIN = 14
 
@@ -78,13 +78,13 @@ function smartScroll(step: TStep, isMobile: boolean) {
   const vh = window.innerHeight
 
   if (isMobile) {
-    // Safe Zone: 헤더(52px) ~ 화면 75% (하단 시트 25% 확보)
-    const safeBottom = vh * 0.74
-    const idealTop   = 60
+    // Safe Zone: 헤더(56px) ~ 화면 78% (하단 시트 22vh 확보)
+    const safeBottom = vh * 0.78
+    const idealTop   = 64
     if (r.top < idealTop) {
       window.scrollBy({ top: r.top - idealTop, behavior: 'smooth' })
     } else if (r.bottom > safeBottom) {
-      window.scrollBy({ top: r.bottom - safeBottom + 12, behavior: 'smooth' })
+      window.scrollBy({ top: r.bottom - safeBottom + 10, behavior: 'smooth' })
     }
   } else {
     if (r.bottom > vh - 60)

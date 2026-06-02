@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, Suspense } from 'react'
+import { useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ChartContainer } from '@/components/chart/ChartContainer'
 import { RSIChart } from '@/components/chart/RSIChart'
@@ -10,7 +10,6 @@ import { PeriodToolbar } from '@/components/chart/PeriodToolbar'
 import { DrawingToolbar } from '@/components/chart/DrawingToolbar'
 import { TutorialManager }    from '@/components/tutorial/TutorialManager'
 import { TutorialMenuButton } from '@/components/tutorial/TutorialMenuButton'
-import { IndicatorToast }     from '@/components/ui/IndicatorToast'
 import { NaviSymbol }         from '@/components/ui/NaviSymbol'
 import { ThemeToggle }        from '@/components/ui/ThemeToggle'
 import { MobileBottomBar }    from '@/components/mobile/MobileBottomBar'
@@ -23,11 +22,8 @@ import Link from 'next/link'
 function ChartPageInner() {
   const { hasCompletedOnce, start, startLesson } = useTutorialStore()
   const { activeIndicators, drawingTool } = useChartStore()
-  const { markIndicator, markDrawing, triedIndicators } = useLearnStore()
+  const { markIndicator, markDrawing } = useLearnStore()
   const searchParams = useSearchParams()
-
-  /* ─── 첫 지표 활성화 시 컨텍스트 토스트 ─────────────────────── */
-  const [toastSlug, setToastSlug] = useState<string | null>(null)
   const prevInds = useRef(new Set<string>())
 
   // 실제 NVDA 데이터 fetch
@@ -53,31 +49,22 @@ function ChartPageInner() {
     }
   }, [hasCompletedOnce, start, startLesson, searchParams])
 
-  /* ── 지표 활성화 감지 → 토스트 + 학습 진행 기록 ──────────── */
+  /* ── 지표 활성화 감지 → 학습 진행 기록 ──────────────────────── */
   useEffect(() => {
     activeIndicators.forEach(slug => {
-      if (!prevInds.current.has(slug)) {
-        markIndicator(slug)
-        // 처음 시도하는 지표만 토스트 표시
-        if (!triedIndicators.includes(slug)) {
-          setToastSlug(slug)
-        }
-      }
+      if (!prevInds.current.has(slug)) markIndicator(slug)
     })
     prevInds.current = new Set(activeIndicators)
   }, [activeIndicators]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── 작도 도구 감지 → 학습 진행 기록 ──────────────────────── */
   useEffect(() => {
-    if (drawingTool !== 'none' && drawingTool !== 'erase') {
-      markDrawing()
-    }
+    if (drawingTool !== 'none' && drawingTool !== 'erase') markDrawing()
   }, [drawingTool, markDrawing])
 
   return (
     <>
       <TutorialManager />
-      <IndicatorToast slug={toastSlug} onDone={() => setToastSlug(null)} />
 
       {/* ── 헤더 ─────────────────────────────────────────────── */}
       {/* 브랜드 > 콘텐츠 순서: NaviSymbol이 NVDA보다 먼저 인식되도록 */}

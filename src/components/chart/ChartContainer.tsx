@@ -29,7 +29,11 @@ const FIB_LEVELS = [
   { ratio: 1,     label: '100%',  color: '#8892AA' },
 ]
 
-const CHART_HEIGHT = 440
+/** 모바일(<640px): 300px / PC: 440px */
+function getChartH() {
+  if (typeof window === 'undefined') return 440
+  return window.innerWidth < 640 ? 300 : 440
+}
 
 export function ChartContainer() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -73,7 +77,7 @@ export function ChartContainer() {
     const c = canvasRef.current, el = containerRef.current
     if (!c || !el) return
     c.width  = el.clientWidth
-    c.height = CHART_HEIGHT
+    c.height = getChartH()
   }, [])
 
   useEffect(() => {
@@ -89,7 +93,7 @@ export function ChartContainer() {
     setFibLabels(
       fibLevelsRef.current
         .map(lv => ({ ...lv, y: series.priceToCoordinate(lv.value) ?? -999 }))
-        .filter(lv => lv.y >= 2 && lv.y <= CHART_HEIGHT - 2)
+        .filter(lv => lv.y >= 2 && lv.y <= getChartH() - 2)
     )
   }, [])
 
@@ -176,7 +180,7 @@ export function ChartContainer() {
         fixRightEdge: true,
       },
       width: containerRef.current.clientWidth,
-      height: CHART_HEIGHT,
+      height: getChartH(),
     })
 
     const series = chart.addCandlestickSeries({
@@ -209,7 +213,10 @@ export function ChartContainer() {
 
     const onResize = () => {
       if (containerRef.current) {
-        chart.applyOptions({ width: containerRef.current.clientWidth })
+        chart.applyOptions({
+          width:  containerRef.current.clientWidth,
+          height: getChartH(),
+        })
         syncCanvas()
       }
     }
@@ -558,7 +565,7 @@ export function ChartContainer() {
       <canvas
         ref={canvasRef}
         className="absolute top-0 left-0 pointer-events-none"
-        style={{ height: CHART_HEIGHT, borderRadius: '1rem' }}
+        style={{ height: getChartH(), borderRadius: '1rem' }}
       />
 
       {/* 이동평균선 범례 — 켜진 경우만 표시 */}

@@ -780,46 +780,52 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
         )}
 
         {(drawTool === 'trendline' || drawTool === 'fibonacci') && (
-          <div className="mt-2 rounded-xl border border-amber-500/28 bg-amber-500/[0.06] overflow-hidden">
-            {drawStep === 0 && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/[0.08] border-b border-amber-500/20">
-                <p className="text-[12px] font-semibold text-navi-text">위 차트에서 직접 클릭하세요</p>
-                <button
-                  onClick={() => { pendingRef.current = null; setDrawStep(0); setTool('none'); redrawCanvas() }}
-                  className="ml-auto text-[11px] text-navi-muted hover:text-navi-text transition-colors"
-                >취소</button>
-              </div>
-            )}
+          <div className={clsx(
+            'mt-2 rounded-xl overflow-hidden border transition-all duration-300',
+            drawStep === 0
+              ? 'border-amber-500/28 bg-amber-500/[0.06]'
+              : 'border-amber-500/50 bg-amber-500/[0.12] shadow-[0_2px_12px_rgba(245,158,11,0.15)]'
+          )}>
             <div className="flex items-center gap-3 px-3 py-2.5">
-              <div className="flex items-center gap-1.5 shrink-0">
-                {[0, 1].map((i) => (
-                  <div key={i} className={clsx(
-                    'rounded-full transition-all duration-300',
-                    i === drawStep  ? 'w-5 h-2.5 bg-amber-400/70' :
-                    i < drawStep   ? 'w-2.5 h-2.5 bg-amber-500/50' :
-                                     'w-2.5 h-2.5 bg-navi-border'
-                  )} />
-                ))}
+              {/* 스텝 인디케이터 */}
+              <div className="flex items-center gap-1 shrink-0">
+                <span className={clsx(
+                  'text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center transition-all',
+                  drawStep === 0
+                    ? 'bg-amber-400/20 text-amber-400/70'
+                    : 'bg-amber-400/30 text-amber-300/50'
+                )}>①</span>
+                <div className={clsx('w-3 h-px', drawStep === 1 ? 'bg-amber-400/50' : 'bg-navi-border')} />
+                <span className={clsx(
+                  'text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center transition-all',
+                  drawStep === 1
+                    ? 'bg-amber-400/30 text-amber-300 animate-pulse ring-1 ring-amber-400/40'
+                    : 'bg-navi-border/50 text-navi-muted'
+                )}>②</span>
               </div>
-              <p className="text-[12px] text-navi-text font-medium">
+
+              <p className={clsx(
+                'flex-1 font-semibold transition-colors',
+                drawStep === 0 ? 'text-[12px] text-navi-text' : 'text-[12px] text-amber-200'
+              )}>
                 {drawStep === 0
-                  ? (drawTool === 'trendline' ? '① 시작점을 클릭하세요' : '① 고점(또는 저점)을 클릭하세요')
-                  : (drawTool === 'trendline' ? '② 끝점을 클릭하세요'   : '② 반대 끝점을 클릭하세요')
+                  ? (drawTool === 'trendline' ? '시작점을 탭하세요' : '고점(또는 저점)을 탭하세요')
+                  : (drawTool === 'trendline' ? '✓ 완료! 이제 끝점을 탭하세요' : '✓ 완료! 이제 반대 끝점을 탭하세요')
                 }
               </p>
-              {drawStep === 1 && (
-                <button
-                  onClick={() => { pendingRef.current = null; setDrawStep(0); setTool('none'); redrawCanvas() }}
-                  className="ml-auto text-[11px] text-navi-muted hover:text-navi-text shrink-0 transition-colors"
-                >취소</button>
-              )}
+
+              <button
+                onClick={() => { pendingRef.current = null; setDrawStep(0); setTool('none'); redrawCanvas() }}
+                className="text-[11px] text-navi-muted hover:text-navi-text shrink-0 transition-colors px-1.5"
+              >취소</button>
             </div>
           </div>
         )}
       </div>
 
-      {/* ── 도구 패널 ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* ── 도구 패널 — 모바일: 가로 스크롤 / PC: 2열 그리드 ── */}
+      <div className="hidden sm:grid grid-cols-2 gap-3">
+        {/* 분석 도구 (PC) */}
         <div id="challenge-analysis-panel" className="bg-navi-surface border border-navi-border rounded-xl p-3 overflow-visible">
           <p className="text-[11px] font-bold text-navi-secondary mb-2">분석 도구</p>
           <div className="flex flex-wrap gap-1.5">
@@ -836,7 +842,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
             ))}
           </div>
         </div>
-
+        {/* 작도 도구 (PC) */}
         <div id="challenge-drawing-panel" className="bg-navi-surface border border-navi-border rounded-xl p-3">
           <p className="text-[11px] font-bold text-navi-secondary mb-2">작도 도구</p>
           <div className="flex flex-wrap gap-1.5">
@@ -858,6 +864,55 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
             <button onClick={() => setTool('erase')}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs border border-navi-border text-navi-secondary hover:border-navi-border2 hover:text-navi-text transition-all">
               ✕ 지우기
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 모바일 전용 도구 패널 — 한 줄 가로 스크롤 */}
+      <div className="sm:hidden flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {/* 분석 */}
+        <div id="challenge-analysis-panel"
+             className="shrink-0 bg-navi-surface border border-navi-border rounded-xl px-3 py-2.5">
+          <p className="text-[9px] font-bold text-navi-muted uppercase tracking-widest mb-2">분석</p>
+          <div className="flex gap-1.5">
+            {INDICATOR_BTNS.map(({ key, label }) => (
+              <button key={key} onClick={() => toggleInd(key)}
+                className={clsx(
+                  'h-9 px-3 rounded-lg text-[12px] font-semibold transition-all active:scale-[0.96] shrink-0',
+                  activeInds.has(key)
+                    ? 'bg-navi-action text-white shadow-[0_0_10px_rgba(91,127,255,0.3)]'
+                    : 'bg-navi-surface2 text-navi-text border border-navi-border'
+                )}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 작도 */}
+        <div id="challenge-drawing-panel"
+             className="shrink-0 bg-navi-surface border border-navi-border rounded-xl px-3 py-2.5">
+          <p className="text-[9px] font-bold text-navi-muted uppercase tracking-widest mb-2">작도</p>
+          <div className="flex gap-1.5">
+            {([
+              { v: 'trendline', icon: '↗', label: '추세선'  },
+              { v: 'fibonacci', icon: '𝚽', label: '피보나치' },
+            ] as const).map(({ v, icon, label }) => (
+              <button key={v} onClick={() => setTool(drawTool === v ? 'none' : v)}
+                className={clsx(
+                  'h-9 px-3 rounded-lg text-[12px] font-semibold border transition-all active:scale-[0.96] shrink-0 flex items-center gap-1.5',
+                  drawTool === v
+                    ? 'bg-amber-500/12 border-amber-500/40 text-navi-text'
+                    : 'border-navi-border text-navi-text'
+                )}>
+                <span>{icon}</span>{label}
+                {drawTool === v && <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 animate-pulse" />}
+              </button>
+            ))}
+            <button onClick={() => setTool('erase')}
+              className="h-9 px-3 rounded-lg text-[12px] border border-navi-border text-navi-secondary shrink-0 transition-all active:scale-[0.96]">
+              ✕
             </button>
           </div>
         </div>

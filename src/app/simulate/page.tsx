@@ -116,61 +116,88 @@ export default function SimulatePage() {
   )
 
   return (
-    <div className="min-h-screen bg-navi-bg px-4 py-6 max-w-4xl mx-auto">
-
-      {/* ── 실전 챌린지 가이드 (localStorage + ?guide=1) ──────── */}
+    <>
+      {/* ── 실전 챌린지 가이드 ────────────────────────────────── */}
       <Suspense fallback={null}>
         <ChallengeGuideWrapper />
       </Suspense>
 
-      {/* ── 헤더 ────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-4">
-        <Link href="/chart" className="text-navi-muted text-sm hover:text-navi-text">
-          ← 차트로 돌아가기
-        </Link>
-        <div className="text-center">
-          <h1 className="text-navi-text font-bold text-sm">실전 챌린지</h1>
-          <p className="text-navi-muted text-xs">NVDA · 과거 차트 분석</p>
+      {/* ── 스티키 헤더 (차트 페이지와 동일 구조) ──────────────── */}
+      <header className="sticky top-0 z-30 bg-navi-bg/94 backdrop-blur-md border-b border-navi-border"
+              style={{ height: 52 }}>
+        <div className="h-full max-w-4xl mx-auto px-3 sm:px-4 flex items-center justify-between">
+          <Link href="/chart"
+            className="flex items-center gap-1.5 text-navi-muted hover:text-navi-text transition-colors">
+            <span className="text-[13px]">←</span>
+            <span className="text-[12px] font-medium hidden sm:inline">차트로 돌아가기</span>
+          </Link>
+
+          <div className="text-center">
+            <p className="text-[13px] font-bold text-navi-text leading-tight">실전 챌린지</p>
+            <p className="text-[10px] text-navi-muted">NVDA · 과거 차트 분석</p>
+          </div>
+
+          <button
+            onClick={retry}
+            className="text-[12px] font-medium text-navi-muted hover:text-navi-text
+                       transition-colors px-2 py-1 rounded-lg
+                       border border-transparent hover:border-navi-border">
+            다른 구간
+          </button>
         </div>
-        <button onClick={retry} className="text-xs text-navi-muted hover:text-navi-text transition-colors">
-          다른 구간
-        </button>
-      </div>
+      </header>
 
-      {/* ── 튜토리얼 완료 환영 배너 ─────────────────────────── */}
-      <Suspense fallback={null}>
-        <WelcomeBanner />
-      </Suspense>
+      {/* ── 페이지 본문 ──────────────────────────────────────── */}
+      <div className="min-h-screen bg-navi-bg px-3 sm:px-4 pt-3 sm:pt-5 pb-8 max-w-4xl mx-auto">
 
-      {/* ── 안내 배너 ────────────────────────────────────────── */}
-      <div className="mb-4 bg-navi-surface border border-navi-border rounded-2xl p-4">
-        <p className="text-sm font-semibold text-navi-text mb-1.5">
-          이 시점 이후, 차트는 어떻게 됐을까요?
-        </p>
-        <p className="text-xs text-navi-muted leading-relaxed">
-          아래 차트는 NVDA의 실제 과거 {PAST_DAYS}일(약 {Math.round(PAST_DAYS / 21)}개월) 데이터예요.
-          노란 점선 오른쪽의 {FUTURE_DAYS}일이 숨겨져 있어요.
-          분석 도구·작도 도구를 활용해 예측한 뒤{' '}
-          <span className="text-navi-text font-semibold">결과 보기</span>를 눌러보세요.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {['분석 도구로 지표 추가', '작도 도구로 직접 그리기', '결과 보기로 정답 확인', '다른 구간으로 반복 연습'].map(t => (
-            <span key={t} className="text-[11px] px-2.5 py-1 rounded-full bg-navi-surface2 border border-navi-border2 text-navi-secondary">
-              {t}
+        {/* 튜토리얼 완료 환영 배너 (PC만, 모바일은 공간 낭비) */}
+        <div className="hidden sm:block">
+          <Suspense fallback={null}>
+            <WelcomeBanner />
+          </Suspense>
+        </div>
+
+        {/* 안내 배너 — 모바일: 한 줄 요약 / PC: 풀 버전 */}
+        <div className="mb-3">
+          {/* 모바일 간략 배너 */}
+          <div className="sm:hidden flex items-center gap-2 px-3 py-2.5
+                          bg-navi-surface border border-navi-border rounded-xl text-[11px]">
+            <span className="text-amber-400 font-bold shrink-0">▶</span>
+            <span className="text-navi-secondary">
+              NVDA {PAST_DAYS}일 데이터로 이후 {FUTURE_DAYS}일을 예측해봐요
             </span>
-          ))}
+          </div>
+          {/* PC 풀 배너 */}
+          <div className="hidden sm:block bg-navi-surface border border-navi-border rounded-2xl p-4">
+            <p className="text-sm font-semibold text-navi-text mb-1.5">
+              이 시점 이후, 차트는 어떻게 됐을까요?
+            </p>
+            <p className="text-xs text-navi-muted leading-relaxed">
+              아래 차트는 NVDA의 실제 과거 {PAST_DAYS}일(약 {Math.round(PAST_DAYS / 21)}개월) 데이터예요.
+              노란 점선 오른쪽의 {FUTURE_DAYS}일이 숨겨져 있어요.
+              분석 도구·작도 도구를 활용해 예측한 뒤{' '}
+              <span className="text-navi-text font-semibold">결과 보기</span>를 눌러보세요.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {['분석 도구로 지표 추가', '작도 도구로 직접 그리기', '결과 보기로 정답 확인', '다른 구간으로 반복 연습'].map(t => (
+                <span key={t} className="text-[11px] px-2.5 py-1 rounded-full bg-navi-surface2 border border-navi-border2 text-navi-secondary">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* ── 시뮬레이션 차트 ─────────────────────────────────── */}
-      {past.length > 0 && future.length > 0 && (
-        <SimulateChart
-          key={attempt}
-          pastData={past}
-          futureData={future}
-          onRetry={retry}
-        />
-      )}
-    </div>
+        {/* 시뮬레이션 차트 */}
+        {past.length > 0 && future.length > 0 && (
+          <SimulateChart
+            key={attempt}
+            pastData={past}
+            futureData={future}
+            onRetry={retry}
+          />
+        )}
+      </div>
+    </>
   )
 }
