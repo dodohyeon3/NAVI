@@ -62,30 +62,37 @@ function calcCardPos(hl: HL, preferred: string, cardW: number, cardH: number): C
   return { top: Math.max(56, Math.min(fb.top, vh - cardH - 8)), left: Math.max(8, Math.min(fb.left, vw - cardW - 8)) }
 }
 
-/* ── smartScroll — 모바일/PC 분기 ──────────────────────────── */
-function smartScroll(step: TStep, isMobile: boolean) {
-  // 모바일: mobileTargetSelector 우선 사용
-  const sel = (isMobile && step.mobileTargetSelector !== undefined)
-    ? step.mobileTargetSelector
-    : step.targetSelector
-  if (!sel) return
-
+/* ── scrollToSel — retry-safe 스크롤 헬퍼 ──────────────────
+   RSI/MACD 차트처럼 막 렌더링된 요소는 첫 시도에서 rect=0 일 수 있음.
+   최대 maxRetry 회, retryMs 간격으로 재시도해 안정적으로 스크롤한다.
+─────────────────────────────────────────────────────────── */
+function scrollToSel(
+  sel:       string,
+  step:      TStep,
+  isMobile:  boolean,
+  maxRetry = 5,
+  retryMs  = 110,
+) {
   const el = document.querySelector(sel)
-  if (!el) return
-  const r  = el.getBoundingClientRect()
-  if (r.width === 0 && r.height === 0) return  // hidden element
+  if (!el) {
+    if (maxRetry > 0) setTimeout(() => scrollToSel(sel, step, isMobile, maxRetry - 1, retryMs), retryMs)
+    return
+  }
+  const r = el.getBoundingClientRect()
+  // 렌더링 전 or display:none → 재시도
+  if (r.width === 0 && r.height === 0) {
+    if (maxRetry > 0) setTimeout(() => scrollToSel(sel, step, isMobile, maxRetry - 1, retryMs), retryMs)
+    return
+  }
 
   const vh = window.innerHeight
 
   if (isMobile) {
-    // 시트 높이에 따라 safeBottom을 동적 계산
-    // 판단/테스트 단계 = 55vh 시트 → safeBottom = 40%
-    // 일반 단계        = 30vh 시트 → safeBottom = 65%
     const isLargeSheet =
       step.actionRequired === 'judgment' ||
       step.actionRequired === 'comprehensive-test'
     const sheetFraction = isLargeSheet ? 0.55 : 0.30
-    const safeBottom    = vh * (1 - sheetFraction - 0.05)   // 5% 버퍼
+    const safeBottom    = vh * (1 - sheetFraction - 0.05)
     const idealTop      = 64
 
     if (r.top < idealTop) {
@@ -99,6 +106,15 @@ function smartScroll(step: TStep, isMobile: boolean) {
     else if (r.top < 60)
       window.scrollBy({ top: r.top - 80, behavior: 'smooth' })
   }
+}
+
+/* ── smartScroll — 모바일/PC selector 분기 → scrollToSel ── */
+function smartScroll(step: TStep, isMobile: boolean) {
+  const sel = (isMobile && step.mobileTargetSelector !== undefined)
+    ? step.mobileTargetSelector
+    : step.targetSelector
+  if (!sel) return
+  scrollToSel(sel, step, isMobile)
 }
 
 /* ══ Comprehensive test helpers ═════════════════════════════ */
@@ -309,12 +325,21 @@ export function TutorialStep() {
     setWrongCount(0); setShowWrongFB(false); setWrongChoice(null)
     setBodyOpen(false)
 
+    // 1차 스크롤: 즉시 (이미 렌더링된 요소 대상)
     smartScroll(currentStep, isMobileRef.current)
-    stepTmr.current = setTimeout(() => setShowCard(true), SCROLL_MS)
+    stepTmr.current = setTimeout(() => {
+      setShowCard(true)
+      // 2차 스크롤: 카드 표시 후 최종 위치 보정 (RSI/MACD 서브차트가 이 시점에 확실히 렌더링)
+      setTimeout(() => smartScroll(currentStep!, isMobileRef.current), 80)
+    }, SCROLL_MS)
     return () => { if (stepTmr.current) clearTimeout(stepTmr.current) }
   }, [currentStep]) // eslint-disable-line
 
-  /* ── 단계 완료 시 → completion target으로 스크롤 ────── */
+  /* ── 단계 완료 시 → completion target으로 스크롤 ────────────
+     RSI/MACD 서브차트는 지표 활성화 직후 React가 렌더링하는데
+     80ms 이내에 완료되지 않을 수 있음.
+     → 200ms 초기 지연 + scrollToSel 내부 retry(5회×110ms=550ms) 로 보장.
+  ────────────────────────────────────────────────────────────── */
   useEffect(() => {
     if (!stepDone || !currentStep) return
     const sel = (() => {
@@ -325,13 +350,15 @@ export function TutorialStep() {
       return currentStep.completionTargetSelector
     })()
     if (!sel) return
-    // completionTargetSelector를 target으로 한 가상 step으로 스크롤
     setTimeout(() => {
-      smartScroll(
-        { ...currentStep, targetSelector: sel, mobileTargetSelector: sel },
-        isMobileRef.current
+      scrollToSel(
+        sel,
+        { ...currentStep, targetSelector: sel, mobileTargetSelector: sel } as TStep,
+        isMobileRef.current,
+        5,   // 최대 재시도 5회
+        110, // 110ms 간격
       )
-    }, 80)
+    }, 200)  // 초기 대기 200ms (지표 차트 렌더링 시간)
   }, [stepDone]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── 카드 마운트 후 위치 계산 (PC) ──────────────────── */
