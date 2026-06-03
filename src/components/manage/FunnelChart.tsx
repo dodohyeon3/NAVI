@@ -288,9 +288,9 @@ export function FunnelChart({ steps }: Props) {
 
               {/* ── 이탈 설명: 현재(i) → 다음(i+1) 기준 ──
                *
-               *  ✅ 올바른 예:
+               *   올바른 예:
                *     "홈 방문 중 86%가 튜토리얼 시작으로 이어지지 않음"
-               *  ❌ 이전 버그:
+               *   이전 버그:
                *     prevLabel(steps[i-1]) + steps[i+1] 혼용
                * ─────────────────────────────────────────── */}
               {nextStep && (
@@ -308,7 +308,7 @@ export function FunnelChart({ steps }: Props) {
                     <p className="text-[10px] text-navi-muted mt-1">데이터 없음</p>
                   ) : dropToNext <= 0 ? (
                     /* 이탈 없음 */
-                    <p className="text-[11px] text-[#34D399] mt-1">✓ 전원 다음 단계로 이동</p>
+                    <p className="text-[11px] text-[#34D399] mt-1"> 전원 다음 단계로 이동</p>
                   ) : (
                     /* 이탈 있음 — step.label(현재) + nextStep.label(다음) */
                     <p
@@ -316,7 +316,7 @@ export function FunnelChart({ steps }: Props) {
                         dropIsAlert ? 'text-navi-danger font-medium' : 'text-navi-muted'
                       }`}
                     >
-                      {dropIsAlert && '⚠ '}
+                      {dropIsAlert && ' '}
                       <span className="font-semibold">{step.label}</span> 중{' '}
                       <span className="font-bold">{dropToNext}%</span>가{' '}
                       {josaRo(nextStep.label)} 이어지지 않음

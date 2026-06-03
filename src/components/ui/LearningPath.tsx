@@ -8,8 +8,8 @@ const STEPS = [
   { key: 'bollinger',      label: 'BB',        abbr: 'BB',   desc: '변동성',      type: 'indicator' as const },
   { key: 'rsi',            label: 'RSI',       abbr: 'RSI',  desc: '과열 신호',   type: 'indicator' as const },
   { key: 'macd',           label: 'MACD',      abbr: 'MACD', desc: '추세 전환',   type: 'indicator' as const },
-  { key: 'drawing',        label: '작도',       abbr: '↗',   desc: '직접 분석',   type: 'drawing'   as const },
-  { key: 'simulate',       label: '실전 챌린지', abbr: '▶',   desc: '실전 예측',   type: 'simulate'  as const },
+  { key: 'drawing',        label: '작도',       abbr: 'D',   desc: '직접 분석',   type: 'drawing'   as const },
+  { key: 'simulate',       label: '실전 챌린지', abbr: 'P',   desc: '실전 예측',   type: 'simulate'  as const },
 ]
 
 export function LearningPath() {
@@ -61,7 +61,7 @@ export function LearningPath() {
             >
               <span className="text-[11px] font-bold">{step.abbr}</span>
               <span>{step.label}</span>
-              {done    && <span className="text-navi-text">✓</span>}
+              {done    && <span className="text-navi-text"></span>}
               {current && <span className="w-1.5 h-1.5 rounded-full bg-navi-action animate-pulse" />}
             </div>
           )

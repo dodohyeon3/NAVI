@@ -844,7 +844,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
               )}>
                 {drawStep === 0
                   ? (drawTool === 'trendline' ? '시작점을 탭하세요' : '고점(또는 저점)을 탭하세요')
-                  : (drawTool === 'trendline' ? '✓ 완료! 이제 끝점을 탭하세요' : '✓ 완료! 이제 반대 끝점을 탭하세요')
+                  : (drawTool === 'trendline' ? ' 완료! 이제 끝점을 탭하세요' : ' 완료! 이제 반대 끝점을 탭하세요')
                 }
               </p>
 
@@ -881,8 +881,8 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
           <p className="text-[11px] font-bold text-navi-secondary mb-2">작도 도구</p>
           <div className="flex flex-wrap gap-1.5">
             {([
-              { v: 'trendline', icon: '↗', label: '추세선'  },
-              { v: 'fibonacci', icon: '𝚽', label: '피보나치' },
+              { v: 'trendline', icon: '',    label: '추세선'  },
+              { v: 'fibonacci', icon: '',    label: '피보나치' },
             ] as const).map(({ v, icon, label }) => (
               <button key={v} onClick={() => setTool(drawTool === v ? 'none' : v)}
                 className={clsx(
@@ -897,7 +897,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
             ))}
             <button onClick={() => setTool('erase')}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs border border-navi-border text-navi-secondary hover:border-navi-border2 hover:text-navi-text transition-all">
-              ✕ 지우기
+               지우기
             </button>
           </div>
         </div>

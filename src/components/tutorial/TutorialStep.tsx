@@ -189,7 +189,7 @@ function computeCorrectValue(
 
 interface TestQ {
   id: string; label: string; hint: string
-  choices: { v: string; icon: string; label: string }[]
+  choices: { v: string; label: string }[]
   correct: string | null
   feedback: Record<string, string>
 }
@@ -200,9 +200,9 @@ function buildTestQs(c: CandleData[]): TestQ[] {
       id: 'trend', label: '현재 추세는?', hint: 'MA 선들의 방향을 봐요',
       correct: scoreTrend(c),
       choices: [
-        { v: 'up', icon: '↑', label: '상승' },
-        { v: 'sideways', icon: '→', label: '횡보' },
-        { v: 'down', icon: '↓', label: '하락' },
+        { v: 'up', label: '상승' },
+        { v: 'sideways', label: '횡보' },
+        { v: 'down', label: '하락' },
       ],
       feedback: {
         up: 'MA선들이 함께 우상향 중이에요.', sideways: 'MA선들이 방향 없이 얽혀 있어요.', down: 'MA선들이 함께 우하향 중이에요.',
@@ -212,9 +212,9 @@ function buildTestQs(c: CandleData[]): TestQ[] {
       id: 'rsi', label: 'RSI 상태는?', hint: 'RSI 오른쪽 끝 값을 봐요',
       correct: scoreRSI(c),
       choices: [
-        { v: 'overbought', icon: '↑', label: '과열 (70+)' },
-        { v: 'neutral', icon: '—', label: '중립' },
-        { v: 'oversold', icon: '↓', label: '침체 (30-)' },
+        { v: 'overbought', label: '과열 (70+)' },
+        { v: 'neutral', label: '중립' },
+        { v: 'oversold', label: '침체 (30-)' },
       ],
       feedback: {
         overbought: 'RSI 65+ — 과매수 구간이에요.', neutral: 'RSI 중립 구간이에요.', oversold: 'RSI 35- — 과매도 구간이에요.',
@@ -224,8 +224,8 @@ function buildTestQs(c: CandleData[]): TestQ[] {
       id: 'macd', label: 'MACD 상태는?', hint: '파란선·주황선 위치를 봐요',
       correct: scoreMACDSignal(c),
       choices: [
-        { v: 'bullish', icon: '↑', label: '상승 모멘텀' },
-        { v: 'bearish', icon: '↓', label: '하락 모멘텀' },
+        { v: 'bullish', label: '상승 모멘텀' },
+        { v: 'bearish', label: '하락 모멘텀' },
       ],
       feedback: {
         bullish: 'MACD선이 시그널선 위에 있어요.', bearish: 'MACD선이 시그널선 아래에 있어요.',
@@ -235,9 +235,9 @@ function buildTestQs(c: CandleData[]): TestQ[] {
       id: 'prediction', label: '내 예측은?', hint: '정답 없음 — 자유롭게 판단해봐요',
       correct: null,
       choices: [
-        { v: 'up', icon: '↑', label: '상승' },
-        { v: 'sideways', icon: '→', label: '횡보' },
-        { v: 'down', icon: '↓', label: '하락' },
+        { v: 'up', label: '상승' },
+        { v: 'sideways', label: '횡보' },
+        { v: 'down', label: '하락' },
       ],
       feedback: {
         up: '상승 예측! 실전 챌린지에서 확인해봐요.', sideways: '횡보 예측! 검증해봐요.', down: '하락 예측! 맞는지 확인해봐요.',
@@ -562,7 +562,7 @@ export function TutorialStep() {
       <span className="text-[10px] tabular-nums text-quiet-45 shrink-0">
         {currentIndex + 1}/{steps.length}
       </span>
-      {/* ✕ 나가기 버튼 */}
+      {/*  나가기 버튼 */}
       <button
         onClick={skip}
         aria-label="학습 나가기"
@@ -572,7 +572,7 @@ export function TutorialStep() {
                    hover:bg-navi-surface2 hover:text-navi-text
                    transition-all active:scale-90"
       >
-        ✕
+        
       </button>
     </div>
   )
@@ -751,7 +751,7 @@ export function TutorialStep() {
             </div>
           )}
           <p className={clsx('text-navi-text leading-snug', isMobile ? 'text-[12px]' : 'text-[12px]')}>
-            {isMobile ? '▶ ' : ''}{activeMission}
+            {activeMission}
           </p>
         </div>
       )}
@@ -771,7 +771,7 @@ export function TutorialStep() {
     if (effectiveCorrect !== undefined) {
       const isCorrect = value === effectiveCorrect
 
-      /* ✦ 모든 선택(정답·오답 불문) 기록 */
+      /*  모든 선택(정답·오답 불문) 기록 */
       trackEvent('tutorial_judgment_answered', {
         tutorial:   isLesson && currentLessonKey
                       ? (LESSON_TOPIC[currentLessonKey] ?? 'lesson')
@@ -810,7 +810,7 @@ export function TutorialStep() {
             className="space-y-2"
           >
             <div className="bg-navi-danger/[0.08] border border-navi-danger/25 rounded-lg p-3">
-              <p className="text-[12px] font-semibold text-navi-text mb-1">❌ 다시 살펴보세요</p>
+              <p className="text-[12px] font-semibold text-navi-text mb-1"> 다시 살펴보세요</p>
               {wrongChoice && (() => {
                 const ch = currentStep.judgment!.choices.find(c => c.value === wrongChoice)
                 return ch ? (
@@ -866,9 +866,6 @@ export function TutorialStep() {
                   isMobile ? 'py-3 rounded-xl' : 'py-2.5'
                 )}
               >
-                <span className="text-[15px] font-bold shrink-0 leading-none text-navi-text w-5 text-center">
-                  {c.icon}
-                </span>
                 <span className={clsx('font-medium text-navi-text', isMobile ? 'text-[13px]' : 'text-[12px]')}>
                   {c.label}
                 </span>
@@ -898,7 +895,7 @@ export function TutorialStep() {
                       : 'bg-navi-info/[0.07] border border-navi-info/25'
           )}>
             <div className="flex items-center gap-2 mb-1.5">
-              {isCorrect && <span className="text-[11px] font-bold text-navi-success">✓</span>}
+              {isCorrect && <span className="text-[11px] font-bold text-navi-success"></span>}
               <span className="text-[14px] font-bold leading-none text-navi-text">{chosen.icon}</span>
               <span className="text-[12px] font-semibold text-navi-text">{chosen.label}</span>
             </div>
@@ -941,7 +938,7 @@ export function TutorialStep() {
       {currentStep.completionMessage && (
         <div className="bg-navi-success/[0.07] border border-navi-success/25 rounded-lg p-3">
           <p className="text-[12px] text-navi-text leading-relaxed">
-            ✓ {currentStep.completionMessage}
+             {currentStep.completionMessage}
           </p>
         </div>
       )}
@@ -966,7 +963,7 @@ export function TutorialStep() {
                   ok ? 'bg-navi-success/[0.08] border border-navi-success/25 text-navi-text'
                      : 'bg-navi-danger/[0.08]  border border-navi-danger/25  text-navi-text'
                 )}>
-                  <span>{ok ? '✓' : '✗'}</span>
+                  <span>{ok ? '' : ''}</span>
                   <span className="flex-1 font-medium">{q.label}</span>
                   <span className="text-[10px] text-navi-secondary">{q.choices.find(c => c.v === user)?.label}</span>
                 </div>
@@ -1006,7 +1003,7 @@ export function TutorialStep() {
                 const updated = { ...testAnswers, [q.id]: c.v }
                 setTestAnswers(updated)
 
-                /* ✦ 종합 테스트 문항 답변 기록
+                /*  종합 테스트 문항 답변 기록
                    q.correct === null 인 prediction 질문은 is_correct: null */
                 trackEvent('comprehensive_test_answered', {
                   question_index: testQIdx,
@@ -1029,8 +1026,7 @@ export function TutorialStep() {
                   : 'border-navi-border2 hover:border-navi-action/35 hover:bg-navi-action/[0.04]'
               )}
             >
-              <span className="text-[18px] font-bold leading-none text-navi-text">{c.icon}</span>
-              <span className="text-[11px] font-semibold text-navi-text mt-1 text-center leading-tight px-0.5">
+              <span className="text-[12px] font-semibold text-navi-text text-center leading-tight px-0.5">
                 {c.label}
               </span>
             </button>

@@ -96,7 +96,7 @@ export default function SimulatePage() {
     setPast(past); setFuture(future)
     setAttempt(a => {
       const newCount = a + 1
-      /* ✦ 재도전 횟수 기록 — 학습 몰입도 측정 */
+      /*  재도전 횟수 기록 — 학습 몰입도 측정 */
       trackEvent('simulation_retry', { retry_count: newCount })
       return newCount
     })
@@ -168,7 +168,7 @@ export default function SimulatePage() {
           {/* 모바일 간략 배너 */}
           <div className="sm:hidden flex items-center gap-2 px-3 py-2.5
                           bg-navi-surface border border-navi-border rounded-xl text-[11px]">
-            <span className="text-amber-400 font-bold shrink-0">▶</span>
+            
             <span className="text-navi-secondary">
               NVDA {PAST_DAYS}일 데이터로 이후 {FUTURE_DAYS}일을 예측해봐요
             </span>

@@ -4,7 +4,6 @@
  */
 
 export interface Insight {
-  icon:   string
   title:  string   // 10자 이내
   value:  string   // 핵심 값 (굵게 표시)
   sub?:   string   // 보조 설명
@@ -31,7 +30,6 @@ export function InsightCards({ insights }: Props) {
             :             'bg-navi-surface2 border-navi-border'}
           `}
         >
-          <span className="text-xl leading-none">{ins.icon}</span>
           <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-navi-muted leading-tight mt-0.5">
             {ins.title}
           </p>

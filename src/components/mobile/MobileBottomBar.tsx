@@ -21,8 +21,8 @@ const ANALYSIS_ITEMS: { slug: IndicatorSlug; label: string; name: string }[] = [
 ]
 
 const DRAWING_ITEMS = [
-  { value: 'trendline' as const, label: '추세선',   icon: '↗', desc: '저점·고점 연결로 추세 표시' },
-  { value: 'fibonacci' as const, label: '피보나치', icon: '𝚽', desc: '고점→저점 클릭 시 레벨 표시' },
+  { value: 'trendline' as const, label: '추세선',   icon: '',   desc: '저점·고점 연결로 추세 표시' },
+  { value: 'fibonacci' as const, label: '피보나치', icon: '',   desc: '고점→저점 클릭 시 레벨 표시' },
 ]
 
 const LESSON_ITEMS = [
@@ -78,7 +78,7 @@ export function MobileBottomBar() {
                                  rounded-full w-5 h-5 flex items-center justify-center animate-pulse">②</span>
               </div>
               <span className="text-[12px] font-bold text-amber-200 flex-1 leading-snug">
-                {drawingTool === 'trendline' ? '✓ 시작점 완료! 끝점을 탭하세요' : '✓ 첫 번째 완료! 반대 끝점을 탭하세요'}
+                {drawingTool === 'trendline' ? ' 시작점 완료! 끝점을 탭하세요' : ' 첫 번째 완료! 반대 끝점을 탭하세요'}
               </span>
               <button onClick={() => setDrawingTool('none')}
                 className="text-[11px] text-amber-400/70 px-2 py-0.5 rounded-md border border-amber-500/30 shrink-0">
@@ -252,7 +252,7 @@ export function MobileBottomBar() {
             className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl border-2
                        border-navi-border bg-navi-surface2 transition-all active:scale-[0.97]"
           >
-            <span className="text-[18px] w-7 text-center shrink-0 text-navi-muted">✕</span>
+            <span className="text-[18px] w-7 text-center shrink-0 text-navi-muted"></span>
             <div className="text-left">
               <p className="text-[13px] font-semibold text-navi-text">전체 삭제</p>
               <p className="text-[11px] text-navi-muted mt-0.5">그린 선을 모두 지워요</p>

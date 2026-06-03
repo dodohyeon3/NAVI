@@ -14,7 +14,7 @@ export interface Indicator {
 
 export interface JudgmentChoice {
   value:    string
-  icon:     string
+  icon?:    string
   label:    string
   feedback: string
 }

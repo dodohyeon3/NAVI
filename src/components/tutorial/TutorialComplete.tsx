@@ -42,7 +42,7 @@ export function TutorialComplete() {
                          text-[13px] text-navi-muted hover:text-navi-text
                          transition-colors"
             >
-              ✕
+              
             </button>
 
             {/* 완료 헤더 */}
@@ -50,7 +50,7 @@ export function TutorialComplete() {
               <div className="inline-flex items-center justify-center
                               w-11 h-11 rounded-2xl mb-4
                               bg-navi-success/[0.10] border border-navi-success/25">
-                <span className="text-[16px] font-black text-navi-text">✓</span>
+                <span className="text-[16px] font-black text-navi-text"></span>
               </div>
               <h2 className="text-[22px] font-black text-navi-text leading-tight mb-2">
                 기초 과정 완료

@@ -43,19 +43,16 @@ export const rsiAdvancedSteps: TutorialStep[] = [
       choices: [
         {
           value:    'overbought',
-          icon:     '↑',
           label:    '과매수 (상승 과열)',
           feedback: '맞아요! RSI 70+ = 과매수 구간이에요. 상승이 너무 빠르게 진행됐다는 경고 신호예요. 이후 조정이 올 수 있지만, 강세장에서는 오래 지속되기도 해요. MA 방향으로 추세도 함께 확인해봐요.',
         },
         {
           value:    'oversold',
-          icon:     '↓',
           label:    '과매도 (하락 과열)',
           feedback: '과매도는 반대예요. RSI가 30 아래로 떨어진 상태예요. 70 위는 상승 과열이에요.',
         },
         {
           value:    'neutral',
-          icon:     '→',
           label:    '중립 구간',
           feedback: 'RSI 40~60이 중립 구간이에요. 70을 넘으면 과열 상태예요.',
         },
@@ -84,19 +81,16 @@ export const rsiAdvancedSteps: TutorialStep[] = [
       choices: [
         {
           value:    'bounce',
-          icon:     '↑',
           label:    '반등 가능성',
           feedback: '맞아요! 과매도는 너무 빠르게 떨어졌다는 신호예요. 반등 가능성이 높아지지만 — MA 방향도 함께 확인해야 해요. 다음 단계에서 RSI + MA 조합을 배워볼게요.',
         },
         {
           value:    'sell',
-          icon:     '↓',
           label:    '즉시 매도 신호',
           feedback: '과매도는 오히려 매수 고려 신호예요. 너무 많이 떨어졌으니 반등을 기대할 수 있어요.',
         },
         {
           value:    'ignore',
-          icon:     '→',
           label:    '신호 무시',
           feedback: '과매도 구간은 중요한 신호예요. 반등 가능성을 항상 주시하고 MA와 함께 확인해봐요.',
         },

@@ -31,15 +31,9 @@ export interface LessonStep {
   isPrediction?: boolean  // 이 단계에서 예측 선택
 }
 
-export const CANDLE_LESSONS: Record<PatternType, {
-  name: string
-  emoji: string
-  desc: string
-  steps: LessonStep[]
-}> = {
+export const CANDLE_LESSONS: Record<PatternType, { name: string; desc: string; steps: LessonStep[] }> = {
   doji: {
     name: '도지',
-    emoji: '⚖️',
     desc: '매수·매도 세력이 팽팽하게 맞선 순간',
     steps: [
       {
@@ -62,7 +56,6 @@ export const CANDLE_LESSONS: Record<PatternType, {
   },
   hammer: {
     name: '망치형',
-    emoji: '🔨',
     desc: '하락 끝에서 나타나는 반전 신호',
     steps: [
       {
@@ -85,7 +78,6 @@ export const CANDLE_LESSONS: Record<PatternType, {
   },
   'inverted-hammer': {
     name: '역망치형',
-    emoji: '🔃',
     desc: '망치를 뒤집은 모양의 반전 후보',
     steps: [
       {
@@ -108,7 +100,6 @@ export const CANDLE_LESSONS: Record<PatternType, {
   },
   'bullish-engulfing': {
     name: '상승 장악형',
-    emoji: '📈',
     desc: '음봉을 통째로 삼킨 강한 양봉',
     steps: [
       {
@@ -131,7 +122,6 @@ export const CANDLE_LESSONS: Record<PatternType, {
   },
   'bearish-engulfing': {
     name: '하락 장악형',
-    emoji: '📉',
     desc: '양봉을 통째로 삼킨 강한 음봉',
     steps: [
       {
@@ -156,13 +146,11 @@ export const CANDLE_LESSONS: Record<PatternType, {
 
 export const VOLUME_LESSONS: Record<VolumeTopicType, {
   name: string
-  emoji: string
   desc: string
   steps: LessonStep[]
 }> = {
   intro: {
     name: '거래량이란?',
-    emoji: '📊',
     desc: '거래량의 기본 개념',
     steps: [
       {
@@ -185,7 +173,6 @@ export const VOLUME_LESSONS: Record<VolumeTopicType, {
   },
   'up-surge': {
     name: '상승 + 거래량↑',
-    emoji: '🚀',
     desc: '강한 상승의 증거',
     steps: [
       {
@@ -208,7 +195,6 @@ export const VOLUME_LESSONS: Record<VolumeTopicType, {
   },
   'down-surge': {
     name: '하락 + 거래량↑',
-    emoji: '💧',
     desc: '강한 매도세의 흔적',
     steps: [
       {
@@ -231,7 +217,6 @@ export const VOLUME_LESSONS: Record<VolumeTopicType, {
   },
   divergence: {
     name: '거래량 다이버전스',
-    emoji: '⚡',
     desc: '가격과 거래량이 반대로 움직일 때',
     steps: [
       {
@@ -254,7 +239,6 @@ export const VOLUME_LESSONS: Record<VolumeTopicType, {
   },
   quiz: {
     name: '실전 문제',
-    emoji: '🎯',
     desc: '배운 내용을 직접 적용해봐요',
     steps: [
       {

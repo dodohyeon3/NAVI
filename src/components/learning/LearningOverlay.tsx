@@ -143,7 +143,7 @@ export function LearningOverlay() {
                              text-navi-muted hover:text-navi-text bg-navi-surface2
                              text-[12px] transition-colors"
                 >
-                  ✕
+                  닫기
                 </button>
               </div>
 
@@ -172,7 +172,6 @@ export function LearningOverlay() {
                                    hover:border-navi-action/40 hover:bg-navi-action/[0.04]
                                    transition-all active:scale-[0.98] text-left"
                       >
-                        <span className="text-[22px] leading-none shrink-0">{info.emoji}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-semibold text-navi-text">{info.name}</p>
                           <p className="text-[11px] text-navi-muted mt-0.5">{info.desc}</p>
@@ -195,7 +194,6 @@ export function LearningOverlay() {
                                    hover:border-navi-action/40 hover:bg-navi-action/[0.04]
                                    transition-all active:scale-[0.98] text-left"
                       >
-                        <span className="text-[22px] leading-none shrink-0">{info.emoji}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-semibold text-navi-text">{info.name}</p>
                           <p className="text-[11px] text-navi-muted mt-0.5">{info.desc}</p>
@@ -258,7 +256,7 @@ export function LearningOverlay() {
                            bg-navi-surface2 text-navi-muted hover:text-navi-text
                            text-[11px] transition-colors"
               >
-                ✕
+                
               </button>
             </div>
 
@@ -423,7 +421,6 @@ function ResultContent({ prediction, outcome, lesson, isMobile }: ResultContentP
           : 'bg-navi-surface2 border-navi-border'
       )}>
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-[18px]">{isCorrect ? '✅' : '🔍'}</span>
           <span className="text-[13px] font-bold text-navi-text">
             {isCorrect ? '정확해요!' : '아쉽지만 다음엔 맞출 수 있어요'}
           </span>
@@ -435,7 +432,7 @@ function ResultContent({ prediction, outcome, lesson, isMobile }: ResultContentP
       </div>
 
       <p className="text-[12px] text-navi-secondary leading-relaxed">
-        차트의 노란 점{' '}(●) 이후에 나타난 화살표가 실제 방향이에요.
+        차트에 표시된 노란 마커 이후 방향 화살표가 실제 결과예요.
         패턴을 반복해서 보면 눈에 익게 돼요!
       </p>
     </div>

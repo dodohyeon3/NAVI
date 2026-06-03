@@ -43,7 +43,7 @@ function fmtPct(n: number) { return `${n}%` }
 function ConfigBanner() {
   return (
     <div className="bg-navi-warning/[0.08] border border-navi-warning/25 rounded-2xl p-4 mb-2">
-      <p className="text-[13px] font-bold text-navi-text mb-1">📊 PostHog API 미연결 상태</p>
+      <p className="text-[13px] font-bold text-navi-text mb-1"> PostHog API 미연결 상태</p>
       <p className="text-[12px] text-navi-secondary leading-relaxed mb-3">
         실제 데이터를 보려면 아래 환경변수를 Vercel에 추가하고 재배포하세요.
       </p>
@@ -242,8 +242,7 @@ export default async function ManagePage() {
 
   const insights: Insight[] = [
     {
-      icon: '🧩',
-      title: '가장 어려운 퀴즈',
+        title: '가장 어려운 퀴즈',
       value: hardestQuiz
         ? (JUDGMENT_LABELS[hardestQuiz.step_id] ?? hardestQuiz.step_id)
         : '–',
@@ -251,15 +250,13 @@ export default async function ManagePage() {
       alert: !!(hardestQuiz && hardestQuiz.rate < 40),
     },
     {
-      icon: '🚨',
-      title: '최고 이탈 단계',
+        title: '최고 이탈 단계',
       value: worstStep ? worstStep.name : '–',
       sub:   worstStep ? `이전 대비 ${worstStep.dropPct}% 이탈` : '데이터 없음',
       alert: !!(worstStep && worstStep.dropPct > 30),
     },
     {
-      icon: '📊',
-      title: '인기 지표',
+        title: '인기 지표',
       value: topIndicator
         ? topIndicator.indicator.toUpperCase()
         : '–',
@@ -267,15 +264,13 @@ export default async function ManagePage() {
       good:  true,
     },
     {
-      icon: '🎓',
-      title: '완료율 최고 심화',
+        title: '완료율 최고 심화',
       value: bestAdv.rate > 0 ? bestAdv.label : '–',
       sub:   bestAdv.rate > 0 ? `완료율 ${bestAdv.rate}%` : '데이터 없음',
       good:  bestAdv.rate >= 60,
     },
     {
-      icon: '🎯',
-      title: '챌린지 완료율',
+        title: '챌린지 완료율',
       value: chalStart30 > 0 ? fmtPct(chalRate) : '–',
       sub:   chalStart30 > 0
         ? `${chalStart30}명 시작 → ${chalDone30}명 완료`
@@ -284,8 +279,7 @@ export default async function ManagePage() {
       alert: chalRate > 0 && chalRate < 30,
     },
     {
-      icon: '🕯️',
-      title: '어려운 캔들',
+        title: '어려운 캔들',
       value: hardestCandle
         ? (CANDLE_PATTERN_LABELS[hardestCandle.pattern] ?? hardestCandle.pattern)
         : '–',
@@ -295,8 +289,7 @@ export default async function ManagePage() {
       alert: !!(hardestCandle && hardestCandle.accuracy < 35),
     },
     {
-      icon: '📊',
-      title: '거래량 이탈 주제',
+        title: '거래량 이탈 주제',
       value: worstVolume
         ? (VOLUME_TOPIC_LABELS[worstVolume.topic] ?? worstVolume.topic)
         : '–',
@@ -382,7 +375,7 @@ export default async function ManagePage() {
   ] : []
 
   /* ── 예측 분포 레이블 ────────────────────────────────── */
-  const predLabels: Record<string, string> = { up: '상승 📈', down: '하락 📉', sideways: '횡보 ➡', bullish:'상승', bearish:'하락', neutral:'횡보' }
+  const predLabels: Record<string, string> = { up: '상승 ', down: '하락 ', sideways: '횡보 ', bullish:'상승', bearish:'하락', neutral:'횡보' }
 
   /* ═══════════════════════════════════════════════════════ */
   return (
@@ -1191,7 +1184,7 @@ export default async function ManagePage() {
                 "
               >
                 <div className="mt-0.5 w-7 h-7 rounded-lg bg-navi-action/10 flex items-center justify-center shrink-0">
-                  <span className="text-[13px]">▶</span>
+                  
                 </div>
                 <div>
                   <p className="text-[12px] font-semibold text-navi-text group-hover:text-navi-action transition-colors">

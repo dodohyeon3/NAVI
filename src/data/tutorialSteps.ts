@@ -74,19 +74,16 @@ export const tutorialSteps: TutorialStep[] = [
       choices: [
         {
           value:    'up',
-          icon:     '↑',
           label:    '위로 향하고 있다',
           feedback: 'MA 선들이 함께 위를 향하면 상승 추세 신호예요. 단기선(노랑)이 장기선(빨강) 위에 있을수록 상승 힘이 강해요.',
         },
         {
           value:    'sideways',
-          icon:     '→',
           label:    '횡보하거나 잘 모르겠다',
           feedback: 'MA 선들이 방향 없이 뒤엉켜 있으면 추세가 불분명한 상태예요. 이럴 땐 RSI, MACD 같은 보조 지표를 함께 봐요.',
         },
         {
           value:    'down',
-          icon:     '↓',
           label:    '아래로 향하고 있다',
           feedback: 'MA 선들이 함께 아래를 향하면 하락 추세 신호예요. 단기선이 장기선 아래로 내려갈수록 하락 압력이 강해요.',
         },
@@ -132,19 +129,16 @@ export const tutorialSteps: TutorialStep[] = [
       choices: [
         {
           value:    'overbought',
-          icon:     '↑',
           label:    '70 근처 또는 위 (과열)',
           feedback: 'RSI 70 이상은 과매수 구간이에요. 가격이 단기간에 너무 빠르게 올랐다는 신호로, 조정이 올 수 있어요.',
         },
         {
           value:    'neutral',
-          icon:     '—',
           label:    '30~70 사이 (중립)',
           feedback: 'RSI 30~70은 중립 구간이에요. 뚜렷한 과열·침체 신호가 없는 상태예요. MA 추세와 함께 보면 방향을 파악할 수 있어요.',
         },
         {
           value:    'oversold',
-          icon:     '↓',
           label:    '30 근처 또는 아래 (침체)',
           feedback: 'RSI 30 이하는 과매도 구간이에요. 가격이 너무 빠르게 떨어졌다는 신호로, 반등 가능성이 높아져요.',
         },
@@ -190,19 +184,16 @@ export const tutorialSteps: TutorialStep[] = [
       choices: [
         {
           value:    'macd-above',
-          icon:     '↑',
           label:    '파란선이 주황선 위에 있다',
           feedback: 'MACD선이 시그널선 위에 있으면 상승 모멘텀 상태예요. 히스토그램이 0선 위(양수)인지 함께 확인해봐요.',
         },
         {
           value:    'signal-above',
-          icon:     '↓',
           label:    '주황선이 파란선 위에 있다',
           feedback: '시그널선이 MACD선 위에 있으면 하락 압력 상태예요. 히스토그램이 0선 아래(음수)로 내려와 있어요.',
         },
         {
           value:    'crossing',
-          icon:     '≈',
           label:    '거의 비슷한 위치다',
           feedback: '두 선이 거의 같은 위치에 있으면 교차 직전일 수 있어요. 히스토그램 막대가 0선 근처에 있는지 봐요.',
         },
@@ -248,19 +239,16 @@ export const tutorialSteps: TutorialStep[] = [
       choices: [
         {
           value:    'squeeze',
-          icon:     '→←',
           label:    '좁아지고 있다',
           feedback: '밴드 스퀴즈! 위아래 밴드가 좁아지면 변동성이 압축된 상태예요. 곧 큰 방향 움직임이 올 수 있어요.',
         },
         {
           value:    'wide',
-          icon:     '←→',
           label:    '넓어지고 있다',
           feedback: '밴드가 넓어지면 변동성이 확대되는 중이에요. 강한 추세가 이미 진행되고 있다는 신호예요.',
         },
         {
           value:    'unknown',
-          icon:     '?',
           label:    '잘 모르겠다',
           feedback: '가운데 선(MA20)과 양쪽 밴드의 간격을 시간 흐름에 따라 비교해봐요. 최근이 더 좁아졌는지 넓어졌는지 확인해봐요.',
         },

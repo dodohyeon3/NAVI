@@ -185,7 +185,7 @@ function ChartPageInner() {
                          hover:border-navi-action/40 hover:bg-navi-action/[0.04]
                          transition-all active:scale-[0.98] text-left"
             >
-              <span className="text-[20px] leading-none">🕯️</span>
+              <span className="text-[20px] leading-none"></span>
               <p className="text-[12px] font-bold text-navi-text mt-0.5">캔들 패턴 학습</p>
               <p className="text-[10px] text-navi-muted leading-snug">
                 실제 차트에서<br />캔들 패턴을 배워보세요
@@ -199,7 +199,7 @@ function ChartPageInner() {
                          hover:border-navi-action/40 hover:bg-navi-action/[0.04]
                          transition-all active:scale-[0.98] text-left"
             >
-              <span className="text-[20px] leading-none">📊</span>
+              <span className="text-[20px] leading-none"></span>
               <p className="text-[12px] font-bold text-navi-text mt-0.5">거래량 학습</p>
               <p className="text-[10px] text-navi-muted leading-snug">
                 거래량과 가격의 관계를<br />직접 확인해보세요

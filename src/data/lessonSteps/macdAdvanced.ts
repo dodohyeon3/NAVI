@@ -43,19 +43,16 @@ export const macdAdvancedSteps: TutorialStep[] = [
       choices: [
         {
           value:    'negative_to_positive',
-          icon:     '↑',
           label:    '음수(-)에서 양수(+)로',
           feedback: '정확해요! MACD선이 시그널선 위로 올라가면 두 선의 차이(히스토그램)가 0을 넘어 양수(+)로 바뀌어요. 히스토그램이 0선을 돌파하는 게 골든크로스 신호예요.',
         },
         {
           value:    'stays_positive',
-          icon:     '→',
           label:    '양수(+)를 유지한다',
           feedback: '교차가 일어나기 직전까지는 파란선이 주황선 아래에 있어요. 즉 교차 전은 히스토그램이 음수(-) 상태예요.',
         },
         {
           value:    'no_change',
-          icon:     '↓',
           label:    '변화가 없다',
           feedback: '히스토그램은 두 선의 차이값이라 교차가 일어나면 반드시 0선을 넘어요.',
         },
@@ -84,19 +81,16 @@ export const macdAdvancedSteps: TutorialStep[] = [
       choices: [
         {
           value:    'bearish',
-          icon:     '↓',
           label:    '하락 모멘텀 시작 신호',
           feedback: '맞아요! 데드크로스는 하락 모멘텀의 시작 신호예요. 특히 0선 위에서 교차가 일어나면 더 강한 신호예요. 이후 가격 흐름과 연결해서 확인해봐요.',
         },
         {
           value:    'bullish',
-          icon:     '↑',
           label:    '강한 매수 신호',
           feedback: '데드크로스는 반대예요. 파란선이 주황선 아래로 떨어지는 것은 하락 압력이 커지는 신호예요.',
         },
         {
           value:    'neutral',
-          icon:     '→',
           label:    '중립 — 신호 없음',
           feedback: '교차는 항상 의미 있는 변화예요. 데드크로스는 상승세가 꺾이는 신호로 많이 활용돼요.',
         },
@@ -125,19 +119,16 @@ export const macdAdvancedSteps: TutorialStep[] = [
       choices: [
         {
           value:    'weakening',
-          icon:     '⚡',
           label:    '추세 약화 — 교차 예고',
           feedback: '정확해요! 막대가 짧아진다는 건 두 선이 점점 가까워지는 신호예요. 곧 교차(신호 전환)가 일어날 수 있어요. 이 구간에서 미리 대비할 수 있어요.',
         },
         {
           value:    'strengthening',
-          icon:     '↑',
           label:    '추세 강화 중',
           feedback: '막대가 커지면 추세가 강해지는 거예요. 짧아지는 건 반대로 추세가 약해지는 신호예요.',
         },
         {
           value:    'reversal',
-          icon:     '↓',
           label:    '즉각적 반전 확정',
           feedback: '아직 확정은 아니에요. 짧아지는 건 예고 신호예요. 실제로 0선을 돌파하는 교차가 일어날 때 신호가 확정돼요.',
         },
