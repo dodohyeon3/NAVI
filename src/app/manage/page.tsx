@@ -248,16 +248,58 @@ export default async function ManagePage() {
   ]
 
   /* ── 퍼널 단계 ────────────────────────────────────────── */
+  const indPageViews = cnt(events, 'indicator_page_viewed')
   const funnelSteps = [
-    { label: '홈 방문',            event: '$pageview',             count: visitors30 },
-    { label: '튜토리얼 시작',      event: 'tutorial_started',      count: tutStart30 },
-    { label: '튜토리얼 완료',      event: 'tutorial_completed',    count: tutDone30  },
-    { label: '심화학습 진입',      event: 'advanced_*_started',    count: advStart30 },
-    { label: '지표 상세 페이지',   event: 'indicator_page_viewed',
-      count: cnt(events, 'indicator_page_viewed') },
-    { label: '챌린지 진입',        event: 'challenge_started',     count: chalStart30 },
-    { label: '챌린지 완료',        event: 'challenge_completed',   count: chalDone30  },
-  ].map((s, i, arr) => ({ ...s, prev: arr[i - 1]?.count }))
+    {
+      label:       '홈 방문',
+      desc:        '서비스 첫 진입',
+      event:       '$pageview',
+      count:       visitors30,
+      convTooltip: '최근 30일 유니크 방문자 수\n(uniq distinct_id)',
+    },
+    {
+      label:       '튜토리얼 시작',
+      desc:        '기초 학습 시작',
+      event:       'tutorial_started',
+      count:       tutStart30,
+      convTooltip: `tutorial_started / 홈 방문자 × 100\n= ${tutStart30} / ${visitors30} × 100`,
+    },
+    {
+      label:       '튜토리얼 완료',
+      desc:        '16단계 기초 과정 완료',
+      event:       'tutorial_completed',
+      count:       tutDone30,
+      convTooltip: `tutorial_completed / tutorial_started × 100\n= ${tutDone30} / ${tutStart30} × 100`,
+    },
+    {
+      label:       '심화학습 진입',
+      desc:        'RSI/MACD/피보나치 학습 진입',
+      event:       'advanced_*_started',
+      count:       advStart30,
+      convTooltip: `advanced_*_started 합산 / tutorial_completed × 100\n= ${advStart30} / ${tutDone30} × 100`,
+    },
+    {
+      label:       '지표 상세 페이지',
+      desc:        '지표 설명 콘텐츠 열람',
+      event:       'indicator_page_viewed',
+      count:       indPageViews,
+      convTooltip: `indicator_page_viewed / 심화학습 진입 × 100\n= ${indPageViews} / ${advStart30} × 100`,
+    },
+    {
+      label:       '챌린지 진입',
+      desc:        '실전 예측 시작',
+      event:       'challenge_started',
+      count:       chalStart30,
+      convTooltip: `challenge_started / tutorial_started × 100\n= ${chalStart30} / ${tutStart30} × 100`,
+    },
+    {
+      label:       '챌린지 완료',
+      desc:        '결과 확인 완료',
+      event:       'challenge_completed',
+      count:       chalDone30,
+      convTooltip: `challenge_completed / challenge_started × 100\n= ${chalDone30} / ${chalStart30} × 100`,
+    },
+  ]
 
   /* ── 심화학습 단계별 그룹 ────────────────────────────── */
   const advByTopic = TOPICS.map(topic => ({
