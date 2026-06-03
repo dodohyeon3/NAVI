@@ -179,7 +179,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:                       `${cfg.key}-a-intro`,
       targetSelector:           '#chart-area',
-      floatSide:                'bottom-right',
       position:                 'top',
       title:                    '이 구간의 캔들을 보세요.',
       body:                     `차트가 자동으로 이 구간으로 이동했어요.\n특별한 모양의 캔들이 하이라이트 되어 있어요.`,
@@ -191,7 +190,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:             `${cfg.key}-b-name`,
       targetSelector: '#chart-area',
-      floatSide:      'bottom-right',
       position:       'top',
       title:          `이 캔들은 ${cfg.name}(${cfg.engName})이에요.`,
       body:           cfg.shape,
@@ -202,7 +200,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:             `${cfg.key}-c-meaning`,
       targetSelector: '#chart-area',
-      floatSide:      'bottom-right',
       position:       'top',
       title:          '이 캔들이 말하는 것',
       body:           cfg.marketPsych,
@@ -213,7 +210,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:             `${cfg.key}-d-predict`,
       targetSelector: '#chart-area',
-      floatSide:      'bottom-right',
       position:       'top',
       title:          cfg.predQuestion,
       body:           '이후 구간은 아직 숨겨져 있어요. 배운 내용을 바탕으로 예측해봐요.',
@@ -233,7 +229,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:             `${cfg.key}-e-answer`,
       targetSelector: '#chart-area',
-      floatSide:      'bottom-right',
       position:       'top',
       title:          cfg.signalSummary,
       body:           cfg.signalDetail,
@@ -244,7 +239,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:                       `${cfg.key}-f-result`,
       targetSelector:           '#chart-area',
-      floatSide:                'bottom-right',
       position:                 'top',
       title:                    '실제 차트 결과를 확인해봐요.',
       body:                     resultContext,
@@ -256,7 +250,6 @@ export function buildCandleLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:             `${cfg.key}-g-caution`,
       targetSelector: '#chart-area',
-      floatSide:      'bottom-right',
       position:       'top',
       title:          '기억하세요',
       body:           cfg.caution,

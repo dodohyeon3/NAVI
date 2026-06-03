@@ -46,6 +46,15 @@ interface ChartState {
    */
   learningHighlight: LearningHighlight | null
   setLearningHighlight: (h: LearningHighlight | null) => void
+
+  /**
+   * highlightViewportBox — 현재 강조된 캔들의 뷰포트 좌표
+   * ChartContainer 가 candleHL 계산 후 저장.
+   * TutorialStep 이 이 좌표로 spotlight cutout + 플로팅 카드 위치를 결정한다.
+   * null = 학습 미활성 또는 캔들이 뷰포트 밖
+   */
+  highlightViewportBox: { left: number; top: number; right: number; bottom: number; width: number; height: number } | null
+  setHighlightViewportBox: (box: { left: number; top: number; right: number; bottom: number; width: number; height: number } | null) => void
 }
 
 export const useChartStore = create<ChartState>((set) => ({
@@ -81,4 +90,7 @@ export const useChartStore = create<ChartState>((set) => ({
 
   learningHighlight:    null,
   setLearningHighlight: (learningHighlight) => set({ learningHighlight }),
+
+  highlightViewportBox:    null,
+  setHighlightViewportBox: (highlightViewportBox) => set({ highlightViewportBox }),
 }))

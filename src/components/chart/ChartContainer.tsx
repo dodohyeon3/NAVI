@@ -240,6 +240,14 @@ export function ChartContainer() {
     }
   }, [syncCanvas, updateFibLabels, updateFibGuideMarkers])
 
+  // ── 페이지 스크롤 시 학습 하이라이트 뷰포트 좌표 재계산 ─────
+  // (차트 팬/줌은 timeRangeChange에서 처리, 스크롤은 여기서 처리)
+  useEffect(() => {
+    const onScroll = () => computeCandleHLRef.current()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   // ── clearDrawingsSignal 감지 → 모든 작도 제거 ───────
   useEffect(() => {
     if (!clearDrawingsSignal) return
@@ -343,7 +351,11 @@ export function ChartContainer() {
     const candle = candleRef.current
     if (!chart || !candle || !candleData.length) { setCandleHL(null); return }
 
-    if (!learningHighlight) { setCandleHL(null); return }
+    if (!learningHighlight) {
+      setCandleHL(null)
+      useChartStore.getState().setHighlightViewportBox(null)
+      return
+    }
 
     const { candleIndex, prevCandleIndex, windowFrom, windowTo } = learningHighlight
 
@@ -387,6 +399,28 @@ export function ChartContainer() {
           result.prevYBot = pyL + 5
         }
       }
+
+      // 뷰포트 좌표 계산 — TutorialStep spotlight + 카드 위치 결정에 사용
+      // (장악형 등 2캔들 패턴은 두 캔들을 모두 감싸는 박스로 확장)
+      const containerEl = containerRef.current
+      if (containerEl) {
+        const cr = containerEl.getBoundingClientRect()
+        const bLeft   = result.prevX !== undefined ? Math.min(result.x, result.prevX) : result.x
+        const bTop    = result.prevYTop !== undefined ? Math.min(result.yTop, result.prevYTop) : result.yTop
+        const bRight  = result.prevX !== undefined ? Math.max(result.x + result.w, result.prevX + result.w) : result.x + result.w
+        const bBottom = result.prevYBot !== undefined ? Math.max(result.yBot, result.prevYBot) : result.yBot
+        useChartStore.getState().setHighlightViewportBox({
+          left:   cr.left + bLeft,
+          top:    cr.top  + bTop,
+          right:  cr.left + bRight,
+          bottom: cr.top  + bBottom,
+          width:  bRight  - bLeft,
+          height: bBottom - bTop,
+        })
+      } else {
+        useChartStore.getState().setHighlightViewportBox(null)
+      }
+
       setCandleHL(result)
     }
 

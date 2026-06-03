@@ -373,6 +373,24 @@ export function TutorialStep() {
 
   /* ── Spotlight 계산 ─────────────────────────────────── */
   const computeHL = useCallback(() => {
+    // 캔들/거래량 학습 중: 특정 캔들 뷰포트 박스를 spotlight 타깃으로 사용
+    // (useChartStore.getState() 로 명령형 읽기 → computeHL 자체의 deps 불변 유지)
+    const vBox = useChartStore.getState().highlightViewportBox
+    if (vBox) {
+      const P = PAD + 4  // spotlight cutout을 amber 박스보다 약간 크게
+      const vh = window.innerHeight
+      // 뷰포트 밖으로 나가면 null (캔들이 화면 밖으로 스크롤됨)
+      if (vBox.bottom < 0 || vBox.top > vh) return null
+      return {
+        top:    vBox.top    - P,
+        left:   vBox.left   - P,
+        width:  vBox.width  + P * 2,
+        height: vBox.height + P * 2,
+        bottom: vBox.bottom + P,
+        right:  vBox.right  + P,
+      }
+    }
+
     if (!activeSelector) return null
     const el = document.querySelector(activeSelector)
     if (!el) return null
@@ -397,6 +415,18 @@ export function TutorialStep() {
     const cardH = cardRef.current.offsetHeight
     if (cardH === 0) return
     const vw = window.innerWidth, vh = window.innerHeight
+
+    // 캔들 학습 중: 뷰포트 박스 기반으로 카드 자동 배치 (floatSide 무시)
+    const vBox = useChartStore.getState().highlightViewportBox
+    if (vBox) {
+      if (hlRect) {
+        setCardPos(calcCardPos(hlRect, currentStep.position ?? 'top', cardW, cardH))
+      } else {
+        // 캔들이 뷰포트 밖 → 카드를 상단 중앙에 배치
+        setCardPos({ top: 72, left: Math.max(8, (vw - cardW) / 2) })
+      }
+      return
+    }
 
     if (currentStep.floatSide) {
       const M = 16
@@ -494,6 +524,28 @@ export function TutorialStep() {
     })
     return () => cancelAnimationFrame(rafRef.current)
   }, [showCard, recompute])
+
+  /* ── 캔들 뷰포트 박스 변경 시 카드 위치 재계산 ──────────────
+     차트 팬/줌/스크롤로 highlightViewportBox 가 바뀌면
+     플로팅 카드가 캔들 근처로 즉시 추적한다.
+     recompute 는 ref 로 최신값을 유지하므로 deps 제외.
+  ─────────────────────────────────────────────────────────── */
+  useEffect(() => {
+    if (!showCard) return
+    let lastBox = useChartStore.getState().highlightViewportBox
+    const unsub = useChartStore.subscribe((s) => {
+      if (s.highlightViewportBox !== lastBox) {
+        lastBox = s.highlightViewportBox
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = requestAnimationFrame(() => recompute())
+      }
+    })
+    return () => {
+      unsub()
+      cancelAnimationFrame(rafRef.current)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCard])
 
   useEffect(() => {
     if (!cardRef.current || !showCard) return

@@ -224,7 +224,6 @@ export function buildVolumeLearningSteps(data: CandleData[]): TutorialStep[] {
       const step: TutorialStep = {
         id:             `volume-${topic.topicKey}-step${si}`,
         targetSelector: '#chart-area',
-        floatSide:      'bottom-right',
         position:       'top',
         title:          s.stepTitle,
         body:           s.stepBody,
@@ -241,7 +240,6 @@ export function buildVolumeLearningSteps(data: CandleData[]): TutorialStep[] {
     steps.push({
       id:             `volume-${topic.topicKey}-quiz`,
       targetSelector: '#chart-area',
-      floatSide:      'bottom-right',
       position:       'top',
       title:          '확인 문제',
       body:           topic.quiz.question,
