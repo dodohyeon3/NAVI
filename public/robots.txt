@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+Disallow: /manage
+Disallow: /manage/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /manage
+Disallow: /manage/
+
+User-agent: Yeti
+Allow: /
+Disallow: /manage
+Disallow: /manage/
+
+User-agent: NaverBot
+Allow: /
+Disallow: /manage
+Disallow: /manage/
+
+User-agent: bingbot
+Allow: /
+Disallow: /manage
+Disallow: /manage/
+
+Sitemap: https://navichart.co.kr/sitemap.xml
