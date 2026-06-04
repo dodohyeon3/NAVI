@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import { clsx } from 'clsx'
-import { ToolTooltip } from './ToolTooltip'
 import { useChartStore } from '@/stores/chartStore'
 import { indicators } from '@/data/indicators'
 import { trackEvent } from '@/lib/analytics'
@@ -24,7 +22,6 @@ const SHORT_LABELS: Partial<Record<IndicatorSlug, string>> = {
 
 export function IndicatorToolbar() {
   const { activeIndicators, toggleIndicator, showVolume, toggleVolume } = useChartStore()
-  const [hovered, setHovered] = useState<IndicatorSlug | null>(null)
 
   return (
     /* 모바일: 2열 그리드 (거래량 포함 5개) / PC: flex-wrap */
@@ -34,13 +31,7 @@ export function IndicatorToolbar() {
         const isActive  = activeIndicators.has(slug)
 
         return (
-          <div
-            key={slug}
-            id={`btn-${slug}`}
-            className="relative"
-            onMouseEnter={() => setHovered(slug)}
-            onMouseLeave={() => setHovered(null)}
-          >
+          <div key={slug} id={`btn-${slug}`} className="relative group">
             <button
               onClick={() => {
                 if (!isActive) trackEvent('indicator_enabled', { indicator: SHORT_LABELS[slug] ?? slug })
@@ -56,19 +47,23 @@ export function IndicatorToolbar() {
             >
               {SHORT_LABELS[slug]}
             </button>
-            <div className="hidden sm:block">
-              <ToolTooltip indicator={indicator} visible={hovered === slug} />
-            </div>
+            {/* 호버 툴팁 — PC 전용 */}
+            {!isActive && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5
+                              bg-navi-surface2 border border-navi-border2 text-navi-secondary text-[11px] rounded-xl
+                              whitespace-nowrap opacity-0 group-hover:opacity-100
+                              pointer-events-none transition-opacity z-50 hidden sm:block">
+                {indicator.oneLineSummary}
+                <div className="absolute top-full left-1/2 -translate-x-1/2
+                                border-4 border-transparent border-t-navi-border2" />
+              </div>
+            )}
           </div>
         )
       })}
 
       {/* 거래량 토글 버튼 */}
-      <div
-        className="relative"
-        onMouseEnter={() => setHovered('volume' as IndicatorSlug)}
-        onMouseLeave={() => setHovered(null)}
-      >
+      <div className="relative group">
         <button
           id="btn-volume"
           onClick={() => {
@@ -85,30 +80,17 @@ export function IndicatorToolbar() {
         >
           거래량
         </button>
-        {/* 거래량 전용 툴팁 (PC 전용) */}
-        <div className="hidden sm:block">
-          {hovered === ('volume' as IndicatorSlug) && (
-            <div
-              className="absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2
-                         z-[200] w-56
-                         rounded-xl bg-navi-surface2 border border-navi-border2
-                         shadow-[0_8px_32px_rgba(0,0,0,0.5)]
-                         p-3.5 pointer-events-none"
-            >
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-[7px]
-                              border-[7px] border-transparent border-t-navi-border2" />
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-[6px]
-                              border-[6px] border-transparent border-t-navi-surface2" />
-              <p className="text-[12px] font-bold text-navi-text leading-tight">거래량</p>
-              <p className="text-[11px] text-navi-secondary mt-1 leading-relaxed">
-                하루 동안 거래된 주식 수예요. 가격 움직임의 신뢰도를 확인할 수 있어요.
-              </p>
-              <p className="mt-2 text-[10px] tracking-[0.05em] uppercase text-navi-muted font-semibold">
-                클릭하면 차트에 표시
-              </p>
-            </div>
-          )}
-        </div>
+        {/* 호버 툴팁 — PC 전용 */}
+        {!showVolume && (
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5
+                          bg-navi-surface2 border border-navi-border2 text-navi-secondary text-[11px] rounded-xl
+                          whitespace-nowrap opacity-0 group-hover:opacity-100
+                          pointer-events-none transition-opacity z-50 hidden sm:block">
+            하루 거래된 주식 수예요. 가격 움직임의 신뢰도를 확인할 수 있어요.
+            <div className="absolute top-full left-1/2 -translate-x-1/2
+                            border-4 border-transparent border-t-navi-border2" />
+          </div>
+        )}
       </div>
     </div>
   )
