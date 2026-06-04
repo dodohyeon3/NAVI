@@ -3,7 +3,15 @@ import { AdminNav } from './AdminNav'
 
 export const metadata: Metadata = {
   title: 'NAVI Admin',
-  robots: 'noindex, nofollow',   // 검색엔진 색인 제외
+  // 검색엔진 색인 완전 차단
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
 }
 
 export default function ManageLayout({ children }: { children: React.ReactNode }) {

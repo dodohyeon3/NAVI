@@ -8,19 +8,35 @@ const SITE_URL = 'https://navichart.co.kr'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'NAVI Chart — 처음 시작하는 주식 차트',
-  description: '복잡한 차트, 이제 쉽게 읽어요. 초보 투자자를 위한 주식 차트 분석 서비스.',
+  title: 'NAVIchart | 주식 차트 분석 학습 플랫폼',
+  description:
+    '캔들패턴, 거래량, RSI, MACD, 볼린저밴드, 피보나치를 실제 차트로 배우는 인터랙티브 학습 플랫폼',
+  keywords: [
+    '주식차트',
+    '차트분석',
+    '기술적분석',
+    '주식공부',
+    '캔들패턴',
+    '거래량',
+    'RSI',
+    'MACD',
+    '볼린저밴드',
+    '피보나치',
+    '주식입문',
+    '차트교육',
+  ],
   openGraph: {
-    title: 'NAVI Chart — 처음 시작하는 주식 차트',
-    description: '복잡한 차트, 이제 쉽게 읽어요. 초보 투자자를 위한 주식 차트 분석 서비스.',
+    title: 'NAVIchart | 주식 차트 분석 학습 플랫폼',
+    description:
+      '캔들패턴, 거래량, RSI, MACD, 볼린저밴드, 피보나치를 실제 차트로 배우는 인터랙티브 학습 플랫폼',
     url: SITE_URL,
-    siteName: 'NAVI Chart',
+    siteName: 'NAVIchart',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'NAVI Chart — 처음 시작하는 주식 차트',
+        alt: 'NAVIchart | 주식 차트 분석 학습 플랫폼',
       },
     ],
     locale: 'ko_KR',
@@ -28,8 +44,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NAVI Chart — 처음 시작하는 주식 차트',
-    description: '복잡한 차트, 이제 쉽게 읽어요. 초보 투자자를 위한 주식 차트 분석 서비스.',
+    title: 'NAVIchart | 주식 차트 분석 학습 플랫폼',
+    description:
+      '캔들패턴, 거래량, RSI, MACD, 볼린저밴드, 피보나치를 실제 차트로 배우는 인터랙티브 학습 플랫폼',
     images: ['/og-image.png'],
   },
   verification: {
@@ -76,12 +93,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
-              name: 'NAVI Chart',
+              name: 'NAVIchart',
               url: SITE_URL,
-              description: '복잡한 차트, 이제 쉽게 읽어요. 초보 투자자를 위한 주식 차트 분석 서비스.',
+              description:
+                '캔들패턴, 거래량, RSI, MACD, 볼린저밴드, 피보나치를 실제 차트로 배우는 인터랙티브 학습 플랫폼',
               publisher: {
                 '@type': 'Organization',
-                name: 'NAVI Chart',
+                name: 'NAVIchart',
                 url: SITE_URL,
                 logo: {
                   '@type': 'ImageObject',

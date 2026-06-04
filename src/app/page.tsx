@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import { LandingCTA } from '@/components/analytics/LandingCTA'
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+}
 
 export default function LandingPage() {
   return (

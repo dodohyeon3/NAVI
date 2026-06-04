@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { indicators } from '@/data/indicators'
@@ -8,6 +9,51 @@ import { IndicatorPageTracker, IndicatorCTAButton } from '@/components/analytics
 
 interface Props {
   params: { slug: string }
+}
+
+// ── 지표별 SEO 메타데이터 ──────────────────────────────────
+const INDICATOR_META: Record<string, { title: string; description: string }> = {
+  rsi: {
+    title: 'RSI 보는 법 | NAVIchart',
+    description: 'RSI 지표를 실제 차트로 쉽게 배우는 학습 페이지',
+  },
+  macd: {
+    title: 'MACD 보는 법 | NAVIchart',
+    description: 'MACD 골든크로스와 데드크로스를 실제 차트로 학습',
+  },
+  bollinger: {
+    title: '볼린저 밴드 보는 법 | NAVIchart',
+    description: '볼린저 밴드의 원리와 실제 활용법을 차트로 학습',
+  },
+  'moving-average': {
+    title: '이동평균선 보는 법 | NAVIchart',
+    description: '이동평균선을 이용한 추세 분석을 실제 차트로 학습',
+  },
+  trendline: {
+    title: '추세선 보는 법 | NAVIchart',
+    description: '추세선을 직접 그리며 차트 방향성을 학습',
+  },
+  fibonacci: {
+    title: '피보나치 되돌림 | NAVIchart',
+    description: '피보나치 되돌림을 활용한 지지·저항 분석 학습',
+  },
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const meta = INDICATOR_META[params.slug]
+  if (!meta) return {}
+  return {
+    title: meta.title,
+    description: meta.description,
+    openGraph: {
+      title: meta.title,
+      description: meta.description,
+      url: `/indicator/${params.slug}`,
+    },
+    alternates: {
+      canonical: `/indicator/${params.slug}`,
+    },
+  }
 }
 
 export function generateStaticParams() {
