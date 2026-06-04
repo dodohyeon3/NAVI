@@ -51,10 +51,11 @@ const SUB_H  = 110
 
 /* ─── 분석 도구 버튼 정의 ────────────────────────────────────── */
 const INDICATOR_BTNS = [
-  { key: 'moving-average', label: 'MA',   desc: '이동평균선' },
-  { key: 'bollinger',      label: 'BB',   desc: '볼린저 밴드' },
-  { key: 'rsi',            label: 'RSI',  desc: 'RSI' },
-  { key: 'macd',           label: 'MACD', desc: 'MACD' },
+  { key: 'moving-average', label: 'MA',    desc: '이동평균선' },
+  { key: 'bollinger',      label: 'BB',    desc: '볼린저 밴드' },
+  { key: 'rsi',            label: 'RSI',   desc: 'RSI' },
+  { key: 'macd',           label: 'MACD',  desc: 'MACD' },
+  { key: 'volume',         label: '거래량', desc: '거래량' },
 ] as const
 
 /* ─── 지표 신호 분석 — 항상 4개 전체 분석 ──────────────────── */
@@ -175,6 +176,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
   const mainRef   = useRef<HTMLDivElement>(null)
   const rsiDiv    = useRef<HTMLDivElement>(null)
   const macdDiv   = useRef<HTMLDivElement>(null)
+  const volDiv    = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   /* ── 차트 / 시리즈 refs ──────────────────────────────────── */
@@ -186,6 +188,8 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
   const rsiSeries   = useRef<{ line: LineS; ob: LineS; os: LineS } | null>(null)
   const macdChart   = useRef<IChartApi | null>(null)
   const macdSeries  = useRef<{ hist: HistS; line: LineS; signal: LineS } | null>(null)
+  const volChart    = useRef<IChartApi | null>(null)
+  const volSeries   = useRef<HistS | null>(null)
 
   /* ── 작도 refs ────────────────────────────────────────────── */
   const drawnRef    = useRef<LineS[]>([])
@@ -345,6 +349,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       // 이미 생성된 서브차트에만 setVisibleRange (없으면 무시 — 각 서브차트 effect의 RAF가 초기 sync 담당)
       if (rsiChart.current)  { try { rsiChart.current.timeScale().setVisibleRange(range)  } catch {} }
       if (macdChart.current) { try { macdChart.current.timeScale().setVisibleRange(range) } catch {} }
+      if (volChart.current)  { try { volChart.current.timeScale().setVisibleRange(range)  } catch {} }
     })
     chart.subscribeCrosshairMove((p: MouseEventParams<Time>) => {
       mouseRef.current = p.point ? { x: p.point.x, y: p.point.y } : null
@@ -355,6 +360,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       chart.applyOptions({ width: mainRef.current.clientWidth }); syncCanvas(); redrawCanvas()
       if (rsiDiv.current  && rsiChart.current)  rsiChart.current.applyOptions({ width: rsiDiv.current.clientWidth })
       if (macdDiv.current && macdChart.current) macdChart.current.applyOptions({ width: macdDiv.current.clientWidth })
+      if (volDiv.current  && volChart.current)  volChart.current.applyOptions({ width: volDiv.current.clientWidth })
     }
     window.addEventListener('resize', onResize)
     return () => {
@@ -363,6 +369,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
       bbRef.current = null; maRef.current = null
       rsiChart.current?.remove();  rsiChart.current  = null; rsiSeries.current  = null
       macdChart.current?.remove(); macdChart.current = null; macdSeries.current = null
+      volChart.current?.remove();  volChart.current  = null; volSeries.current  = null
     }
   }, [syncCanvas, redrawCanvas, updateFibLabels, isDark])  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -584,6 +591,65 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     })
   }, [activeInds, revealed, pastData, futureData, isDark])
 
+  /* ══ 거래량 서브차트 ══════════════════════════════════════════ */
+  useEffect(() => {
+    const data = revealed ? [...pastData, ...futureData] : pastData
+
+    // ① cleanup 먼저 — RSI/MACD와 동일한 패턴
+    if (!activeInds.has('volume')) {
+      if (volChart.current) { try { volChart.current.remove() } catch {} }
+      volChart.current = null; volSeries.current = null
+      return
+    }
+
+    if (!volDiv.current) return
+
+    if (!volChart.current) {
+      const cc = getChartColors(isDark)
+      volChart.current = createChart(volDiv.current, {
+        layout: { background: { type: ColorType.Solid, color: cc.bg }, textColor: cc.text },
+        grid:   { vertLines: { color: cc.grid }, horzLines: { color: cc.grid } },
+        rightPriceScale: { borderColor: cc.border, scaleMargins: { top: 0.1, bottom: 0.0 } },
+        timeScale: { visible: false },
+        handleScroll: false, handleScale: false,
+        width: volDiv.current.clientWidth, height: SUB_H,
+      })
+      volSeries.current = null
+    }
+
+    const vc = volChart.current
+    if (!volSeries.current) {
+      volSeries.current = vc.addHistogramSeries({
+        lastValueVisible: false,
+        priceLineVisible: false,
+      })
+    }
+
+    const cc = getChartColors(isDark)
+    const volData = data
+      .filter(d => d.volume !== undefined && d.volume > 0)
+      .map(d => ({
+        time:  d.time,
+        value: d.volume!,
+        color: d.close >= d.open
+          ? cc.candleUp  + '88'
+          : cc.candleDown + '88',
+      }))
+    volSeries.current.setData(volData as any)
+
+    const capturedVolRange = chartRef.current?.timeScale().getVisibleRange() ?? null
+    vc.timeScale().fitContent()
+    requestAnimationFrame(() => {
+      if (volDiv.current) {
+        const w = volDiv.current.clientWidth
+        if (w > 0) vc.applyOptions({ width: w })
+      }
+      if (capturedVolRange) {
+        try { vc.timeScale().setVisibleRange(capturedVolRange) } catch {}
+      }
+    })
+  }, [activeInds, revealed, pastData, futureData, isDark])
+
   /* ══ 고무줄 프리뷰 ═══════════════════════════════════════════ */
   useEffect(() => {
     const chart = chartRef.current, series = candleRef.current
@@ -722,6 +788,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
 
   const showRSI  = activeInds.has('rsi')
   const showMACD = activeInds.has('macd')
+  const showVol  = activeInds.has('volume')
   const cursor   = (drawTool === 'trendline' || drawTool === 'fibonacci') ? 'crosshair' : 'default'
 
   /* ══ 렌더 ════════════════════════════════════════════════════ */
@@ -810,6 +877,14 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
               <span className="text-[11px] text-navi-muted">── 시그널</span>
             </div>
             <div ref={macdDiv} className="w-full rounded-xl overflow-hidden" />
+          </div>
+        )}
+        {showVol && (
+          <div className="mt-1">
+            <div className="flex items-center gap-3 mb-1 px-1">
+              <span className="text-[11px] font-semibold text-navi-secondary">거래량</span>
+            </div>
+            <div ref={volDiv} className="w-full rounded-xl overflow-hidden" />
           </div>
         )}
 
