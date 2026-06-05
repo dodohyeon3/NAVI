@@ -8,6 +8,18 @@
  *   - 결과 공개 단계 없음 (거래량은 미래 방향 직접 예측 지표가 아님)
  *   - 각 주제마다 퀴즈(개념 확인) 포함
  *   - VolumeChart 서브차트에서 특정 바를 amber 색으로 강조
+ *
+ * 주제 구성:
+ *   intro      — 거래량 최고치 : "거래량이란?"
+ *   up-surge   — 거래량 급증 + 양봉 : "거래량 급증 + 상승 구간"
+ *   down-surge — 거래량 급증 + 음봉 : "거래량 급증 + 하락 구간"  (강한 매도세)
+ *   divergence — 가격 상승 + 거래량 감소 : "거래량 다이버전스"
+ *   quiz       — 실전 확인
+ *
+ * 하이라이트:
+ *   useHL: true  → learningHighlightOnEnter = hl   (해당 단계에서 막대 강조)
+ *   useHL: false → learningHighlightOnEnter = null  (하이라이트 해제)
+ *   모든 단계에 learningHighlightOnEnter 를 명시해 단계 이동 시 상태가 올바르게 갱신됨
  */
 
 import type { TutorialStep, CandleData, LearningHighlight } from '@/types'
@@ -40,7 +52,7 @@ interface VolumeTopicDef {
   steps: Array<{
     stepTitle: string
     stepBody:  string
-    useHL:     boolean   // 이 단계에서 해당 구간 하이라이트 사용 여부
+    useHL:     boolean   // true: 해당 단계에서 막대 강조 / false: 하이라이트 해제
   }>
   quiz: {
     question:     string
@@ -50,6 +62,7 @@ interface VolumeTopicDef {
 }
 
 const VOLUME_TOPICS: VolumeTopicDef[] = [
+  // ── 1. 거래량이란? ─────────────────────────────────────
   {
     topicKey: 'intro',
     title:    '거래량이란?',
@@ -80,9 +93,11 @@ const VOLUME_TOPICS: VolumeTopicDef[] = [
       ],
     },
   },
+
+  // ── 2. 거래량 급증 + 상승 구간 ─────────────────────────
   {
     topicKey: 'up-surge',
-    title:    '거래량 급증 구간',
+    title:    '거래량 급증 + 상승 구간',
     steps: [
       {
         stepTitle: '이 날 거래량이 급증했어요.',
@@ -110,23 +125,59 @@ const VOLUME_TOPICS: VolumeTopicDef[] = [
       ],
     },
   },
+
+  // ── 3. 거래량 급증 + 하락 구간 (강한 매도세) ──────────────
+  // patternDetector: 거래량 평균 2배 이상 + 명확한 음봉(-1.5%+) 탐지
   {
     topicKey: 'down-surge',
-    title:    '거래량 감소 구간',
+    title:    '거래량 급증 + 하락 구간',
     steps: [
       {
-        stepTitle: '이 구간 거래량을 주목하세요.',
-        stepBody:  '하이라이트된 막대 주변의 흐름을 보세요. 거래량이 변화하고 있어요.',
+        stepTitle: '이 날 거래량이 급증하면서 하락했어요.',
+        stepBody:  '하이라이트된 막대를 보세요. 거래량이 평소보다 훨씬 많고, 그날 캔들은 음봉(빨간색)이에요.\n\n위아래 차트를 동시에 확인해봐요.',
         useHL:     true,
       },
       {
-        stepTitle: '거래량 감소는 무기력한 시장 상태예요.',
-        stepBody:  '거래량이 줄어든다는 건 참여자가 빠지고 있다는 뜻이에요. 강한 방향성 없이 표류할 가능성이 높아요.',
+        stepTitle: '거래량 급증 + 하락 = 강한 매도세예요.',
+        stepBody:  '많은 사람이 동시에 팔면서 가격이 내려간 거예요.\n\n거래량을 동반한 하락은 "시장이 확신을 갖고 팔았다"는 뜻이에요. 이런 날 이후에는 추가 하락이 이어지는 경우가 많아요.',
         useHL:     true,
       },
       {
-        stepTitle: '거래량이 뒷받침되지 않는 움직임은 약해요.',
-        stepBody:  '가격이 오르더라도 거래량이 감소 중이라면, 그 상승은 오래 지속되기 어려워요. 이를 "거래량 다이버전스"라고 해요.',
+        stepTitle: '거래량이 많을수록 움직임의 신뢰도가 높아요.',
+        stepBody:  '방향이 어느 쪽이든, 거래량이 뒷받침될 때 그 움직임은 더 신뢰할 수 있어요.\n\n거래량 급증 + 하락이면 강한 매도 신호이고, 이후 추세를 주의 깊게 봐야 해요.',
+        useHL:     false,
+      },
+    ],
+    quiz: {
+      question:     '거래량이 많은 날 가격이 크게 하락했다면?',
+      correctValue: 'strong-sell',
+      choices: [
+        { value: 'strong-sell', label: '강한 매도세가 유입된 신호예요',    feedback: '맞아요! 많은 사람이 동시에 팔았다는 뜻이에요. 추가 하락이 이어질 수 있어요.' },
+        { value: 'buy-signal',  label: '공포 매도라 지금이 매수 기회예요', feedback: '공포 매도일 수 있지만, 거래량 급증을 동반한 하락이면 일단 추세를 확인하고 판단해야 해요.' },
+        { value: 'no-meaning',  label: '거래량은 가격 방향과 상관없어요',  feedback: '거래량 + 방향의 조합이 핵심이에요. 하락 + 거래량 급증은 강한 매도 신호예요.' },
+      ],
+    },
+  },
+
+  // ── 4. 거래량 다이버전스 ────────────────────────────────
+  // patternDetector: 가격 5일 상승 + 거래량 뚜렷한 감소 탐지
+  {
+    topicKey: 'divergence',
+    title:    '거래량 다이버전스',
+    steps: [
+      {
+        stepTitle: '가격이 오르는데 거래량은 줄고 있어요.',
+        stepBody:  '하이라이트된 막대 주변을 보세요. 캔들은 위로 향하고 있는데 거래량 막대는 점점 낮아지고 있어요.\n\n이처럼 가격과 거래량이 반대 방향을 가리키는 것을 "거래량 다이버전스"라고 해요.',
+        useHL:     true,
+      },
+      {
+        stepTitle: '참여자 없는 상승은 힘이 약해요.',
+        stepBody:  '거래량이 줄어든다는 건 매수에 참여하는 사람이 점점 줄고 있다는 뜻이에요.\n\n가격은 오르고 있지만 그 상승을 뒷받침하는 에너지가 약해지는 상태예요. 이런 움직임은 오래 지속되기 어려워요.',
+        useHL:     true,
+      },
+      {
+        stepTitle: '거래량 다이버전스는 추세 약화 경고예요.',
+        stepBody:  '가격 방향만 보면 상승처럼 보여도, 거래량이 줄고 있다면 신중해야 해요.\n\n반대로 가격이 하락 중인데 거래량도 줄어든다면 매도 에너지가 약해지는 것이라 반등 가능성이 생겨요.',
         useHL:     false,
       },
     ],
@@ -134,42 +185,14 @@ const VOLUME_TOPICS: VolumeTopicDef[] = [
       question:     '가격이 오르는데 거래량은 계속 줄어든다면?',
       correctValue: 'weak-signal',
       choices: [
-        { value: 'weak-signal', label: '참여자가 줄고 있어 신뢰도가 낮아요', feedback: '맞아요! 거래량이 뒷받침되지 않는 상승은 쉽게 꺾일 수 있어요.' },
+        { value: 'weak-signal', label: '참여자가 줄고 있어 신뢰도가 낮아요',     feedback: '맞아요! 거래량이 뒷받침되지 않는 상승은 쉽게 꺾일 수 있어요. 거래량 다이버전스 신호예요.' },
         { value: 'strong',      label: '매수자가 없어도 오르니까 더 강한 신호예요', feedback: '실제로는 반대예요. 거래량 없는 상승은 실제 수요가 부족하다는 뜻이에요.' },
-        { value: 'buy-now',     label: '지금이 매수 타이밍이에요',           feedback: '거래량 감소 중 상승은 주의가 필요한 신호예요. 성급한 매수는 위험해요.' },
+        { value: 'buy-now',     label: '지금이 매수 타이밍이에요',               feedback: '거래량 감소 중 상승은 주의가 필요한 신호예요. 성급한 매수는 위험해요.' },
       ],
     },
   },
-  {
-    topicKey: 'divergence',
-    title:    '거래량 + 캔들 조합',
-    steps: [
-      {
-        stepTitle: '거래량과 캔들 방향을 함께 보세요.',
-        stepBody:  '하이라이트된 막대와 그날의 캔들을 동시에 확인해봐요. 방향과 거래량이 일치하나요, 다르나요?',
-        useHL:     true,
-      },
-      {
-        stepTitle: '방향과 거래량이 일치할 때가 강한 신호예요.',
-        stepBody:  '상승 + 거래량 증가 = 강한 매수\n하락 + 거래량 증가 = 강한 매도\n\n이 조합이 나타나면 추세가 이어질 가능성이 높아요.',
-        useHL:     true,
-      },
-      {
-        stepTitle: '방향과 거래량이 반대일 때 조심해요.',
-        stepBody:  '상승 + 거래량 감소 = 약한 상승 (오래 가기 어려움)\n하락 + 거래량 감소 = 약한 하락 (곧 반등 가능)\n\n이럴 때는 방향 전환이 올 수 있어요.',
-        useHL:     false,
-      },
-    ],
-    quiz: {
-      question:     '하락하면서 거래량도 매우 많다면?',
-      correctValue: 'strong-sell',
-      choices: [
-        { value: 'strong-sell', label: '강한 매도세가 있었다는 신호예요',        feedback: '맞아요! 많은 사람이 동시에 팔았다는 뜻이에요. 추가 하락이 이어질 수 있어요.' },
-        { value: 'buy-signal',  label: '공포 매도라 매수 기회예요',              feedback: '공포 매도일 수 있지만, 단순히 거래량이 많다는 이유만으로 매수하기는 위험해요.' },
-        { value: 'no-meaning',  label: '거래량이 많아도 방향이 중요하지 않아요', feedback: '거래량 + 방향의 조합이 핵심이에요. 하락 + 거래량 급증은 강한 매도 신호예요.' },
-      ],
-    },
-  },
+
+  // ── 5. 거래량 실전 확인 ────────────────────────────────
   {
     topicKey: 'quiz',
     title:    '거래량 실전 확인',
@@ -203,7 +226,6 @@ export function buildVolumeLearningSteps(data: CandleData[]): TutorialStep[] {
   if (!data.length) return []
 
   const steps: TutorialStep[] = []
-  let firstHL: LearningHighlight | null = null
 
   for (const topic of VOLUME_TOPICS) {
     const loc = findVolumePattern(data, topic.topicKey)
@@ -216,24 +238,19 @@ export function buildVolumeLearningSteps(data: CandleData[]): TutorialStep[] {
       loc.candleIndex,
     )
 
-    // 첫 주제의 HL을 intro 단계에서 사용
-    if (!firstHL) firstHL = hl
-
     for (let si = 0; si < topic.steps.length; si++) {
       const s = topic.steps[si]
-      const step: TutorialStep = {
-        id:             `volume-${topic.topicKey}-step${si}`,
-        targetSelector: '#volume-chart',
-        position:       'top',
-        title:          s.stepTitle,
-        body:           s.stepBody,
-        actionRequired: 'free',
-      }
-      // 첫 번째 단계에서 learningHighlightOnEnter 설정
-      if (si === 0) {
-        step.learningHighlightOnEnter = s.useHL ? hl : undefined
-      }
-      steps.push(step)
+      // useHL: true  → 막대 강조
+      // useHL: false → null 로 명시해 하이라이트 해제 (undefined 이면 이전 상태 유지됨)
+      steps.push({
+        id:                       `volume-${topic.topicKey}-step${si}`,
+        targetSelector:           '#volume-chart',
+        position:                 'top',
+        title:                    s.stepTitle,
+        body:                     s.stepBody,
+        actionRequired:           'free',
+        learningHighlightOnEnter: s.useHL ? hl : null,
+      })
     }
 
     // 퀴즈 단계
@@ -258,7 +275,7 @@ export function buildVolumeLearningSteps(data: CandleData[]): TutorialStep[] {
     targetSelector:           '#chart-area',
     position:                 'top',
     title:                    '거래량 학습 완료!',
-    body:                     '거래량의 기본 개념을 모두 배웠어요.\n\n핵심 요약:\n• 거래량 + 상승 = 강한 매수세\n• 거래량 + 하락 = 강한 매도세\n• 거래량 없는 움직임 = 신뢰도 낮음',
+    body:                     '거래량의 기본 개념을 모두 배웠어요.\n\n핵심 요약:\n• 거래량 + 상승 = 강한 매수세\n• 거래량 + 하락 = 강한 매도세\n• 거래량 없는 움직임 = 신뢰도 낮음\n• 가격 상승 + 거래량 감소 = 다이버전스 경고',
     tips: [
       '거래량은 혼자 보지 말고 캔들 방향과 함께 봐요',
       '평균보다 2배 이상 급증하면 중요한 사건이 있었을 가능성이 높아요',
