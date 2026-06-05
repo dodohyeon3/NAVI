@@ -58,8 +58,8 @@ function NaviButterfly({
   style?:   React.CSSProperties
 }) {
   const transform = [
-    rotate  ? `rotate(${rotate}deg)`  : '',
-    flipX   ? 'scaleX(-1)'            : '',
+    rotate ? `rotate(${rotate}deg)` : '',
+    flipX  ? 'scaleX(-1)'           : '',
   ].filter(Boolean).join(' ') || undefined
 
   return (
@@ -71,11 +71,8 @@ function NaviButterfly({
       aria-hidden="true"
       style={{ opacity, transform, pointerEvents: 'none', userSelect: 'none', flexShrink: 0, ...style }}
     >
-      {/* 좌측 날개 */}
       <polygon points="80.16 102.53 126.02 270.96 189.14 313.31 164.69 320.95 116.56 391.34 207.69 357.28 231.76 327.41 242.66 238.7 225.8 195.38 80.16 102.53" />
-      {/* 우측 날개 */}
       <polygon points="257.02 264.74 251.7 329.74 383.16 285.1 466.23 139.6 314.84 187.55 257.02 264.74" />
-      {/* 중앙 다이아몬드 */}
       <polygon points="298.84 319.45 258.2 339.75 266.68 371.84 321.09 405.58 339.5 383.89 340.21 332.96 298.84 319.45" />
     </svg>
   )
@@ -111,7 +108,6 @@ function BrowserFrame({
         ...style,
       }}
     >
-      {/* 브라우저 크롬 */}
       <div
         className="flex items-center gap-2 px-3"
         style={{ height: 36, background: '#06091a', borderBottom: '1px solid rgba(27,40,71,0.9)' }}
@@ -177,7 +173,7 @@ function FeatureText({
   delay?:   number
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <motion.div {...fadeUp(delay)}>
         <FeatureTag>{tag}</FeatureTag>
       </motion.div>
@@ -195,11 +191,76 @@ function FeatureText({
       </motion.h2>
       <motion.p
         {...fadeUp(delay + 0.16)}
-        style={{ fontSize: 14, color: MUTED, lineHeight: 1.78, maxWidth: 380, wordBreak: 'keep-all' }}
+        style={{ fontSize: 15, color: MUTED, lineHeight: 1.8, maxWidth: 380, wordBreak: 'keep-all' }}
       >
         {sub}
       </motion.p>
     </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CheckIcon — CTA 신뢰 뱃지용 원형 체크 아이콘
+// ─────────────────────────────────────────────────────────────────────────────
+function CheckIcon() {
+  return (
+    <svg
+      width={18} height={18} viewBox="0 0 18 18"
+      fill="none" aria-hidden="true"
+      style={{ flexShrink: 0 }}
+    >
+      <circle cx={9} cy={9} r={8.5} stroke="rgba(91,127,255,0.30)" />
+      <path
+        d="M5.5 9.5L7.5 11.5L12.5 6.5"
+        stroke={BLUE} strokeWidth={1.5}
+        strokeLinecap="round" strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OutcomeCard — 분석 도구 결과 카드
+// ─────────────────────────────────────────────────────────────────────────────
+function OutcomeCard({
+  tool, outcome, delay = 0,
+}: {
+  tool:    string
+  outcome: string
+  delay?:  number
+}) {
+  return (
+    <motion.div
+      {...fadeUp(delay)}
+      style={{
+        padding:       '18px 20px',
+        borderRadius:  12,
+        border:        '1px solid rgba(38,53,88,0.65)',
+        background:    'rgba(10,16,38,0.70)',
+        display:       'flex',
+        flexDirection: 'column',
+        gap:           8,
+      }}
+    >
+      <span style={{
+        fontSize:      11,
+        fontWeight:    700,
+        letterSpacing: '0.12em',
+        color:         BLUE,
+        textTransform: 'uppercase',
+      }}>
+        {tool}
+      </span>
+      <span style={{
+        fontSize:   14,
+        color:      TEXT,
+        lineHeight: 1.55,
+        fontWeight: 500,
+        wordBreak:  'keep-all',
+      }}>
+        {outcome}
+      </span>
+    </motion.div>
   )
 }
 
@@ -220,13 +281,13 @@ function CTAButton({
       href={href}
       onClick={onClick}
       style={{
-        height:         large ? 54 : 48,
-        padding:        primary ? (large ? '0 32px' : '0 26px') : '0 20px',
+        height:         large ? 56 : 48,
+        padding:        primary ? (large ? '0 36px' : '0 26px') : '0 20px',
         background:     primary ? BLUE : 'transparent',
         color:          primary ? '#fff' : MUTED,
         fontSize:       primary ? (large ? 15 : 14) : 13,
         fontWeight:     primary ? 700 : 500,
-        borderRadius:   13,
+        borderRadius:   14,
         border:         primary ? `1px solid ${BLUE}` : '1px solid rgba(38,53,88,0.9)',
         display:        'flex',
         alignItems:     'center',
@@ -263,7 +324,7 @@ export function LandingPage() {
   return (
     <main style={{ background: BG, color: TEXT, overflowX: 'hidden' }}>
 
-      {/* ══ Section 1 — Hero ═════════════════════════════════ */}
+      {/* ══ Section 1 — Hero: 무엇을 얻는가 ═══════════════════ */}
       <section
         className="relative flex flex-col items-center overflow-hidden"
         style={{ minHeight: '100vh', paddingTop: 'clamp(100px, 16vh, 172px)' }}
@@ -273,26 +334,17 @@ export function LandingPage() {
           background: 'radial-gradient(ellipse 80% 60% at 50% 10%, rgba(45,65,152,0.22) 0%, transparent 62%)',
         }} />
 
-        {/* ── 나비 장식 1: 우측 상단 대형 ── */}
+        {/* 나비 1: 우측 상단 */}
         <NaviButterfly
-          size={380}
-          opacity={0.055}
-          color="#2D4198"
-          rotate={18}
+          size={380} opacity={0.055} color="#2D4198" rotate={18}
           style={{ position: 'absolute', top: '4%', right: '-4%' }}
         />
-
-        {/* ── 나비 장식 2: 좌측 하단 중형 ── */}
+        {/* 나비 2: 좌측 하단 */}
         <NaviButterfly
-          size={200}
-          opacity={0.042}
-          color="#5B7FFF"
-          rotate={-14}
-          flipX
+          size={200} opacity={0.042} color="#5B7FFF" rotate={-14} flipX
           style={{ position: 'absolute', bottom: '18%', left: '0%' }}
         />
 
-        {/* 헤드라인 */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
@@ -300,7 +352,7 @@ export function LandingPage() {
           className="relative z-10 flex flex-col items-center text-center gap-7 px-6"
           style={{ maxWidth: 720 }}
         >
-          {/* 타이포 로고 — 서비스명 노출 */}
+          {/* 타이포 로고 */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -315,6 +367,7 @@ export function LandingPage() {
             />
           </motion.div>
 
+          {/* 메인 헤드라인 */}
           <h1 style={{
             fontSize:      'clamp(38px, 5.8vw, 66px)',
             fontWeight:    900,
@@ -322,14 +375,39 @@ export function LandingPage() {
             lineHeight:    1.12,
             color:         TEXT,
           }}>
-            차트를 분석하는 눈,<br />
-            직접 경험으로 키워요.
+            주식 초보도<br />
+            차트를 분석할 수 있게
           </h1>
 
-          <p style={{ fontSize: 'clamp(14px, 1.5vw, 16px)', color: MUTED, lineHeight: 1.72, maxWidth: 440, wordBreak: 'keep-all' }}>
-            설명을 읽는 것이 아니라, 실제 차트를 직접 클릭하며 배워요.
+          {/* 서브 카피 */}
+          <p style={{
+            fontSize:   'clamp(14px, 1.5vw, 17px)',
+            color:      MUTED,
+            lineHeight: 1.75,
+            maxWidth:   480,
+            wordBreak:  'keep-all',
+          }}>
+            실제 차트를 보며 직접 분석하고 판단하는 과정으로<br />
+            차트 분석 능력을 키웁니다.
           </p>
 
+          {/* 숫자 통계 행 */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.35, ease: EASE }}
+            className="flex items-center gap-2 flex-wrap justify-center"
+            style={{ fontSize: 14 }}
+          >
+            <span style={{ fontWeight: 700, color: TEXT }}>15단계</span>
+            <span style={{ color: MUTED }}>실습</span>
+            <span style={{ color: 'rgba(38,53,88,0.9)', marginLeft: 6, marginRight: 6 }}>·</span>
+            <span style={{ fontWeight: 700, color: TEXT }}>4가지</span>
+            <span style={{ color: MUTED }}>분석 도구</span>
+            <span style={{ color: 'rgba(38,53,88,0.9)', marginLeft: 6, marginRight: 6 }}>·</span>
+            <span style={{ fontWeight: 700, color: TEXT }}>실제</span>
+            <span style={{ color: MUTED }}>NVDA 데이터</span>
+          </motion.div>
         </motion.div>
 
         {/* Hero 목업 */}
@@ -346,7 +424,7 @@ export function LandingPage() {
             <div style={{ transform: 'rotateX(7deg)', transformOrigin: 'top center' }}>
               <BrowserFrame
                 src="/landing/shot-chart-ma.png"
-                alt="NAVIchart — MA 이동평균선이 표시된 NVDA 차트"
+                alt="NAVIchart — 실제 NVDA 차트 분석 화면"
                 glow="hero"
               />
             </div>
@@ -357,21 +435,21 @@ export function LandingPage() {
       {/* 섹션 간 여백 */}
       <div style={{ height: 'clamp(160px, 20vh, 220px)' }} />
 
-      {/* ══ Section 2 — 튜토리얼 ════════════════════════════ */}
+      {/* ══ Section 2 — 어떻게 배우는가 ════════════════════════ */}
       <section
         className="relative px-4 sm:px-12"
         style={{ maxWidth: 1180, margin: '0 auto', paddingBottom: 'clamp(160px, 20vh, 220px)' }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
           <FeatureText
-            tag="16단계 튜토리얼"
-            headline={<>단계별로,<br />직접 클릭하며<br />배워요.</>}
-            sub="캔들 클릭부터 MA·RSI·MACD·볼린저밴드까지, 설명을 읽는 것이 아니라 실제 차트 위에서 직접 경험해요."
+            tag="학습 방법"
+            headline={<>읽는 게 아니라<br />직접 해보며<br />익혀요.</>}
+            sub="15단계 실습을 직접 클릭하며 풀어가요. 설명을 읽는 게 아니라 차트 위에서 직접 판단하는 과정이 능력을 만들어요."
           />
           <motion.div {...fadeLeft(0.12)}>
             <BrowserFrame
               src="/landing/shot-chart.png"
-              alt="NAVIchart 튜토리얼 — 차트 위 플로팅 학습 카드"
+              alt="NAVIchart — 단계별 차트 실습 화면"
               glow="feature"
             />
           </motion.div>
@@ -380,43 +458,49 @@ export function LandingPage() {
 
       <Divider />
 
-      {/* ── 나비 장식 3: 섹션 구분 중앙 포인트 ── */}
+      {/* 나비 구분 포인트 */}
       <div className="flex justify-center" style={{ marginTop: 56, marginBottom: 56 }}>
-        <NaviButterfly
-          size={52}
-          opacity={0.18}
-          color="#5B7FFF"
-          rotate={6}
-        />
+        <NaviButterfly size={52} opacity={0.18} color="#5B7FFF" rotate={6} />
       </div>
 
-      {/* ══ Section 3 — 분석 도구 ════════════════════════════ */}
+      {/* ══ Section 3 — 어떤 분석 도구를 익히는가 ══════════════ */}
       <section
         className="relative px-4 sm:px-12"
         style={{ maxWidth: 1180, margin: '0 auto', paddingBottom: 'clamp(160px, 20vh, 220px)' }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32 items-center">
+          {/* 좌: 목업 이미지 */}
           <motion.div {...fadeRight(0.08)} className="lg:order-1">
             <BrowserFrame
               src="/landing/shot-chart-ind.png"
-              alt="NAVIchart — RSI · MACD 지표 패널"
+              alt="NAVIchart — MA·RSI·MACD·BB 분석 도구 화면"
               glow="feature"
             />
           </motion.div>
-          <div className="lg:order-2">
+
+          {/* 우: 텍스트 + 결과 카드 */}
+          <div className="lg:order-2 flex flex-col gap-8">
             <FeatureText
-              tag="차트 분석 도구"
-              headline={<>MA·RSI·MACD·BB,<br />직접 켜보면서<br />익혀요.</>}
-              sub="지표마다 무엇을 보는지, 어떻게 읽는지를 실제 차트에서 바로 확인할 수 있어요. 하나씩 켜면서 패턴을 눈에 익혀요."
+              tag="분석 도구"
+              headline={<>4가지 도구로<br />시장을 읽는<br />눈을 만들어요.</>}
+              sub="각 도구가 무엇을 볼 수 있게 해주는지, 직접 켜보며 몸으로 익혀요."
               delay={0.06}
             />
+
+            {/* 결과 중심 OutcomeCard 2x2 */}
+            <div className="grid grid-cols-2 gap-3">
+              <OutcomeCard tool="MA"   outcome="추세의 방향을 읽는다"       delay={0.10} />
+              <OutcomeCard tool="RSI"  outcome="과매수·과매도를 판단한다"   delay={0.15} />
+              <OutcomeCard tool="MACD" outcome="추세 전환 시점을 포착한다"  delay={0.20} />
+              <OutcomeCard tool="BB"   outcome="변동성의 범위를 파악한다"   delay={0.25} />
+            </div>
           </div>
         </div>
       </section>
 
       <Divider />
 
-      {/* ══ Section 4 — 실전 챌린지 ═════════════════════════ */}
+      {/* ══ Section 4 — 실전 시뮬레이션으로 검증 ═══════════════ */}
       <section
         className="relative px-4 sm:px-12"
         style={{ paddingTop: 'clamp(160px, 20vh, 220px)', paddingBottom: 'clamp(160px, 20vh, 220px)' }}
@@ -424,7 +508,7 @@ export function LandingPage() {
         <div className="flex flex-col items-center text-center gap-5"
              style={{ maxWidth: 600, margin: '0 auto 80px' }}>
           <motion.div {...fadeUp(0)}>
-            <FeatureTag>실전 챌린지</FeatureTag>
+            <FeatureTag>실전 시뮬레이션</FeatureTag>
           </motion.div>
           <motion.h2
             {...fadeUp(0.08)}
@@ -436,26 +520,27 @@ export function LandingPage() {
               color:         TEXT,
             }}
           >
-            이 차트,<br />다음에 어떻게 됐을까요?
+            배운 것을<br />실제 데이터로 검증해요.
           </motion.h2>
           <motion.p
             {...fadeUp(0.16)}
-            style={{ fontSize: 14, color: MUTED, lineHeight: 1.78, maxWidth: 480, wordBreak: 'keep-all' }}
+            style={{ fontSize: 15, color: MUTED, lineHeight: 1.8, maxWidth: 480, wordBreak: 'keep-all' }}
           >
-            실제 NVDA 과거 데이터로 직접 예측해보고, 정답을 확인하며 판단력을 키워요.
+            실제 NVDA 데이터로 30일 예측 시뮬레이션을 직접 해보고,
+            틀리면서 판단력을 키워요.
           </motion.p>
         </div>
 
         <motion.div {...fadeUp(0.12)} style={{ maxWidth: 1000, margin: '0 auto' }}>
           <BrowserFrame
             src="/landing/shot-simulate.png"
-            alt="NAVIchart 실전 챌린지 — 상승·하락·횡보 예측"
+            alt="NAVIchart 실전 시뮬레이션 — 상승·하락·횡보 예측"
             glow="feature"
           />
         </motion.div>
       </section>
 
-      {/* ══ Final CTA ════════════════════════════════════════ */}
+      {/* ══ Final CTA ════════════════════════════════════════════ */}
       <section
         className="relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
         style={{ paddingTop: 'clamp(140px, 18vh, 200px)', paddingBottom: 'clamp(140px, 18vh, 200px)' }}
@@ -465,17 +550,14 @@ export function LandingPage() {
           background: 'radial-gradient(ellipse 65% 65% at 50% 50%, rgba(45,65,152,0.18) 0%, transparent 62%)',
         }} />
 
-        {/* ── 나비 장식 4: CTA 배경 중앙 ── */}
+        {/* 나비 4: CTA 배경 중앙 */}
         <NaviButterfly
-          size={260}
-          opacity={0.052}
-          color="#2D4198"
-          rotate={10}
+          size={260} opacity={0.052} color="#2D4198" rotate={10}
           style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(10deg)' }}
         />
 
         <div className="relative z-10 flex flex-col items-center gap-8">
-          {/* 타이포 로고 — CTA 섹션 브랜드 재노출 */}
+          {/* 브랜드 로고 */}
           <motion.div {...fadeUp(0)}>
             <img
               src="/navi-logo.svg"
@@ -499,17 +581,40 @@ export function LandingPage() {
             지금 바로<br />시작해요.
           </motion.h2>
 
-          <motion.div {...fadeUp(0.16)} className="flex items-center gap-3 mt-2">
-            <CTAButton href="/tutorial" primary large
-              onClick={() => trackEvent('landing_cta_clicked', { destination: 'tutorial' })}>
+          {/* 신뢰 뱃지 3개 */}
+          <motion.div
+            {...fadeUp(0.14)}
+            className="flex flex-col sm:flex-row items-center gap-3 sm:gap-7"
+          >
+            {[
+              '약 10분',
+              '회원가입 없이 체험 가능',
+              '실제 차트 데이터 사용',
+            ].map((text, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <CheckIcon />
+                <span style={{ fontSize: 13, color: MUTED }}>{text}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div {...fadeUp(0.22)} className="flex items-center gap-3 mt-1">
+            <CTAButton
+              href="/tutorial"
+              primary
+              large
+              onClick={() => trackEvent('landing_cta_clicked', { destination: 'tutorial' })}
+            >
               NAVIchart 시작하기
             </CTAButton>
           </motion.div>
 
-          <motion.div {...fadeUp(0.22)}>
-            <Link href="/chart"
+          <motion.div {...fadeUp(0.28)}>
+            <Link
+              href="/chart"
               onClick={() => trackEvent('landing_cta_clicked', { destination: 'chart' })}
-              style={{ fontSize: 12, color: DIM, textDecoration: 'none' }}>
+              style={{ fontSize: 12, color: DIM, textDecoration: 'none' }}
+            >
               차트 바로 보기
             </Link>
           </motion.div>
