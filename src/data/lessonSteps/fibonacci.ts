@@ -43,7 +43,7 @@ export const fibonacciSteps: TutorialStep[] = [
     id:                   'fib-adv-draw',
     targetSelector:       '#drawing-tools-card',
     mobileTargetSelector: '#drawing-toolbar',
-    position:             'top',
+    position:             'left',
     focusBarsFromEnd:     55,
     clearDrawingsOnEnter: true,
     fibGuide: {
