@@ -13,6 +13,15 @@ const PAST_DAYS   = 350  // 약 16개월 (분석 구간)
 const FUTURE_DAYS =  30  // 약 1.5개월 (예측 구간)
 const TOTAL_NEEDED = PAST_DAYS + FUTURE_DAYS
 
+/* ─── 종목 목록 ──────────────────────────────────────────────── */
+const STOCKS = [
+  { symbol: 'NVDA', name: 'NVIDIA'    },
+  { symbol: 'TSLA', name: 'Tesla'     },
+  { symbol: 'AAPL', name: 'Apple'     },
+  { symbol: 'MSFT', name: 'Microsoft' },
+] as const
+type StockSymbol = typeof STOCKS[number]['symbol']
+
 /** 랜덤(또는 시드 기반) 으로 past/future 를 잘라냄 */
 function pickWindow(data: CandleData[], seed?: number) {
   if (data.length < TOTAL_NEEDED) {
@@ -69,6 +78,7 @@ function WelcomeBanner() {
 }
 
 export default function SimulatePage() {
+  const [symbol,  setSymbol]  = useState<StockSymbol>('NVDA')
   const [allData, setAllData] = useState<CandleData[]>([])
   const [past,    setPast]    = useState<CandleData[]>([])
   const [future,  setFuture]  = useState<CandleData[]>([])
@@ -76,9 +86,11 @@ export default function SimulatePage() {
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState(false)
 
-  /* ── 최초 데이터 fetch ───────────────────────────────────── */
+  /* ── 종목 변경 or 최초 데이터 fetch ─────────────────────── */
   useEffect(() => {
-    fetch('/api/candles?symbol=NVDA&period=ALL&timeUnit=daily')
+    setLoading(true)
+    setError(false)
+    fetch(`/api/candles?symbol=${symbol}&period=ALL&timeUnit=daily`)
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then((data: CandleData[]) => {
         setAllData(data)
@@ -87,7 +99,7 @@ export default function SimulatePage() {
         setLoading(false)
       })
       .catch(() => { setError(true); setLoading(false) })
-  }, [])
+  }, [symbol])
 
   /* ── 다른 구간 선택 ─────────────────────────────────────── */
   const retry = useCallback(() => {
@@ -96,7 +108,6 @@ export default function SimulatePage() {
     setPast(past); setFuture(future)
     setAttempt(a => {
       const newCount = a + 1
-      /*  재도전 횟수 기록 — 학습 몰입도 측정 */
       trackEvent('simulation_retry', { retry_count: newCount })
       return newCount
     })
@@ -107,7 +118,7 @@ export default function SimulatePage() {
     <div className="min-h-screen flex items-center justify-center bg-navi-bg">
       <div className="flex flex-col items-center gap-3">
         <div className="w-6 h-6 border-2 border-navi-accent border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-navi-muted">NVDA 데이터 불러오는 중...</p>
+        <p className="text-sm text-navi-muted">{symbol} 데이터 불러오는 중...</p>
       </div>
     </div>
   )
@@ -140,7 +151,7 @@ export default function SimulatePage() {
 
           <div className="text-center">
             <p className="text-[13px] font-bold text-navi-text leading-tight">실전 챌린지</p>
-            <p className="text-[10px] text-navi-muted">NVDA · 과거 차트 분석</p>
+            <p className="text-[10px] text-navi-muted">{symbol} · 과거 차트 분석</p>
           </div>
 
           <button
@@ -156,6 +167,24 @@ export default function SimulatePage() {
       {/* ── 페이지 본문 ──────────────────────────────────────── */}
       <div className="min-h-screen bg-navi-bg px-3 sm:px-4 pt-3 sm:pt-5 pb-8 max-w-4xl mx-auto">
 
+        {/* ── 종목 선택 탭 ──────────────────────────────────── */}
+        <div className="mb-3 flex gap-1.5 flex-wrap">
+          {STOCKS.map(({ symbol: s, name }) => (
+            <button
+              key={s}
+              onClick={() => { setSymbol(s); setAttempt(0) }}
+              className={
+                s === symbol
+                  ? 'h-8 px-3.5 rounded-lg text-[12px] font-bold bg-navi-action text-white transition-all'
+                  : 'h-8 px-3.5 rounded-lg text-[12px] font-medium bg-navi-surface border border-navi-border text-navi-secondary hover:border-navi-action/40 hover:text-navi-text transition-all'
+              }
+            >
+              {s}
+              <span className="hidden sm:inline text-[10px] ml-1 opacity-60">{name}</span>
+            </button>
+          ))}
+        </div>
+
         {/* 튜토리얼 완료 환영 배너 (PC만, 모바일은 공간 낭비) */}
         <div className="hidden sm:block">
           <Suspense fallback={null}>
@@ -170,7 +199,7 @@ export default function SimulatePage() {
                           bg-navi-surface border border-navi-border rounded-xl text-[11px]">
             
             <span className="text-navi-secondary">
-              NVDA {PAST_DAYS}일 데이터로 이후 {FUTURE_DAYS}일을 예측해봐요
+              {symbol} {PAST_DAYS}일 데이터로 이후 {FUTURE_DAYS}일을 예측해봐요
             </span>
           </div>
           {/* PC 풀 배너 */}
@@ -179,7 +208,7 @@ export default function SimulatePage() {
               이 시점 이후, 차트는 어떻게 됐을까요?
             </p>
             <p className="text-xs text-navi-muted leading-relaxed">
-              아래 차트는 NVDA의 실제 과거 {PAST_DAYS}일(약 {Math.round(PAST_DAYS / 21)}개월) 데이터예요.
+              아래 차트는 {symbol}의 실제 과거 {PAST_DAYS}일(약 {Math.round(PAST_DAYS / 21)}개월) 데이터예요.
               노란 점선 오른쪽의 {FUTURE_DAYS}일이 숨겨져 있어요.
               분석 도구·작도 도구를 활용해 예측한 뒤{' '}
               <span className="text-navi-text font-semibold">결과 보기</span>를 눌러보세요.

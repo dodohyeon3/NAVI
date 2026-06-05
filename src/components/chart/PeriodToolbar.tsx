@@ -9,7 +9,7 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: '3M',  label: '3개월' },
   { value: '6M',  label: '6개월' },
   { value: '1Y',  label: '1년' },
-  { value: 'ALL', label: '전체' },
+  { value: 'MAX', label: '전체' },
 ]
 
 const UNITS: { value: TimeUnit; label: string }[] = [

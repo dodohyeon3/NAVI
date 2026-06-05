@@ -113,7 +113,7 @@ export function toMonthly(daily: CandleData[]): CandleData[] {
     }))
 }
 
-export type Period = '1M' | '3M' | '6M' | '1Y' | 'ALL'
+export type Period = '1M' | '3M' | '6M' | '1Y' | 'ALL' | 'MAX'
 
 export function filterByPeriod(daily: CandleData[], period: Period): CandleData[] {
   if (period === 'ALL') return daily

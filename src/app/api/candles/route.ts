@@ -7,6 +7,7 @@ const RANGE_MAP: Record<string, string> = {
   '6M':  '6mo',
   '1Y':  '1y',
   'ALL': '5y',
+  'MAX': 'max',  // 메인 차트 전체 기간 (상장일부터 전체)
 }
 
 const INTERVAL_MAP: Record<string, string> = {
