@@ -170,7 +170,7 @@ export default function IndicatorDetailPage({ params }: Props) {
 
         {/* ── 차트 예시 ── */}
         <RoundedCard>
-          <SectionLabel>실제 차트 예시 · NVDA 최근 데이터</SectionLabel>
+          <SectionLabel>실제 차트 예시 · MSFT 최근 데이터</SectionLabel>
           <MiniChartPreview slug={indicator.slug} />
         </RoundedCard>
 

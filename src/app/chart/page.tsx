@@ -29,8 +29,8 @@ function ChartPageInner() {
   const searchParams = useSearchParams()
   const prevInds = useRef(new Set<string>())
 
-  // 실제 NVDA 데이터 fetch
-  useStockData('NVDA')
+  // 실제 MSFT 데이터 fetch
+  useStockData('MSFT')
 
   const showRSI    = activeIndicators.has('rsi')
   const showMACD   = activeIndicators.has('macd')
@@ -73,7 +73,7 @@ function ChartPageInner() {
       <LearningOverlay />
 
       {/* ── 헤더 ─────────────────────────────────────────────── */}
-      {/* 브랜드 > 콘텐츠 순서: NaviSymbol이 NVDA보다 먼저 인식되도록 */}
+      {/* 브랜드 > 콘텐츠 순서: NaviSymbol이 MSFT보다 먼저 인식되도록 */}
       <header className="sticky top-0 z-30 bg-navi-bg/94 backdrop-blur-md border-b border-navi-border"
               style={{ height: 52 }}>
         <div className="h-full max-w-5xl mx-auto px-4 flex items-center justify-between">
@@ -90,7 +90,7 @@ function ChartPageInner() {
             <div className="w-px h-5 bg-navi-border2" />
             {/* 종목 — 브랜드보다 낮은 위계로 표시 */}
             <div className="flex items-baseline gap-1.5">
-              <span className="text-[13px] font-semibold text-navi-secondary tracking-tight">NVDA</span>
+              <span className="text-[13px] font-semibold text-navi-secondary tracking-tight">MSFT</span>
               <span className="text-[10px] text-quiet-35">NASDAQ</span>
             </div>
           </div>

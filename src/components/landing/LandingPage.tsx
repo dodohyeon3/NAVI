@@ -406,7 +406,7 @@ export function LandingPage() {
             <span style={{ color: MUTED }}>분석 도구</span>
             <span style={{ color: 'rgba(38,53,88,0.9)', marginLeft: 6, marginRight: 6 }}>·</span>
             <span style={{ fontWeight: 700, color: TEXT }}>실제</span>
-            <span style={{ color: MUTED }}>NVDA 데이터</span>
+            <span style={{ color: MUTED }}>주식 데이터</span>
           </motion.div>
         </motion.div>
 
@@ -526,7 +526,7 @@ export function LandingPage() {
             {...fadeUp(0.16)}
             style={{ fontSize: 15, color: MUTED, lineHeight: 1.8, maxWidth: 480, wordBreak: 'keep-all' }}
           >
-            실제 NVDA 데이터로 30일 예측 시뮬레이션을 직접 해보고,
+            실제 주식 데이터로 30일 예측 시뮬레이션을 직접 해보고,
             틀리면서 판단력을 키워요.
           </motion.p>
         </div>

@@ -336,7 +336,7 @@ export const tutorialSteps: TutorialStep[] = [
     targetSelector: '#chart-area',
     position:       'bottom',
     title:          '이제 실전 챌린지예요',
-    body:           '실전 챌린지에서는 실제 NVDA 과거 데이터를 보고 미래를 직접 예측해요.\n\n예측 시점 이후 30일이 숨겨져 있어요. 방금 배운 MA·RSI·MACD를 켜고 분석한 뒤 예측해보세요.',
+    body:           '실전 챌린지에서는 실제 주식 과거 데이터를 보고 미래를 직접 예측해요.\n\nMSFT·NVDA·TSLA·AAPL 중 선택해서 예측 시점 이후 30일을 맞춰보세요. 방금 배운 MA·RSI·MACD를 켜고 분석한 뒤 예측해보세요.',
     tips: [
       '예측 전 분석 도구를 반드시 켜봐요',
       '여러 지표가 같은 방향을 가리키면 더 확신할 수 있어요',

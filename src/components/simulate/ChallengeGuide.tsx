@@ -34,7 +34,7 @@ const GUIDE_STEPS: GuideStep[] = [
     targetSelector: '#challenge-chart',
     position:       'bottom',
     title:          '분석 구간',
-    body:           '약 16개월 실제 NVDA 과거 데이터예요.\n노란 점선 이후 30일은 숨겨져 있어요. 이 구간을 분석하고 예측해봐요.',
+    body:           '약 16개월 실제 과거 데이터예요.\n상단 탭에서 MSFT·NVDA·TSLA·AAPL 종목을 선택할 수 있어요.\n노란 점선 이후 30일은 숨겨져 있어요. 이 구간을 분석하고 예측해봐요.',
   },
   {
     targetSelector: '#challenge-analysis-panel',

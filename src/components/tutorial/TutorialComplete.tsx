@@ -82,7 +82,7 @@ export function TutorialComplete() {
                 <div className="text-left">
                   <p className="text-[14px] font-bold leading-snug">실전 챌린지</p>
                   <p className="text-[11px] opacity-75 mt-0.5">
-                    실제 NVDA 과거 차트로 미래를 예측해봐요
+                    실제 과거 차트로 미래를 예측해봐요
                   </p>
                 </div>
               </Link>

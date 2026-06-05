@@ -8,7 +8,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { getChartColors } from '@/lib/chartColors'
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  교육용 최적 구간 자동 탐색 — 실제 NVDA 데이터에서 패턴이 가장 명확한 구간 선택
+//  교육용 최적 구간 자동 탐색 — 실제 MSFT 데이터에서 패턴이 가장 명확한 구간 선택
 // ═══════════════════════════════════════════════════════════════════════════
 
 type TLResult = {
@@ -204,11 +204,11 @@ export function MiniChartPreview({ slug }: Props) {
   const [fibLabels, setFibLabels] = useState<{ value: number; label: string; color: string; y: number }[]>([])
   const needsSub = slug === 'rsi' || slug === 'macd'
 
-  // ── 데이터 fetch (모든 지표 공통: 실제 NVDA 1Y 데이터) ────────────────────
+  // ── 데이터 fetch (모든 지표 공통: 실제 MSFT 1Y 데이터) ────────────────────
   useEffect(() => {
     setLoading(true)
     setError(false)
-    fetch('/api/candles?symbol=NVDA&period=1Y&timeUnit=daily')
+    fetch('/api/candles?symbol=MSFT&period=1Y&timeUnit=daily')
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(d  => { setData(d); setLoading(false) })
       .catch(() => { setError(true); setLoading(false) })
@@ -515,7 +515,7 @@ export function MiniChartPreview({ slug }: Props) {
       </div>
       {needsSub && <div ref={subRef} className="w-full rounded-xl overflow-hidden mt-0.5" />}
       <p className="text-right text-xs text-navi-border mt-1">
-        NVDA · 실제 데이터 최적 구간 자동 선택
+        MSFT · 실제 데이터 최적 구간 자동 선택
       </p>
     </div>
   )
