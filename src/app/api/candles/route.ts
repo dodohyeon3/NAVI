@@ -7,7 +7,7 @@ const RANGE_MAP: Record<string, string> = {
   '6M':  '6mo',
   '1Y':  '1y',
   'ALL': '5y',
-  'MAX': 'max',  // 메인 차트 전체 기간 (상장일부터 전체)
+  // MAX는 range 방식 대신 period1/period2 방식으로 별도 처리
 }
 
 const INTERVAL_MAP: Record<string, string> = {
@@ -22,10 +22,13 @@ export async function GET(req: NextRequest) {
   const period   = searchParams.get('period')   || '1Y'
   const timeUnit = searchParams.get('timeUnit') || 'daily'
 
-  const range    = RANGE_MAP[period]    || '1y'
   const interval = INTERVAL_MAP[timeUnit] || '1d'
 
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}&includePrePost=false`
+  // MAX: range=max 은 interval을 무시하고 ~330개(월봉 수준)만 반환하는 Yahoo 버그가 있어
+  //      period1/period2 방식으로 우회하면 interval을 정확히 인식함
+  const url = period === 'MAX'
+    ? `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&period1=0&period2=${Math.floor(Date.now() / 1000)}&includePrePost=false`
+    : `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${RANGE_MAP[period] ?? '1y'}&includePrePost=false`
 
   try {
     const res = await fetch(url, {
