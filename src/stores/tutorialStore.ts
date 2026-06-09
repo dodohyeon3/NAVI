@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { tutorialSteps }      from '@/data/tutorialSteps'
-import { fibonacciSteps }     from '@/data/lessonSteps/fibonacci'
+import { fibonacciSteps, buildFibonacciSteps } from '@/data/lessonSteps/fibonacci'
 import { rsiAdvancedSteps }   from '@/data/lessonSteps/rsiAdvanced'
 import { macdAdvancedSteps }  from '@/data/lessonSteps/macdAdvanced'
 import { useChartStore }      from '@/stores/chartStore'
@@ -18,7 +18,7 @@ const LESSON_TYPE: Record<string, string> = {
 }
 
 const LESSON_MAP: Record<string, TutorialStep[]> = {
-  'fibonacci-advanced': fibonacciSteps,
+  // fibonacci-advanced 는 startLesson 에서 buildFibonacciSteps(data) 로 동적 생성
   'rsi-advanced':       rsiAdvancedSteps,
   'macd-advanced':      macdAdvancedSteps,
 }
@@ -291,7 +291,14 @@ export const useTutorialStore = create<TutorialState>()(
 
       /** 심화 레슨 시작 (key: 'fibonacci-advanced' | 'rsi-advanced' | 'macd-advanced') */
       startLesson: (key: string) => {
-        const lessonSteps = LESSON_MAP[key]
+        // 피보나치는 현재 차트 데이터로 동적 생성 → 정답이 실제 차트와 항상 일치
+        let lessonSteps: TutorialStep[]
+        if (key === 'fibonacci-advanced') {
+          const chartData = useChartStore.getState().candleData ?? []
+          lessonSteps = buildFibonacciSteps(chartData)
+        } else {
+          lessonSteps = LESSON_MAP[key] ?? []
+        }
         if (!lessonSteps?.length) return
         const { activeIndicators, toggleIndicator } = useChartStore.getState()
         activeIndicators.forEach(slug => toggleIndicator(slug))
