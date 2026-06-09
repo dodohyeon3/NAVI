@@ -47,6 +47,14 @@ interface TutorialState {
   /** 현재 실행 중인 레슨 키 ('fibonacci-advanced' | 'rsi-advanced' | 'macd-advanced' | null) */
   currentLessonKey: string | null
 
+  /**
+   * 피보나치 레슨 대기 플래그.
+   * '전체' 데이터가 로드되지 않은 상태에서 fibonacci-advanced 를 시작하면
+   * true 로 설정되고, chart/page.tsx 의 useEffect 에서 데이터 로드 완료 시
+   * _applyPendingFibonacciLesson() 을 호출한다.
+   */
+  pendingFibonacciLesson: boolean
+
   // ── 액션 ──────────────────────────────────────────────
   start:       () => void
   next:        () => void
@@ -61,6 +69,8 @@ interface TutorialState {
   startDynamicLesson: (steps: TutorialStep[], key: string) => void
   /** 심화 레슨 정상 완료 — 모든 지표·작도 초기화 후 닫기 */
   completeLesson: () => void
+  /** 전체 데이터 로드 완료 후 fibonacci 레슨 실제 적용 (chart/page.tsx 에서 호출) */
+  _applyPendingFibonacciLesson: () => void
 
   markStepDone:      () => void
   notifyCandleClick: (data: CandleData) => void
@@ -98,14 +108,15 @@ function clearDrawings() {
 export const useTutorialStore = create<TutorialState>()(
   persist(
     (set, get) => ({
-      isActive:             false,
-      currentIndex:         0,
-      hasCompletedOnce:     false,
-      showCompletionScreen: false,
-      isLesson:             false,
-      currentLessonKey:     null,
-      steps:                tutorialSteps,
-      currentStep:          null,
+      isActive:               false,
+      currentIndex:           0,
+      hasCompletedOnce:       false,
+      showCompletionScreen:   false,
+      isLesson:               false,
+      currentLessonKey:       null,
+      pendingFibonacciLesson: false,
+      steps:                  tutorialSteps,
+      currentStep:            null,
       ...INITIAL_ACTION_STATE,
 
       start: () => {
@@ -291,19 +302,28 @@ export const useTutorialStore = create<TutorialState>()(
 
       /** 심화 레슨 시작 (key: 'fibonacci-advanced' | 'rsi-advanced' | 'macd-advanced') */
       startLesson: (key: string) => {
-        // 피보나치는 현재 차트 데이터로 동적 생성 → 정답이 실제 차트와 항상 일치
-        let lessonSteps: TutorialStep[]
         if (key === 'fibonacci-advanced') {
+          // 피보나치 레슨은 2023년 데이터가 필요 → ALL 기간 데이터 확인
           const chartData = useChartStore.getState().candleData ?? []
-          lessonSteps = buildFibonacciSteps(chartData)
-        } else {
-          lessonSteps = LESSON_MAP[key] ?? []
+          const hasHistoricalData = chartData.some(d => d.time <= '2023-01-10')
+
+          if (!hasHistoricalData) {
+            // 전체 기간 데이터 자동 로드 후 대기
+            useChartStore.getState().setPeriod('ALL')
+            set({ pendingFibonacciLesson: true })
+            return   // chart/page.tsx 의 useEffect 가 완료 후 _applyPendingFibonacciLesson() 호출
+          }
+
+          // 데이터 준비됨 → 즉시 시작
+          get()._applyPendingFibonacciLesson()
+          return
         }
+
+        const lessonSteps = LESSON_MAP[key] ?? []
         if (!lessonSteps?.length) return
         const { activeIndicators, toggleIndicator } = useChartStore.getState()
         activeIndicators.forEach(slug => toggleIndicator(slug))
 
-        // 레슨 시작 이벤트
         const lessonType = LESSON_TYPE[key]
         if (lessonType) {
           trackEvent(`advanced_${lessonType}_started`, {
@@ -313,7 +333,6 @@ export const useTutorialStore = create<TutorialState>()(
           })
         }
 
-        // 기존 작도·하이라이트·드로잉 툴 초기화
         useChartStore.getState().requestClearDrawings()
         useChartStore.getState().setDrawingTool('none')
         useChartStore.getState().setLearningHighlight(null)
@@ -326,6 +345,38 @@ export const useTutorialStore = create<TutorialState>()(
           isLesson:             true,
           currentLessonKey:     key,
           showCompletionScreen: false,
+          ...INITIAL_ACTION_STATE,
+        })
+      },
+
+      /** 전체 데이터 로드 완료 후 fibonacci 레슨 실제 적용 */
+      _applyPendingFibonacciLesson: () => {
+        const chartData = useChartStore.getState().candleData ?? []
+        const lessonSteps = buildFibonacciSteps(chartData)
+        if (!lessonSteps?.length) return
+
+        const { activeIndicators, toggleIndicator } = useChartStore.getState()
+        activeIndicators.forEach(slug => toggleIndicator(slug))
+
+        trackEvent('advanced_fibonacci_started', {
+          lesson_type:  'fibonacci',
+          total_steps:  lessonSteps.length,
+          device_type:  getDeviceType(),
+        })
+
+        useChartStore.getState().requestClearDrawings()
+        useChartStore.getState().setDrawingTool('none')
+        useChartStore.getState().setLearningHighlight(null)
+
+        set({
+          pendingFibonacciLesson: false,
+          isActive:               true,
+          currentIndex:           0,
+          currentStep:            lessonSteps[0],
+          steps:                  lessonSteps,
+          isLesson:               true,
+          currentLessonKey:       'fibonacci-advanced',
+          showCompletionScreen:   false,
           ...INITIAL_ACTION_STATE,
         })
       },

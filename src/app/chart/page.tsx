@@ -23,8 +23,10 @@ import { trackEvent }   from '@/lib/analytics'
 import Link from 'next/link'
 
 function ChartPageInner() {
-  const { hasCompletedOnce, start, startLesson, isActive, currentLessonKey } = useTutorialStore()
-  const { activeIndicators, drawingTool, showVolume: chartShowVolume } = useChartStore()
+  const { hasCompletedOnce, start, startLesson, isActive, currentLessonKey,
+          pendingFibonacciLesson, _applyPendingFibonacciLesson } = useTutorialStore()
+  const { activeIndicators, drawingTool, showVolume: chartShowVolume,
+          candleData: chartCandleData, isLoading: chartIsLoading } = useChartStore()
   const { markIndicator, markDrawing } = useLearnStore()
   const searchParams = useSearchParams()
   const prevInds = useRef(new Set<string>())
@@ -53,6 +55,19 @@ function ChartPageInner() {
       return () => clearTimeout(timer)
     }
   }, [hasCompletedOnce, start, startLesson, searchParams])
+
+  /* ── 피보나치 레슨 대기 — ALL 데이터 로드 완료 시 시작 ─────────
+     startLesson('fibonacci-advanced') 에서 2023년 데이터가 없으면
+     pendingFibonacciLesson=true + setPeriod('ALL') 을 설정한다.
+     여기서 데이터 로드 완료를 감지하고 _applyPendingFibonacciLesson() 을 호출한다.
+  ─────────────────────────────────────────────────────────── */
+  useEffect(() => {
+    if (!pendingFibonacciLesson || chartIsLoading) return
+    const hasHistoricalData = chartCandleData.some(d => d.time <= '2023-01-10')
+    if (hasHistoricalData) {
+      _applyPendingFibonacciLesson()
+    }
+  }, [pendingFibonacciLesson, chartIsLoading, chartCandleData, _applyPendingFibonacciLesson])
 
   /* ── 지표 활성화 감지 → 학습 진행 기록 ──────────────────────── */
   useEffect(() => {
