@@ -134,7 +134,11 @@ function isBearishEngulfing(prev: CandleData, curr: CandleData): boolean {
 }
 
 /**
- * 유성형: 위 꼬리 >= 2× 몸통, 아래 꼬리 <= 0.3× 몸통, 상승 추세 직후
+ * 유성형: 위 꼬리 >= 2× 몸통, 아래 꼬리 <= 1.0× 몸통, 상승 추세 직후
+ *
+ * 이전: lower <= 0.3× — 실제 주가 데이터에서 후보가 거의 없어 패턴 전체 스킵됨
+ * 수정: lower <= 1.0× — 망치형(upper <= 1.2×)과 대칭 수준으로 완화
+ *       위 꼬리 >= 2× 조건이 유성형 핵심 특징을 충분히 보장한다
  */
 function isShootingStar(c: CandleData): boolean {
   const body    = Math.abs(c.close - c.open)
@@ -145,7 +149,7 @@ function isShootingStar(c: CandleData): boolean {
   const range   = c.high - c.low
   if (range < c.close * 0.004) return false
   const minBody = Math.max(body, c.close * 0.001)
-  return upper >= 2 * minBody && lower <= minBody * 0.3
+  return upper >= 2 * minBody && lower <= minBody * 1.0
 }
 
 /**

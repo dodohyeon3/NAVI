@@ -208,7 +208,7 @@ function buildStepsFromSwing(swing: FibSwing): TutorialStep[] {
     /* STEP 2  실제 사례 관찰 */
     {
       id:               'fib-adv-observe',
-      targetSelector:   null,
+      targetSelector:   '#chart-area',
       position:         'right',
       overlayPosition:  'top-right',
       focusDateRange,
@@ -220,7 +220,7 @@ function buildStepsFromSwing(swing: FibSwing): TutorialStep[] {
     /* STEP 3  피보나치 작도 */
     {
       id:                         'fib-adv-draw',
-      targetSelector:             null,
+      targetSelector:             '#chart-area',
       position:                   'right',
       overlayPosition:            'top-right',
       focusDateRange,
@@ -246,7 +246,7 @@ function buildStepsFromSwing(swing: FibSwing): TutorialStep[] {
     /* STEP 4  레벨 해설 */
     {
       id:               'fib-adv-explain',
-      targetSelector:   null,
+      targetSelector:   '#chart-area',
       position:         'right',
       overlayPosition:  'top-right',
       focusDateRange,
@@ -263,7 +263,7 @@ function buildStepsFromSwing(swing: FibSwing): TutorialStep[] {
     /* STEP 5  퀴즈 */
     {
       id:               'fib-adv-levels',
-      targetSelector:   null,
+      targetSelector:   '#chart-area',
       position:         'right',
       overlayPosition:  'top-right',
       focusDateRange,
@@ -308,7 +308,7 @@ function buildStepsFromSwing(swing: FibSwing): TutorialStep[] {
     /* STEP 6  완료 */
     {
       id:               'fib-adv-complete',
-      targetSelector:   null,
+      targetSelector:   '#chart-area',
       position:         'bottom',
       overlayPosition:  'top-right',
       focusDateRange,
