@@ -130,16 +130,17 @@ function smartScroll(step: TStep, isMobile: boolean) {
 /* ══ Comprehensive test helpers ═════════════════════════════ */
 function scoreTrend(c: CandleData[]): 'up' | 'sideways' | 'down' {
   if (c.length < 30) return 'sideways'
-  const ma20 = calcMA(c, 20), ma60 = calcMA(c, 60)
-  const n20 = ma20.length, n60 = ma60.length
+  const ma20 = calcMA(c, 20)
+  const n20 = ma20.length
   if (n20 < 2) return 'sideways'
-  // 가시 구간의 첫 값 vs 마지막 값 비교
-  // → 사용자가 차트 왼쪽 끝과 오른쪽 끝 MA를 눈으로 비교하는 것과 동일
-  // → V자 반등 중에도 전체 구간 방향을 정확히 반영
-  const d20 = ma20[n20-1].value - ma20[0].value
-  const d60 = n60 >= 2 ? ma60[n60-1].value - ma60[0].value : 0
-  if (d20 > 0 && d60 >= 0) return 'up'
-  if (d20 < 0 && d60 <= 0) return 'down'
+  // MA20만 사용 — MA60은 90봉 슬라이스에서 31개 값만 생성되며
+  // V자 구간에서 first/last 비교가 왜곡되어 MA20 단독 판단이 더 정확
+  // 가시 구간 첫값 vs 마지막값: 차트 왼쪽 끝과 오른쪽 끝을 눈으로 비교하는 것과 동일
+  const first = ma20[0].value
+  const last  = ma20[n20 - 1].value
+  const pct   = (last - first) / first
+  if (pct >  0.005) return 'up'    // 0.5% 이상 상승
+  if (pct < -0.005) return 'down'  // 0.5% 이상 하락
   return 'sideways'
 }
 function scoreRSI(c: CandleData[]): 'overbought'|'neutral'|'oversold' {
