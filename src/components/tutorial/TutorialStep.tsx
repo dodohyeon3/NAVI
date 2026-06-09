@@ -132,12 +132,12 @@ function scoreTrend(c: CandleData[]): 'up' | 'sideways' | 'down' {
   if (c.length < 30) return 'sideways'
   const ma20 = calcMA(c, 20), ma60 = calcMA(c, 60)
   const n20 = ma20.length, n60 = ma60.length
-  if (n20 < 10) return 'sideways'
-  // 60봉 lookback으로 가시 구간 전체 기울기 측정
-  // 단기 10봉만 보면 최근 반등에 오답 발생; 60봉은 시각적 추세와 일치
-  const lb  = Math.min(n20 - 1, 60)
-  const d20 = ma20[n20-1].value - ma20[Math.max(0, n20-1-lb)].value
-  const d60 = n60 > lb ? ma60[n60-1].value - ma60[Math.max(0, n60-1-lb)].value : 0
+  if (n20 < 2) return 'sideways'
+  // 가시 구간의 첫 값 vs 마지막 값 비교
+  // → 사용자가 차트 왼쪽 끝과 오른쪽 끝 MA를 눈으로 비교하는 것과 동일
+  // → V자 반등 중에도 전체 구간 방향을 정확히 반영
+  const d20 = ma20[n20-1].value - ma20[0].value
+  const d60 = n60 >= 2 ? ma60[n60-1].value - ma60[0].value : 0
   if (d20 > 0 && d60 >= 0) return 'up'
   if (d20 < 0 && d60 <= 0) return 'down'
   return 'sideways'
