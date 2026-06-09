@@ -100,6 +100,13 @@ export interface TutorialStep {
   learningHighlightOnEnter?: LearningHighlight | null
 
   /**
+   * PC 플로팅 카드를 뷰포트 고정 위치에 표시
+   * 설정 시 calcCardPos() 자동 배치 계산을 무시하고 항상 지정 위치에 렌더링된다.
+   * 피보나치 레슨처럼 차트가 화면 전체를 차지해 카드 위치가 불안정할 때 사용.
+   */
+  overlayPosition?: 'top-right' | 'bottom-right' | 'top-center' | 'bottom-center'
+
+  /**
    * 피보나치 작도 가이드 — 저점·고점 위치에 펄스 마커 표시
    * ChartContainer 가 priceToCoordinate + timeToCoordinate 로 위치 계산 후
    * HTML 오버레이로 렌더링한다.

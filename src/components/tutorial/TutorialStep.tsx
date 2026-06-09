@@ -427,6 +427,21 @@ export function TutorialStep() {
     if (cardH === 0) return
     const vw = window.innerWidth, vh = window.innerHeight
 
+    // overlayPosition 지정 시 → calcCardPos 없이 뷰포트 고정 위치 사용
+    // (피보나치 레슨처럼 #chart-area가 화면 전체를 차지해 카드 위치가 흔들릴 때)
+    const op = currentStep.overlayPosition
+    if (op) {
+      const M = 16
+      let posTop: number, posLeft: number
+      if      (op === 'top-right')    { posTop = 72;             posLeft = Math.max(8, vw - cardW - M) }
+      else if (op === 'bottom-right') { posTop = vh - cardH - M; posLeft = Math.max(8, vw - cardW - M) }
+      else if (op === 'top-center')   { posTop = 72;             posLeft = Math.max(8, (vw - cardW) / 2) }
+      else                            { posTop = vh - cardH - M; posLeft = Math.max(8, (vw - cardW) / 2) }
+      setCardPos({ top: Math.max(56, posTop), left: posLeft })
+      setCardSide(op.includes('right') ? 'right' : 'top')
+      return
+    }
+
     // 캔들 학습 중: 뷰포트 박스 기반으로 카드 자동 배치
     const vBox = useChartStore.getState().highlightViewportBox
     if (vBox) {
@@ -1186,8 +1201,8 @@ export function TutorialStep() {
                 maxWidth: 'calc(100vw - 16px)',
               }}
             >
-              {/* 카드 → 하이라이트 연결 화살표 (PC, highlight 있을 때만) */}
-              {hl && cardPos && (() => {
+              {/* 카드 → 하이라이트 연결 화살표 (PC, highlight 있을 때만, overlayPosition 제외) */}
+              {hl && cardPos && !currentStep.overlayPosition && (() => {
                 const S   = 7   // 화살표 반폭 (전체 폭 14px, 높이 7px)
                 const cW  = getCardW()
                 const cH  = cardRef.current?.offsetHeight ?? 0
