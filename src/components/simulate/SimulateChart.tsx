@@ -268,7 +268,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
     ctx.fillStyle = '#fbbf24'
     ctx.font = 'bold 9px system-ui,sans-serif'
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText('예측 시작 →', lx + lw / 2, ly + lh / 2)
+    ctx.fillText('예측 시작', lx + lw / 2, ly + lh / 2)
     ctx.restore()
   }, [pastData])
 
@@ -1055,31 +1055,35 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
 
       {/* ── PHASE 2: 예측 선택 ─────────────────────────────────── */}
       {phase === 'predicting' && (
-        <div className="bg-navi-surface border border-navi-border rounded-xl p-5 space-y-4">
+        <div className="bg-navi-surface border border-navi-border2 rounded-xl p-5 space-y-4">
           <div>
-            <p className="text-[14px] font-bold text-navi-text mb-1">
+            <p className="text-[15px] font-bold text-navi-text mb-1">
               이 시점 이후 {futureData.length}일, 주가는?
             </p>
-            <p className="text-[12px] font-medium text-navi-secondary">지금까지 분석한 내용을 바탕으로 예측해봐요. 틀려도 괜찮아요!</p>
+            <p className="text-[13px] font-medium text-navi-secondary">분석한 내용을 바탕으로 예측해봐요. 틀려도 괜찮아요!</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {([
-              { choice: 'up'       as Choice, icon: '↑', label: '상승', desc: '+5% 초과' },
-              { choice: 'sideways' as Choice, icon: '→', label: '횡보', desc: '±5% 이내' },
-              { choice: 'down'     as Choice, icon: '↓', label: '하락', desc: '-5% 초과' },
-            ]).map(({ choice, icon, label, desc }) => (
+              { choice: 'up'       as Choice, label: '상승', desc: '+5% 초과',
+                cls: 'bg-navi-success/[0.10] border-navi-success/40 hover:bg-navi-success/[0.18] hover:border-navi-success/70',
+                textCls: 'text-navi-success' },
+              { choice: 'sideways' as Choice, label: '횡보', desc: '±5% 이내',
+                cls: 'bg-navi-warning/[0.10] border-navi-warning/40 hover:bg-navi-warning/[0.18] hover:border-navi-warning/70',
+                textCls: 'text-navi-warning' },
+              { choice: 'down'     as Choice, label: '하락', desc: '-5% 초과',
+                cls: 'bg-navi-danger/[0.10] border-navi-danger/40 hover:bg-navi-danger/[0.18] hover:border-navi-danger/70',
+                textCls: 'text-navi-danger' },
+            ]).map(({ choice, label, desc, cls, textCls }) => (
               <button
                 key={choice}
                 onClick={() => handleConfirmPrediction(choice)}
                 className={clsx(
-                  'flex flex-col items-center gap-1.5 py-4 rounded-xl border-2 transition-all active:scale-95',
-                  'border-navi-border2 text-navi-muted',
-                  'hover:border-navi-action/50 hover:bg-navi-action/[0.06] hover:text-navi-text'
+                  'flex flex-col items-center gap-2 py-5 rounded-xl border-2 transition-all active:scale-95',
+                  cls
                 )}
               >
-                <span className="text-[22px] font-bold leading-none text-navi-text">{icon}</span>
-                <span className="text-[13px] font-bold text-navi-text">{label}</span>
+                <span className={clsx('text-[16px] font-black leading-none', textCls)}>{label}</span>
                 <span className="text-[10px] text-navi-muted">{desc}</span>
               </button>
             ))}
@@ -1089,7 +1093,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
             onClick={() => setPhase('analyzing')}
             className="w-full text-xs text-navi-muted hover:text-navi-text transition-colors"
           >
-            ← 다시 분석하기
+            다시 분석하기
           </button>
         </div>
       )}
@@ -1116,7 +1120,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
                   {result.change >= 0 ? '+' : ''}{result.change.toFixed(1)}%
                 </p>
                 <p className="text-[11px] text-navi-muted mt-1">
-                  ${result.startPrice.toFixed(2)} → ${result.endPrice.toFixed(2)}
+                  ${result.startPrice.toFixed(2)} / ${result.endPrice.toFixed(2)}
                 </p>
               </div>
 
@@ -1126,7 +1130,7 @@ export function SimulateChart({ pastData, futureData, onRetry }: Props) {
                   {isCorrect(prediction, result.change) ? '예측 성공' : '이번엔 달랐어요'}
                 </p>
                 <p className="text-[11px] text-navi-muted mt-0.5">
-                  내 예측: {prediction === 'up' ? '↑ 상승' : prediction === 'down' ? '↓ 하락' : '→ 횡보'}
+                  내 예측: {prediction === 'up' ? '상승' : prediction === 'down' ? '하락' : '횡보'}
                 </p>
               </div>
             </div>

@@ -36,11 +36,11 @@
   --navi-warning:   255 184 77;   /* #FFB84D */
   --navi-danger:    255 107 107;  /* #FF6B6B */
 
-  /* 텍스트 — 3단계 고정 색상 (불투명도 기반 제거) */
-  --navi-text:      248 250 252;  /* #F8FAFC  — Primary   */
-  --navi-secondary: #CBD5E1;      /* Slate-300 — Secondary */
-  --navi-muted:     #CBD5E1;      /* Secondary와 동일 (2개 계층 통합) */
-  --navi-disabled:  #64748B;      /* Slate-500 — Disabled  */
+  /* 텍스트 — 3단계 명도 계층 */
+  --navi-text:      248 250 252;  /* #F8FAFC  — Primary (제목, 강조) */
+  --navi-secondary: #E2E8F0;      /* Slate-200 — Secondary (본문)    */
+  --navi-muted:     #94A3B8;      /* Slate-400 — Muted (보조 설명)   */
+  --navi-disabled:  #64748B;      /* Slate-500 — Disabled            */
 
   /* 캔들 */
   --navi-bullish: 38 166 154;   /* #26a69a teal */
@@ -81,10 +81,10 @@ html.light {
   --navi-warning:   245 158 11;   /* #F59E0B */
   --navi-danger:    220 79 97;    /* #DC4F61 */
 
-  /* 텍스트 — 2단계만 사용 */
-  --navi-text:      14 23 45;     /* #0E172D */
-  --navi-secondary: #5E6B85;
-  --navi-muted:     #5E6B85;      /* Light에서는 muted = secondary */
+  /* 텍스트 — 3단계 명도 계층 (Light) */
+  --navi-text:      14 23 45;     /* #0E172D — Primary (제목, 강조) */
+  --navi-secondary: #374155;      /* Slate-700 — Secondary (본문)   */
+  --navi-muted:     #64748B;      /* Slate-500 — Muted (보조 설명)  */
   --navi-disabled:  rgba(14, 23, 45, 0.30);
 
   /* 캔들 — NAVI 브랜드 블루 / 레드 */
@@ -123,10 +123,10 @@ body {
 .text-secondary { color: var(--navi-secondary); }
 .text-tertiary  { color: var(--navi-muted); }
 
-/* ── Quiet text utilities — 3단계 텍스트 계층에 매핑 ──────── */
-.text-quiet-60  { color: #CBD5E1; }  /* Secondary */
-.text-quiet-45  { color: #94A3B8; }  /* Slate-400 (Secondary ~ Disabled 중간) */
-.text-quiet-35  { color: #64748B; }  /* Disabled */
+/* ── Quiet text utilities — 텍스트 계층에 매핑 ──────────── */
+.text-quiet-60  { color: #E2E8F0; }  /* Secondary (Slate-200) */
+.text-quiet-45  { color: #94A3B8; }  /* Muted (Slate-400)     */
+.text-quiet-35  { color: #64748B; }  /* Disabled (Slate-500)  */
 
 /* ── Utilities ────────────────────────────────────────────── */
 .tabular       { font-variant-numeric: tabular-nums; }

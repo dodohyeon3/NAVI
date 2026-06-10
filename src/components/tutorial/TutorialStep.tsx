@@ -744,7 +744,7 @@ export function TutorialStep() {
   /* ── IDLE 콘텐츠 ─────────────────────────────────────── */
   const idleContent = (
     <div className={clsx('px-4 space-y-2', isMobile ? 'py-2' : 'py-3.5')}>
-      <p className={clsx('font-bold text-navi-text leading-snug', isMobile ? 'text-[13px]' : 'text-[14px]')}>
+      <p className={clsx('font-bold text-navi-text leading-snug', isMobile ? 'text-[13px]' : 'text-[15px]')}>
         {currentStep.title}
       </p>
 
@@ -765,13 +765,13 @@ export function TutorialStep() {
               onClick={() => setBodyOpen(true)}
               className="text-[11px] text-navi-action font-medium"
             >
-              자세히 보기 ↓
+              자세히 보기
             </button>
           )}
           {bodyOpen && activeTips && activeTips.length > 0 && (
             <ul className="bg-navi-surface2 rounded-lg p-2.5 space-y-1">
               {activeTips.map((tip, i) => (
-                <li key={i} className="flex gap-1.5 text-[11.5px] font-medium text-navi-secondary">
+                <li key={i} className="flex gap-1.5 text-[12px] font-medium text-navi-secondary">
                   <span className="text-navi-muted shrink-0">•</span>
                   <span>{tip}</span>
                 </li>
@@ -779,13 +779,13 @@ export function TutorialStep() {
             </ul>
           )}
           {bodyOpen && (
-            <button onClick={() => setBodyOpen(false)} className="text-[11px] text-navi-muted">접기 ↑</button>
+            <button onClick={() => setBodyOpen(false)} className="text-[11px] text-navi-muted">접기</button>
           )}
         </>
       ) : (
         <>
           {currentStep.body && (
-            <p className="text-[12px] font-medium text-navi-secondary leading-relaxed whitespace-pre-line">
+            <p className="text-[13px] font-medium text-navi-secondary leading-relaxed whitespace-pre-line">
               {currentStep.body}
             </p>
           )}
@@ -805,7 +805,7 @@ export function TutorialStep() {
       {/* Mission 박스 */}
       {activeMission && (
         <div className={clsx(
-          'bg-navi-action/[0.09] border border-navi-action/25 rounded-lg',
+          'bg-navi-action/[0.10] border border-navi-action/30 rounded-lg',
           isMobile ? 'p-2.5' : 'p-3'
         )}>
           {!isMobile && (
@@ -818,7 +818,7 @@ export function TutorialStep() {
               <span className="text-[10px] font-bold text-navi-action uppercase tracking-[0.06em]">지금 해보세요</span>
             </div>
           )}
-          <p className={clsx('font-medium text-navi-text leading-snug', isMobile ? 'text-[12px]' : 'text-[12px]')}>
+          <p className={clsx('font-semibold text-navi-text leading-snug', isMobile ? 'text-[12px]' : 'text-[13px]')}>
             {activeMission}
           </p>
         </div>
@@ -1258,8 +1258,8 @@ export function TutorialStep() {
                 animate={{ opacity: cardPos ? 1 : 0, scale: cardPos ? 1 : 0.93, y: cardPos ? 0 : 10 }}
                 exit={{ opacity: 0, scale: 0.93, y: 10 }}
                 transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-navi-surface border border-navi-border rounded-xl
-                           shadow-[0_12px_48px_rgba(0,0,0,0.55)] overflow-hidden"
+                className="bg-navi-surface border border-navi-border2 rounded-xl
+                           shadow-[0_12px_48px_rgba(0,0,0,0.65)] overflow-hidden"
               >
                 {pcDotRow}
                 {contentBlock}

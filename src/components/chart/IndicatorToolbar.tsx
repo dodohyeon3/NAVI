@@ -41,8 +41,8 @@ export function IndicatorToolbar() {
                 'w-full sm:w-auto h-10 sm:h-8 px-3.5 rounded-lg text-[13px] sm:text-[12px] font-semibold tracking-wide',
                 'transition-all duration-200',
                 isActive
-                  ? 'bg-navi-action text-white border border-navi-action shadow-[0_0_14px_rgba(91,127,255,0.38)]'
-                  : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/35 hover:text-navi-text hover:bg-navi-surface3'
+                  ? 'bg-navi-action text-white border border-navi-action shadow-[0_0_20px_rgba(91,127,255,0.55)]'
+                  : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/50 hover:text-navi-text hover:bg-navi-surface3'
               )}
             >
               {SHORT_LABELS[slug]}
@@ -74,8 +74,8 @@ export function IndicatorToolbar() {
             'w-full sm:w-auto h-10 sm:h-8 px-3.5 rounded-lg text-[13px] sm:text-[12px] font-semibold tracking-wide',
             'transition-all duration-200',
             showVolume
-              ? 'bg-navi-action text-white border border-navi-action shadow-[0_0_14px_rgba(91,127,255,0.38)]'
-              : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/35 hover:text-navi-text hover:bg-navi-surface3'
+              ? 'bg-navi-action text-white border border-navi-action shadow-[0_0_20px_rgba(91,127,255,0.55)]'
+              : 'bg-navi-surface2 text-navi-secondary border border-navi-border hover:border-navi-action/50 hover:text-navi-text hover:bg-navi-surface3'
           )}
         >
           거래량
