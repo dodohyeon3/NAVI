@@ -44,32 +44,49 @@ function getCardW() {
   return typeof window === 'undefined' ? CARD_W : Math.min(CARD_W, window.innerWidth - 16)
 }
 
+/* ── calcCardPos — 단계별 고정 위치 시스템 ────────────────────
+ * 핵심 원칙:
+ *   1. 항상 step.position (preferredSide) 을 먼저 시도
+ *   2. 뷰포트 밖으로 나가는 경우 → 같은 방향을 유지하되 clamp
+ *   3. 방향을 바꾸는 유일한 이유 = 클램핑 후에도 하이라이트를 덮는 경우
+ *   4. 기본 폴백 우선순위: top → right → left → bottom
+ *   5. 모든 방향이 하이라이트를 덮으면 preferred clamped 를 반환
+ * ────────────────────────────────────────────────────────────── */
 function calcCardPos(hl: HL, preferred: string, cardW: number, cardH: number): CalcResult {
   const vw = window.innerWidth, vh = window.innerHeight
   const M  = CARD_MARGIN
   const cx = hl.left + hl.width / 2, cy = hl.top + hl.height / 2
   const clampL = (x: number) => Math.max(8, Math.min(x, vw - cardW - 8))
   const clampT = (y: number) => Math.max(56, Math.min(y, vh - cardH - 8))
-  const v: Record<Side, CardPos> = {
-    top:    { top: hl.top - cardH - M,    left: clampL(cx - cardW / 2) },
-    bottom: { top: hl.bottom + M,          left: clampL(cx - cardW / 2) },
-    right:  { top: clampT(cy - cardH / 2), left: hl.right  + M },
-    left:   { top: clampT(cy - cardH / 2), left: hl.left - cardW - M },
+
+  // 각 방향의 이상적 위치 (클램핑 전)
+  const raw: Record<Side, CardPos> = {
+    top:    { top: hl.top - cardH - M,    left: cx - cardW / 2 },
+    bottom: { top: hl.bottom + M,          left: cx - cardW / 2 },
+    right:  { top: cy - cardH / 2,         left: hl.right + M },
+    left:   { top: cy - cardH / 2,         left: hl.left - cardW - M },
   }
-  const order = ([preferred, 'bottom', 'top', 'right', 'left'] as Side[])
-    .filter((s, i, a) => a.indexOf(s) === i)
+
+  const clamp = (p: CardPos): CardPos => ({ top: clampT(p.top), left: clampL(p.left) })
+
+  // 하이라이트 영역과 겹치는지 확인 (클램핑 적용 후 기준)
+  function overlapsHighlight(p: CardPos): boolean {
+    return !(p.left + cardW <= hl.left || p.left >= hl.right ||
+             p.top + cardH  <= hl.top  || p.top  >= hl.bottom)
+  }
+
+  // 폴백 우선순위: top → right → left → bottom (preferred 가 앞에 옴)
+  const FALLBACK_ORDER: Side[] = ['top', 'right', 'left', 'bottom']
+  const pref = (preferred in raw ? preferred : 'top') as Side
+  const order = [pref, ...FALLBACK_ORDER.filter(s => s !== pref)]
+
   for (const side of order) {
-    const c = v[side]; if (!c) continue
-    if (c.top >= 56 && c.top + cardH <= vh - 8 && c.left >= 8 && c.left + cardW <= vw - 8) {
-      return { pos: c, side }
-    }
+    const pos = clamp(raw[side])
+    if (!overlapsHighlight(pos)) return { pos, side }
   }
-  const fallbackKey = (preferred in v ? preferred : 'bottom') as Side
-  const fb = v[fallbackKey] ?? v.bottom
-  return {
-    pos: { top: Math.max(56, Math.min(fb.top, vh - cardH - 8)), left: Math.max(8, Math.min(fb.left, vw - cardW - 8)) },
-    side: fallbackKey,
-  }
+
+  // 마지막 수단: preferred clamped (겹칠 수 있으나 화면 밖보다 낫다)
+  return { pos: clamp(raw[pref]), side: pref }
 }
 
 /* ── scrollToSel — retry-safe 스크롤 헬퍼 ──────────────────
