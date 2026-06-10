@@ -445,28 +445,32 @@ export function TutorialStep() {
     const vw = window.innerWidth, vh = window.innerHeight
 
     // overlayPosition 지정 시 → calcCardPos 없이 뷰포트 고정 위치 사용
-    // (피보나치 레슨처럼 #chart-area가 화면 전체를 차지해 카드 위치가 흔들릴 때)
     const op = currentStep.overlayPosition
     if (op) {
       const M = 16
       let posTop: number, posLeft: number
-      if      (op === 'top-right')    { posTop = 72;             posLeft = Math.max(8, vw - cardW - M) }
-      else if (op === 'bottom-right') { posTop = vh - cardH - M; posLeft = Math.max(8, vw - cardW - M) }
-      else if (op === 'top-center')   { posTop = 72;             posLeft = Math.max(8, (vw - cardW) / 2) }
-      else                            { posTop = vh - cardH - M; posLeft = Math.max(8, (vw - cardW) / 2) }
+      if      (op === 'top-right')    { posTop = 72;                           posLeft = Math.max(8, vw - cardW - M) }
+      else if (op === 'bottom-right') { posTop = vh - cardH - M;               posLeft = Math.max(8, vw - cardW - M) }
+      else if (op === 'top-center')   { posTop = 72;                           posLeft = Math.max(8, (vw - cardW) / 2) }
+      else if (op === 'center')       { posTop = (vh - cardH) / 2;             posLeft = Math.max(8, (vw - cardW) / 2) }
+      else                            { posTop = vh - cardH - M;               posLeft = Math.max(8, (vw - cardW) / 2) }
       setCardPos({ top: Math.max(56, posTop), left: posLeft })
-      setCardSide(op.includes('right') ? 'right' : 'top')
+      setCardSide(op === 'top-right' || op === 'bottom-right' ? 'right' : 'top')
       return
     }
+
+    // stepDone 상태에서 completionPosition 이 지정된 경우 해당 방향 사용
+    const effectivePos = (stepDone && currentStep.completionPosition)
+      ? currentStep.completionPosition
+      : currentStep.position
 
     // 캔들 학습 중: 뷰포트 박스 기반으로 카드 자동 배치
     const vBox = useChartStore.getState().highlightViewportBox
     if (vBox) {
       if (hlRect) {
-        const r = calcCardPos(hlRect, currentStep.position ?? 'top', cardW, cardH)
+        const r = calcCardPos(hlRect, effectivePos ?? 'top', cardW, cardH)
         setCardPos(r.pos); setCardSide(r.side)
       } else {
-        // 캔들이 뷰포트 밖 → 카드를 상단 중앙에 배치
         setCardPos({ top: 72, left: Math.max(8, (vw - cardW) / 2) }); setCardSide('top')
       }
       return
@@ -476,9 +480,9 @@ export function TutorialStep() {
       setCardPos({ top: 72, left: Math.max(8, (vw - cardW) / 2) }); setCardSide('top')
       return
     }
-    const r = calcCardPos(hlRect, currentStep.position, cardW, cardH)
+    const r = calcCardPos(hlRect, effectivePos, cardW, cardH)
     setCardPos(r.pos); setCardSide(r.side)
-  }, [currentStep, showCard, computeHL])
+  }, [currentStep, showCard, computeHL, stepDone])
 
   /* ── Step 변경 ──────────────────────────────────────── */
   useEffect(() => {

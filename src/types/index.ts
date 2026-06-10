@@ -105,11 +105,19 @@ export interface TutorialStep {
   learningHighlightOnEnter?: LearningHighlight | null
 
   /**
+   * completionTargetSelector 로 하이라이트가 전환된 뒤(stepDone=true) 사용할 카드 방향.
+   * 미설정 시 position 을 그대로 사용한다.
+   * 예: ma-toggle → 버튼 위(top)에서 차트 아래(bottom)로 전환
+   */
+  completionPosition?: 'top' | 'bottom' | 'left' | 'right'
+
+  /**
    * PC 플로팅 카드를 뷰포트 고정 위치에 표시
    * 설정 시 calcCardPos() 자동 배치 계산을 무시하고 항상 지정 위치에 렌더링된다.
    * 피보나치 레슨처럼 차트가 화면 전체를 차지해 카드 위치가 불안정할 때 사용.
+   * 'center' : 화면 정중앙 (targetSelector: null 과 함께 사용)
    */
-  overlayPosition?: 'top-right' | 'bottom-right' | 'top-center' | 'bottom-center'
+  overlayPosition?: 'top-right' | 'bottom-right' | 'top-center' | 'bottom-center' | 'center'
 
   /**
    * 피보나치 작도 가이드 — 저점·고점 위치에 펄스 마커 표시

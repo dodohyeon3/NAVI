@@ -44,6 +44,7 @@ export const tutorialSteps: TutorialStep[] = [
     targetSelector:            '#btn-moving-average',
     completionTargetSelector:  '#chart-area',
     position:                  'top',
+    completionPosition:        'bottom',
     clearDrawingsOnEnter: true,
     title:          '이동평균선(MA) — 방향을 선으로 확인해요',
     body:           'MA는 "최근 N일 평균 가격"을 이은 선이에요. 방금 직접 그어본 추세선처럼, MA도 가격의 방향을 보여줘요.\n\n차이가 있다면 — MA는 자동으로 계산돼서 흔들림 없이 추세를 보여줘요.',
@@ -209,6 +210,7 @@ export const tutorialSteps: TutorialStep[] = [
     targetSelector:            '#btn-bollinger',
     completionTargetSelector:  '#chart-area',
     position:                  'top',
+    completionPosition:        'bottom',
     clearIndicatorsOnEnter:    ['macd'],
     title:                   '볼린저 밴드(BB) — 변동성을 한눈에',
     body:                    'BB는 주가 위아래로 두 개의 밴드를 그려요. 밴드 간격이 좁아지면 곧 큰 움직임이 올 수 있다는 신호예요.\n\n• 상단 밴드 돌파 → 강한 상승 or 과매수\n• 하단 밴드 이탈 → 강한 하락 or 과매도',
@@ -333,7 +335,7 @@ export const tutorialSteps: TutorialStep[] = [
   // ══════════════════════════════════════════════════════════
   {
     id:             'simulate-intro',
-    targetSelector: '#chart-area',
+    targetSelector: '#simulate-link',
     position:       'bottom',
     title:          '이제 실전 챌린지예요',
     body:           '실전 챌린지에서는 실제 주식 과거 데이터를 보고 미래를 직접 예측해요.\n\nMSFT·NVDA·TSLA·AAPL 중 선택해서 예측 시점 이후 30일을 맞춰보세요. 방금 배운 MA·RSI·MACD를 켜고 분석한 뒤 예측해보세요.',
@@ -350,9 +352,10 @@ export const tutorialSteps: TutorialStep[] = [
   // ══════════════════════════════════════════════════════════
   {
     id:                   'simulate-cta',
-    targetSelector:       '#simulate-link',
-    mobileTargetSelector: '#simulate-link-mobile',
+    targetSelector:       null,
+    mobileTargetSelector: null,
     position:             'bottom',
+    overlayPosition:      'center',
     title:          '기초 과정 거의 완료예요',
     body:           '아래 "기초 과정 완료" 버튼을 누르면 다음 행동을 선택할 수 있어요.\n\n실전 챌린지, 추가 학습, 또는 자유 차트 분석 — 원하는 것을 선택해봐요.',
     actionRequired: 'free',
