@@ -7,9 +7,6 @@ import type { IndicatorSlug, CandleData } from '@/types'
 import { useTheme } from '@/hooks/useTheme'
 import { getChartColors } from '@/lib/chartColors'
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  교육용 최적 구간 자동 탐색 — 실제 MSFT 데이터에서 패턴이 가장 명확한 구간 선택
-// ═══════════════════════════════════════════════════════════════════════════
 
 type TLResult = {
   segment:   CandleData[]
@@ -19,71 +16,28 @@ type TLResult = {
   touches:   number[]  // 터치 봉 인덱스 배열
 }
 
-/**
- * 상승 추세선 최적 구간 탐색
- * - 65봉 슬라이딩 윈도우를 전체 데이터에 적용
- * - 로컬 저점 쌍을 앵커로 추세선을 테스트
- * - 터치 횟수 많고 이탈 적은 구간을 최고 점수로 선정
- * - 실제 시장 노이즈(약간의 이탈 허용)로 자연스러운 결과 보장
- */
-function findAscendingTrendline(data: CandleData[]): TLResult | null {
-  const W = 65
-  let best: TLResult | null = null
-  let bestScore = -Infinity
+function buildFixedTrendline(data: CandleData[]): TLResult | null {
+  const seg = data.filter(d => d.time >= '2022-10-01' && d.time <= '2024-12-31')
+  if (seg.length < 10) return null
 
-  for (let s = 0; s + W <= data.length; s += 3) {
-    const seg = data.slice(s, s + W)
+  const w1 = seg.filter(d => d.time >= '2023-01-20' && d.time <= '2023-02-10')
+  const w2 = seg.filter(d => d.time >= '2024-04-15' && d.time <= '2024-05-10')
+  if (!w1.length || !w2.length) return null
 
-    // 구간 전체 상승 여부 확인 (최소 7% 상승)
-    if (seg[W - 1].close < seg[0].close * 1.07) continue
+  const p1 = w1.reduce((m, d) => d.low < m.low ? d : m, w1[0])
+  const p2 = w2.reduce((m, d) => d.low < m.low ? d : m, w2[0])
+  const i1 = seg.findIndex(d => d.time === p1.time)
+  const i2 = seg.findIndex(d => d.time === p2.time)
+  if (i1 < 0 || i2 < 0 || i2 <= i1) return null
 
-    // 로컬 저점 탐색: 양쪽 4봉보다 낮은 봉
-    const mins: Array<{ i: number; v: number }> = []
-    for (let i = 4; i < W - 4; i++) {
-      let isMin = true
-      for (let k = i - 4; k <= i + 4; k++) {
-        if (k !== i && seg[k].low < seg[i].low) { isMin = false; break }
-      }
-      if (isMin) mins.push({ i, v: seg[i].low })
-    }
-    if (mins.length < 2) continue
-
-    // 저점 쌍을 추세선 앵커로 테스트
-    for (let a = 0; a < mins.length - 1; a++) {
-      for (let b = a + 1; b < mins.length; b++) {
-        const { i: i1, v: v1 } = mins[a]
-        const { i: i2, v: v2 } = mins[b]
-
-        if (i2 - i1 < 14) continue       // 최소 14봉 간격 필요
-        if (v2 <= v1 * 1.001) continue   // 반드시 상향 기울기
-
-        const slope = (v2 - v1) / (i2 - i1)
-        let violations = 0
-        const touches: number[] = []
-
-        for (let k = i1; k <= i2; k++) {
-          const tlV  = v1 + slope * (k - i1)
-          const diff = (seg[k].low - tlV) / tlV
-
-          // 실제 시장: 1.5% 이상 이탈은 violation, 2.5% 이내는 터치로 인정
-          if (diff < -0.015) violations++
-          else if (diff < 0.025) touches.push(k)
-        }
-
-        // 이탈 3봉 이내에서만 유효한 추세선으로 인정 (실제 시장의 자연스러운 노이즈 허용)
-        if (violations > 3) continue
-
-        // 점수: 터치 많을수록+, 이탈 적을수록+, 구간 길수록+
-        const score = touches.length * 5 - violations * 4 + (i2 - i1) / 8
-        if (score > bestScore) {
-          bestScore = score
-          best = { segment: seg, startIdx: i1, slope, baseValue: v1, touches }
-        }
-      }
-    }
+  const slope = (p2.low - p1.low) / (i2 - i1)
+  const touches: number[] = []
+  for (let k = i1; k <= i2; k++) {
+    const tlV  = p1.low + slope * (k - i1)
+    const diff = (seg[k].low - tlV) / tlV
+    if (diff >= -0.015 && diff < 0.025) touches.push(k)
   }
-
-  return best
+  return { segment: seg, startIdx: i1, slope, baseValue: p1.low, touches }
 }
 
 type FibResult = {
@@ -94,75 +48,32 @@ type FibResult = {
   bounceIdx:  number   // 되돌림 저점 인덱스 (segment 기준)
 }
 
-/**
- * 피보나치 되돌림 최적 구간 탐색
- * - 상승 → 되돌림 → 반등 구조를 1Y 전체에서 탐색
- * - 되돌림이 실제 피보나치 레벨 근처에서 멈추는 구간을 우선 선정
- * - 초보자가 "아, 여기서 지지받는구나"를 직관적으로 이해할 수 있는 구간
- */
-function findFibPattern(data: CandleData[]): FibResult | null {
-  let best: FibResult | null = null
-  let bestScore = -Infinity
+function buildFixedFibonacci(data: CandleData[]): FibResult | null {
+  const seg = data.filter(d => d.time >= '2022-12-01' && d.time <= '2023-05-31')
+  if (seg.length < 10) return null
 
-  const RALLY_W = 30
-  const RETR_W  = 35
+  const lowWindow  = seg.filter(d => d.time >= '2023-01-01' && d.time <= '2023-01-25')
+  const highWindow = seg.filter(d => d.time >= '2023-01-20' && d.time <= '2023-02-15')
+  if (!lowWindow.length || !highWindow.length) return null
 
-  for (let peakBar = RALLY_W; peakBar < data.length - RETR_W; peakBar++) {
-    // 직전 30봉에서 랠리 시작 저점 탐색
-    const s = Math.max(0, peakBar - RALLY_W)
-    let lowBar = s
-    for (let k = s; k < peakBar; k++) {
-      if (data[k].low < data[lowBar].low) lowBar = k
-    }
-
-    const rallyLow   = data[lowBar].low
-    const rallyHigh  = data[peakBar].high
-    const rallyRange = rallyHigh - rallyLow
-    const rallyPct   = rallyRange / rallyLow
-
-    if (rallyPct < 0.12 || rallyPct > 1.5) continue  // 12~150% 랠리만
-    if (peakBar - lowBar < 7) continue                // 최소 7봉 랠리
-
-    // 이후 35봉에서 되돌림 저점 탐색
-    const endBar = Math.min(data.length - 1, peakBar + RETR_W)
-    let pullBar = peakBar
-    let pullLow = rallyHigh
-    for (let k = peakBar + 1; k <= endBar; k++) {
-      if (data[k].low < pullLow) { pullLow = data[k].low; pullBar = k }
-    }
-
-    const retracePct = (rallyHigh - pullLow) / rallyRange
-    if (retracePct < 0.12 || retracePct > 0.88) continue
-
-    // 실제 피보나치 레벨과의 근접도 평가
-    const fibLevels = [0.236, 0.382, 0.5, 0.618, 0.786]
-    const closest   = fibLevels.reduce((b, l) =>
-      Math.abs(l - retracePct) < Math.abs(b - retracePct) ? l : b, 0.5)
-    const proximity = Math.max(0, 1 - Math.abs(retracePct - closest) * 9)
-
-    // 되돌림 이후 반등 확인 (최소 4% 회복해야 반등으로 인정)
-    if (pullBar >= endBar - 3) continue
-    const postHigh = Math.max(...data.slice(pullBar, endBar + 1).map(d => d.high))
-    const recovery = (postHigh - pullLow) / pullLow
-    if (recovery < 0.04) continue
-
-    // 점수: 랠리 크기 + 피보나치 레벨 근접도 + 반등 크기
-    const score = rallyPct * 30 + proximity * 45 + recovery * 15 + (pullBar - peakBar) / 5
-    if (score > bestScore) {
-      bestScore = score
-      const segStart = Math.max(0, lowBar - 3)
-      const segEnd   = Math.min(data.length - 1, pullBar + 12)
-      best = {
-        segment:    data.slice(segStart, segEnd + 1),
-        rallyLow,
-        rallyHigh,
-        closestFib: closest,
-        bounceIdx:  pullBar - segStart,
-      }
-    }
+  const lowCandle  = lowWindow.reduce( (m, d) => d.low  < m.low  ? d : m, lowWindow[0])
+  const highCandle = highWindow.reduce((m, d) => d.high > m.high ? d : m, highWindow[0])
+  const highIdx = seg.findIndex(d => d.time === highCandle.time)
+  let bounceIdx = Math.min(highIdx + 1, seg.length - 1)
+  for (let k = highIdx + 2; k < Math.min(seg.length, highIdx + 30); k++) {
+    if (seg[k].low < seg[bounceIdx].low) bounceIdx = k
   }
 
-  return best
+  const rallyLow   = lowCandle.low
+  const rallyHigh  = highCandle.high
+  const range      = rallyHigh - rallyLow
+  const bounceVal  = seg[bounceIdx].low
+  const retracePct = (rallyHigh - bounceVal) / range
+  const fibLevels  = [0.236, 0.382, 0.5, 0.618, 0.786]
+  const closestFib = fibLevels.reduce((b, l) =>
+    Math.abs(l - retracePct) < Math.abs(b - retracePct) ? l : b, 0.5)
+
+  return { segment: seg, rallyLow, rallyHigh, closestFib, bounceIdx }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -208,7 +119,8 @@ export function MiniChartPreview({ slug }: Props) {
   useEffect(() => {
     setLoading(true)
     setError(false)
-    fetch('/api/candles?symbol=MSFT&period=1Y&timeUnit=daily')
+    const period = (slug === 'trendline' || slug === 'fibonacci') ? 'ALL' : '1Y'
+    fetch(`/api/candles?symbol=MSFT&period=${period}&timeUnit=daily`)
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(d  => { setData(d); setLoading(false) })
       .catch(() => { setError(true); setLoading(false) })
@@ -224,10 +136,10 @@ export function MiniChartPreview({ slug }: Props) {
     let fibResult: FibResult | null = null
 
     if (slug === 'trendline') {
-      tlResult = findAscendingTrendline(data)
+      tlResult = buildFixedTrendline(data)
       preview  = tlResult?.segment ?? data.slice(-65)
     } else if (slug === 'fibonacci') {
-      fibResult = findFibPattern(data)
+      fibResult = buildFixedFibonacci(data)
       preview   = fibResult?.segment ?? data.slice(-60)
     } else if (slug === 'moving-average') {
       preview = data.slice(-200)
@@ -273,14 +185,6 @@ export function MiniChartPreview({ slug }: Props) {
           lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
         }).setData(d as any)
       )
-      const ma5  = calcMA(preview, 5)
-      const ma20 = calcMA(preview, 20)
-      const markers: any[] = []
-      for (let i = 1; i < Math.min(ma5.length, ma20.length); i++) {
-        if (ma5[i - 1].value < ma20[i - 1].value && ma5[i].value >= ma20[i].value)
-          markers.push({ time: ma5[i].time, position: 'belowBar', color: '#fbbf24', shape: 'arrowUp', text: '골든크로스' })
-      }
-      if (markers.length) candleSeries.setMarkers(markers.slice(-1) as any)
     }
 
     // ── 추세선: 자동 탐색된 최적 상승 지지선 ─────────────────
@@ -515,7 +419,7 @@ export function MiniChartPreview({ slug }: Props) {
       </div>
       {needsSub && <div ref={subRef} className="w-full rounded-xl overflow-hidden mt-0.5" />}
       <p className="text-right text-xs text-navi-border mt-1">
-        MSFT · 실제 데이터 최적 구간 자동 선택
+        MSFT · 실제 시장 데이터
       </p>
     </div>
   )
