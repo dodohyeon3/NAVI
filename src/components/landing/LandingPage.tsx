@@ -86,10 +86,12 @@ function BrowserChrome({ small = false, opacity = 1 }: { small?: boolean; opacit
 // ── MockupFrame — 스크린샷 브라우저 목업 ─────────────────────
 function MockupFrame({
   src, alt = '', small = false, glow = false, priority = false,
+  imgWidth = 3600, imgHeight = 2082,
   style = {},
 }: {
   src: string; alt?: string; small?: boolean
   glow?: boolean; priority?: boolean
+  imgWidth?: number; imgHeight?: number
   style?: React.CSSProperties
 }) {
   return (
@@ -113,7 +115,7 @@ function MockupFrame({
         <BrowserChrome small={small} />
         <Image
           src={src} alt={alt}
-          width={2880} height={1800}
+          width={imgWidth} height={imgHeight}
           className="w-full h-auto block"
           priority={priority}
           style={{ display: 'block' }}
@@ -521,6 +523,7 @@ export function LandingPage() {
             <MockupFrame
               src="/landing/shot-simulate.png"
               alt="NAVIchart 실전 챌린지 — 주가 예측 시뮬레이션"
+              imgWidth={2880} imgHeight={1800}
               glow
             />
           </motion.div>
@@ -644,7 +647,7 @@ export function LandingPage() {
               <Image
                 src="/landing/shot-chart-ind.png"
                 alt="NAVIchart 전체 화면"
-                width={2880} height={1800}
+                width={3600} height={2082}
                 className="w-full h-auto block"
                 style={{ display: 'block' }}
               />
