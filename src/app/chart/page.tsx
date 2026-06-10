@@ -40,7 +40,7 @@ function ChartPageInner() {
   const showVolume = chartShowVolume || (isActive && currentLessonKey === 'volume-learning')
 
   /* ── 튜토리얼 시작 조건 ─────────────────────────────────────
-     · ?onboard=1 쿼리: /tutorial 페이지에서 명시적으로 시작
+     · ?onboard=1 쿼리: 랜딩 CTA 에서 명시적으로 시작
      · 첫 방문(hasCompletedOnce === false): 자동 시작
   ─────────────────────────────────────────────────────────── */
   useEffect(() => {

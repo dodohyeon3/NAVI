@@ -1,17 +1,5 @@
 'use client'
 
-/**
- * LandingCTA — 홈 페이지 CTA 버튼 (Analytics 포함)
- *
- * 홈(/)은 Server Component 이므로 onClick을 직접 붙일 수 없다.
- * CTA 버튼만 분리해 Client Component 로 만들어 클릭 이벤트를 추적한다.
- *
- * 추적 이벤트:
- *   landing_cta_clicked  { destination: 'tutorial' | 'chart' }
- *
- * 이 이벤트로 랜딩 → 튜토리얼 시작 전환율을 측정할 수 있다.
- */
-
 import Link from 'next/link'
 import { trackEvent } from '@/lib/analytics'
 
@@ -21,8 +9,8 @@ export function LandingCTA() {
 
       {/* 주 CTA: 튜토리얼 시작 */}
       <Link
-        href="/tutorial"
-        onClick={() => trackEvent('landing_cta_clicked', { destination: 'tutorial' })}
+        href="/chart?onboard=1"
+        onClick={() => trackEvent('landing_cta_clicked', { destination: 'chart', trigger: 'tutorial' })}
         className="
           w-full h-[52px] flex items-center justify-center
           bg-navi-action text-white
